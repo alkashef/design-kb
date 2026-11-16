@@ -69,47 +69,51 @@ The level is per employee per skill block.
 
 ## 3. Functional Requirements
 
+Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The Type column shows the template: U = ubiquitous, E = event-driven (When), S = state-driven (While), O = optional feature (Where), X = unwanted behavior (If, then).
+
 ### 3.1 Search
-| ID | Requirement |
-|----|-------------|
-| FR-01 | The system shall accept a free-text query. |
-| FR-02 | The system shall match the query to employees by meaning (semantic search), not by keywords. |
-| FR-03 | The system shall allow optional filters: team, career level and minimum skill level. |
-| FR-04 | The system shall apply the filters first, then rank the remaining employees by semantic match. |
-| FR-05 | The system shall show a ranked list. Each result shall show name, job title, team, top matching skills and a short reason for the match. |
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-01 | E | When the user submits a free-text query, the system shall return employees ranked by semantic match to the query. |
+| FR-02 | U | The system shall match a query to employees by meaning, not by keywords. |
+| FR-03 | U | The system shall offer these optional filters: team, career level and minimum skill level. |
+| FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
+| FR-05 | U | The system shall show each search result with name, job title, team, top matching skills and a short reason for the match. |
 
 ### 3.2 Profile
-| ID | Requirement |
-|----|-------------|
-| FR-10 | The system shall show a profile page for one employee. |
-| FR-11 | The profile shall show all employee attributes, the skill level for each block, and each project with its assignment details. |
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-10 | E | When the user opens an employee, the system shall show a profile page for that employee. |
+| FR-11 | U | The profile page shall show all employee attributes, the skill level for each skill block, and each project with its assignment details. |
 
 ### 3.3 Data entry
-| ID | Requirement |
-|----|-------------|
-| FR-20 | The user shall create and edit employees. |
-| FR-21 | The user shall create and edit projects. |
-| FR-22 | The user shall create and edit assignments. |
-| FR-23 | The user shall set the Aware flag and the Expert flag on a skill block for an employee. |
-| FR-24 | The system shall allow the Aware flag only when the employee has no assignment in that block. |
-| FR-25 | The system shall compute levels 2, 3 and 4 from assignments. The user shall not enter them. |
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-20 | U | The system shall allow the user to create and edit employees. |
+| FR-21 | U | The system shall allow the user to create and edit projects. |
+| FR-22 | U | The system shall allow the user to create and edit assignments. |
+| FR-23 | U | The system shall allow the user to set the Aware flag and the Expert flag on a skill block for an employee. |
+| FR-24 | X | If the user sets the Aware flag on a skill block where the employee has an assignment, then the system shall reject the change and show a message. |
+| FR-25 | U | The system shall compute levels 2, 3 and 4 from assignments. |
+| FR-26 | X | If the user tries to enter level 2, 3 or 4 directly, then the system shall not accept the entry. |
+| FR-27 | S | While the Expert flag is set on a skill block, the system shall show level 5 for that block, whatever the computed level. |
 
 ### 3.4 Settings
-| ID | Requirement |
-|----|-------------|
-| FR-30 | The user shall create, rename and delete skill categories and skill blocks. |
-| FR-31 | The user shall set the number of lead and member assignments required for each computed level (2, 3, 4). |
-| FR-32 | The default thresholds shall be those in section 2.5. |
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-30 | U | The system shall allow the user to create, rename and delete skill categories and skill blocks. |
+| FR-31 | U | The system shall allow the user to set the number of lead and member assignments required for each computed level (2, 3 and 4). |
+| FR-32 | U | The system shall use the default thresholds in section 2.5 until the user changes them. |
 
 ## 4. Non-Functional Requirements
-| ID | Requirement |
-|----|-------------|
-| NFR-01 | The user interface shall be a web UI for desktop browsers only. Mobile is not supported. |
-| NFR-02 | The system shall have no login and no roles. One local user has full access. |
-| NFR-03 | The system shall run on one machine. |
-| NFR-04 | The system shall include fake seed data: 40 employees, 15 projects, 6 skill categories and about 30 skill blocks. |
-| NFR-05 | The seed data shall give levels that match the assignments. |
-| NFR-06 | The seed data shall have no real employee data. |
+| ID | Type | Requirement |
+|----|------|-------------|
+| NFR-01 | U | The system shall provide a web UI for desktop browsers only. |
+| NFR-02 | U | The system shall not require login or roles. One local user shall have full access. |
+| NFR-03 | U | The system shall run on one machine. |
+| NFR-04 | U | The system shall include fake seed data: 40 employees, 15 projects, 6 skill categories and about 30 skill blocks. |
+| NFR-05 | U | The seed data shall give skill levels that match the assignments. |
+| NFR-06 | U | The system shall contain no real employee data. |
 
 ## 5. Constraints
 - The system stores data in a vector store and uses embeddings (see `design.md`).
