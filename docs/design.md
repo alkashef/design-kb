@@ -24,6 +24,8 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-14 | Decided | Show the matching text as the reason for the match. Experience search shows the best matching assignment (D-11). Gap search shows the skill gap text. No LLM is used. | Needs no extra processing. The matching text is the evidence (FR-05). |
 | D-15 | Decided | Use LanceDB as the vector store. Keep structured records (employees, projects, flags, skill tree, settings) in tables with no vector column. Keep the assignment vectors and profile vectors in their own tables, linked by ID. | Embedded, so no server is needed (NFR-03). Stores structured tables and supports field filters. Verify at build time that a vector search can be limited to a set of employee IDs (D-04). |
 | D-16 | Decided | Use `qwen3-embedding:0.6b`, run through Ollama on the same machine, as the starting embedding model. Fallback: `nomic-embed-text`. Make the model a single setting. | Runs locally with no API key. Handles technical vocabulary better than smaller models. Example searches 1 to 3 (AC-01) decide whether to swap it. |
+| D-17 | Decided | Use the "Graphite" visual style: dark theme, Inter with JetBrains Mono details, mint accent. | Chosen from 3 styles on the UI canvas: https://claude.ai/artifact/VYZEh8JbCKG2AAPS81wozN |
+| D-18 | Decided | The landing page is search. Its layout is the split view: sidebar, a narrow result list, and a preview panel for the selected employee. | Lets the user inspect a candidate without leaving the page. Chosen from 3 layouts (L1 to L3) on the UI canvas. |
 
 ## Open Design Questions
 
