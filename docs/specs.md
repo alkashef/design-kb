@@ -87,6 +87,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | FR-11 | U | The profile page shall give a 360 view: all employee attributes, the skill level for every sub-skill in every skill, and each project with its assignment details. |
 | FR-12 | E | When the user selects a sub-skill, the system shall list all employees with a level in that sub-skill, sorted by level, highest first. |
 | FR-13 | E | When the user selects a skill, the system shall list all employees with a level in any sub-skill of that skill, with their level in each sub-skill. |
+| FR-14 | E | When the user selects an x-axis dimension, a y-axis dimension and a value, the system shall draw a matrix that colors each intersection by that value. Example: employees by sub-skills, colored by skill level. |
 
 ### 3.3 Data entry
 | ID | Type | Requirement |
@@ -143,3 +144,4 @@ The PoC passes when AC-01 is met.
 |----|------|------------------|
 | OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
 | OI-02 | The meaning of "block" (a tag for a sub-skill, such as VCO, PLL or CDR) and where levels attach are not settled. | See question in session. |
+| OI-03 | FR-14 does not yet say which dimensions and values the user may pick. "Any x, any y" is open-ended. | Axes: employee, team, skill, sub-skill. Value: skill level only. |
