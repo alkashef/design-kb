@@ -24,3 +24,4 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | DQ-02 | Which vector store and which embedding model? |
 | DQ-03 | How does the system produce the "short reason for the match" (FR-05)? For example, show the best matching assignment description. |
 | DQ-04 | When data changes, how does the system update the embeddings? For example, re-embed the employee on every save. |
+| DQ-05 | Filters on a leaf's minimum level (D-04) need levels in the vector store metadata. D-05 says levels are not stored. Resolve by storing a copy that updates on every save, or by filtering after retrieval. |

@@ -34,7 +34,6 @@ One user type. The user has full access. There is no login (see NFR-02).
 | Job title | |
 | Career level | |
 | Team/group | |
-| Process technologies | List of process names, such as "TSMC 7nm". No level or count. |
 | Skill gaps | Free text. Entered manually. |
 
 ### 2.2 Skill tree
@@ -49,6 +48,7 @@ One user type. The user has full access. There is no login (see NFR-02).
 | Project name | |
 | Description | Short text. |
 | Year | |
+| Process technology | Name, such as "TSMC 7nm". An employee's process experience comes from the projects they worked on. |
 
 ### 2.4 Assignment (employee on a project)
 | Attribute | Notes |
@@ -138,7 +138,7 @@ The PoC passes when AC-01 is met.
 ### Example searches for AC-01
 | # | Query | Expected person |
 |---|-------|-----------------|
-| 1 | Who has led a PLL design in a 7nm process? | A seed employee with level 3 or 4 in PLL and 7nm in process technologies. |
+| 1 | Who has led a PLL design in a 7nm process? | A seed employee with level 3 or 4 in PLL who worked on a 7nm project. |
 | 2 | Who has experience recovering a clock from a serial data stream? | A seed employee with level 2 or higher in the CDR leaf. The query does not contain the word "CDR". |
 | 3 | Query: low-noise amplifier design. Filters: team = Analog, career level = Senior. | A senior seed employee in the Analog team with a level in a low-noise amplifier leaf. |
 
@@ -153,3 +153,4 @@ The PoC passes when AC-01 is met.
 ## 8. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
+| OI-01 | Does a project have one process technology or several? | One. |
