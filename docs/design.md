@@ -15,13 +15,14 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-05 | Proposed | Do not store levels 2, 3 and 4. Compute them from assignments when needed. Store only the Aware and Expert flags. | Levels cannot go out of date or contradict the assignments (FR-25, FR-26, FR-27). |
 | D-06 | Proposed | Store the skill tree as nodes, each with a link to its parent. | Supports any depth and uneven branches (section 2.2). A leaf is a node with no children. |
 | D-07 | Proposed | Build the UI as a web app for desktop browsers. Run it on one machine with no login. | Meets NFR-01, NFR-02 and NFR-03. |
+| D-08 | Decided | Store one vector per assignment. Group the results by employee and rank the employees. | Matches precisely, such as "led PLL in 7nm" (example search 1). The text of each vector holds the leaf name and its path in the tree, participation, assignment description and the project's process technology. Employee metadata (team, career level) is copied onto each vector for the filters. |
 
 ## Open Design Questions
 
 | ID | Question |
 |----|----------|
-| DQ-01 | What is the embedded unit? One document per employee, or one per assignment? This sets what the vector store returns. |
 | DQ-02 | Which vector store and which embedding model? |
 | DQ-03 | How does the system produce the "short reason for the match" (FR-05)? For example, show the best matching assignment description. |
 | DQ-04 | When data changes, how does the system update the embeddings? For example, re-embed the employee on every save. |
 | DQ-05 | Filters on a leaf's minimum level (D-04) need levels in the vector store metadata. D-05 says levels are not stored. Resolve by storing a copy that updates on every save, or by filtering after retrieval. |
+| DQ-06 | An employee with no assignments has no vector, so search cannot find an employee who has only Aware flags or skill gaps. Options: accept this for the PoC, or add one profile vector per employee. |
