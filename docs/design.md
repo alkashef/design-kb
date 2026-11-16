@@ -23,9 +23,11 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-13 | Decided | Re-embed an assignment vector when its assignment, its project's process technology or its leaf name changes. Re-embed a profile vector when the skill gaps change. A change to team or career level needs no re-embedding. | Keeps vectors current at the lowest cost. Filters read the structured records (D-04), so they do not depend on the vectors. |
 | D-14 | Decided | Show the matching text as the reason for the match. Experience search shows the best matching assignment (D-11). Gap search shows the skill gap text. No LLM is used. | Needs no extra processing. The matching text is the evidence (FR-05). |
 | D-15 | Decided | Use LanceDB as the vector store. Keep structured records (employees, projects, flags, skill tree, settings) in tables with no vector column. Keep the assignment vectors and profile vectors in their own tables, linked by ID. | Embedded, so no server is needed (NFR-03). Stores structured tables and supports field filters. Verify at build time that a vector search can be limited to a set of employee IDs (D-04). |
+| D-16 | Decided | Use `qwen3-embedding:0.6b`, run through Ollama on the same machine, as the starting embedding model. Fallback: `nomic-embed-text`. Make the model a single setting. | Runs locally with no API key. Handles technical vocabulary better than smaller models. Example searches 1 to 3 (AC-01) decide whether to swap it. |
 
 ## Open Design Questions
 
 | ID | Question |
 |----|----------|
-| DQ-02 | Which embedding model? |
+
+None.
