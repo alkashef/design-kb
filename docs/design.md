@@ -20,6 +20,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-10 | Decided | Experience search queries only the assignment vectors. Gap search queries only the profile vectors. Each search mode returns a ranked list of employees. | Two separate searches, each with its own vector type. |
 | D-11 | Decided | Rank an employee by the score of their best matching assignment vector. | One strong match is what experience search looks for. The best assignment also gives the "short reason for the match" (FR-05). |
 | D-12 | Superseded | Was: store a copy of levels in the metadata of each vector. | Replaced by D-04. The copy came from the wrong assumption that the store holds only vectors. |
+| D-13 | Decided | Re-embed an assignment vector when its assignment, its project's process technology or its leaf name changes. Re-embed a profile vector when the skill gaps change. A change to team or career level needs no re-embedding. | Keeps vectors current at the lowest cost. Filters read the structured records (D-04), so they do not depend on the vectors. |
 
 ## Open Design Questions
 
@@ -27,4 +28,3 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 |----|----------|
 | DQ-02 | Which vector store and which embedding model? The store must hold structured records, query them by field, keep records with no vector (the skill tree, settings, employees with no assignments), and restrict a vector search to a given set of employee IDs (D-04). |
 | DQ-03 | How does gap search produce the "short reason for the match" (FR-05)? For example, show the skill gap text. |
-| DQ-04 | When data changes, which vectors does the system re-embed? Proposal: re-embed an assignment vector when its assignment, its project's process technology or its leaf name changes. Re-embed a profile vector when the skill gaps change. A change to team or career level needs no re-embedding. |
