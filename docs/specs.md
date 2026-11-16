@@ -12,14 +12,28 @@ This document states the requirements for `design-kb`. Design choices are in `de
 
 This is a proof of concept (PoC). It proves the idea. It is not a full product. It also teaches vector stores.
 
-### 1.3 Definitions
+### 1.3 Glossary
 | Term | Meaning |
 |------|---------|
-| Skill tree | The hierarchy of skills that the user defines. It has any number of levels. |
-| Node | One item in the skill tree, such as "Circuit design", "PLL" or "VCO". |
+| Assignment | The work of one employee on one leaf of one project. |
+| Aware | Level 1. General knowledge from coursework or textbooks, with no project work in the leaf. |
+| Career level | The employee's seniority grade, such as junior or senior. |
+| EARS | Easy Approach to Requirements Syntax. A set of sentence templates for requirements. |
+| Embedding | A list of numbers that represents the meaning of a text. Texts with similar meaning have similar embeddings. |
+| Expert | Level 5. Set manually on any leaf. |
+| IC | Integrated circuit. |
+| Lead | Participation value. The employee led the design work on a leaf in a project. Also the name of level 3. |
 | Leaf | A node with no children. Levels and assignments attach to leaves. |
-| Assignment | The work of one employee on one project. |
+| Level | The experience of one employee in one leaf, on a scale of 1 to 5 (section 2.5). |
+| Member | Participation value. The employee worked on a leaf in a project but did not lead it. |
+| Node | One item in the skill tree, such as "Circuit design", "PLL" or "VCO". |
+| PoC | Proof of concept. A demo that proves an idea. It is not a full product. |
+| Process technology | The chip manufacturing process of a project, such as "TSMC 7nm". |
+| Seed data | The fake data that the demo loads at the start. |
 | Semantic search | Search that matches meaning, not keywords. |
+| Skill gap | A skill the employee lacks or needs to build. Free text, entered manually. |
+| Skill tree | The hierarchy of skills that the user defines. It has any number of levels. |
+| Vector store | A database that stores embeddings and finds the ones nearest to a query embedding. |
 
 ### 1.4 Users
 One user type. The user has full access. There is no login (see NFR-02).
@@ -131,7 +145,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ## 6. Acceptance Criteria
 | ID | Type | Criterion |
 |----|------|-----------|
-| AC-01 | E | When the demo runs the 3 example searches in OI-01, the system shall show the expected person in the top 5 results of each search. |
+| AC-01 | E | When the demo runs the 3 example searches below, the system shall show the expected person in the top 5 results of each search. |
 
 The PoC passes when AC-01 is met.
 
@@ -150,6 +164,22 @@ The PoC passes when AC-01 is met.
 - Mobile support.
 - Matrix view (any axes, any value). Dropped for the PoC.
 
-## 8. Open Items
+## 8. Assumptions
+Source: **Owner** means the product owner stated it. **Inferred** means Claude derived it. The product owner has not confirmed it.
+
+| ID | Assumption | Source |
+|----|------------|--------|
+| A-01 | A project has one process technology. | Owner |
+| A-02 | An employee's process experience comes only from the projects they worked on. | Owner |
+| A-03 | One assignment covers one leaf. | Owner |
+| A-04 | Each node in the skill tree has one parent. | Owner |
+| A-05 | Only leaves have levels. Parent nodes have none. | Owner |
+| A-06 | Skill gaps are free text. They are not linked to the skill tree. | Owner |
+| A-07 | An employee has one job title, one career level and one team. | Inferred |
+| A-08 | An employee has at most one assignment for each project and leaf. So the number of assignments equals the number of projects in the level rules. | Inferred |
+| A-09 | The data is small (about 40 employees). The PoC has no performance target. | Inferred |
+| A-10 | The system keeps no change history or audit trail. | Inferred |
+
+## 9. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
