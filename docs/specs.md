@@ -80,11 +80,13 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
 | FR-05 | U | The system shall show each search result with name, job title, team, top matching skills and a short reason for the match. |
 
-### 3.2 Profile
+### 3.2 Views
 | ID | Type | Requirement |
 |----|------|-------------|
 | FR-10 | E | When the user opens an employee, the system shall show a profile page for that employee. |
-| FR-11 | U | The profile page shall show all employee attributes, the skill level for each skill block, and each project with its assignment details. |
+| FR-11 | U | The profile page shall give a 360 view: all employee attributes, the skill level for every skill block in every skill category, and each project with its assignment details. |
+| FR-12 | E | When the user selects a skill block, the system shall list all employees with a level in that block, sorted by level, highest first. |
+| FR-13 | E | When the user selects a skill category, the system shall list all employees with a level in any block of that category, with their level in each block. |
 
 ### 3.3 Data entry
 | ID | Type | Requirement |
@@ -130,5 +132,5 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ## 7. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-03 | The filter set (team, career level, minimum skill level) was inferred, not confirmed. | As in FR-03. |
+| OI-03 | "Certain skill" in the request for a block view and a skill view may mean a skill category. FR-13 assumes this. | Skill category. |
 | OI-04 | Delete rules for employees, projects and assignments are not defined. | Allow delete. |
