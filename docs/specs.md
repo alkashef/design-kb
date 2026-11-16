@@ -87,7 +87,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | ID | Type | Requirement |
 |----|------|-------------|
 | FR-10 | E | When the user opens an employee, the system shall show a profile page for that employee. |
-| FR-11 | U | The profile page shall give a 360 view: all employee attributes, the skill level for every block in every skill, and each project with its assignment details. |
+| FR-11 | U | The profile page shall give a 360 view: all employee attributes, the level for every block under every skill and sub-skill, and each project with its assignment details. |
 | FR-12 | E | When the user selects a block, the system shall list all employees with a level in that block, sorted by level, highest first. |
 | FR-13 | E | When the user selects a skill, the system shall list all employees with a level in any block of that skill, with their level in each block. |
 | FR-14 | E | When the user selects an x-axis dimension, a y-axis dimension and a value, the system shall draw a matrix that colors each intersection by that value. Example: employees by blocks, colored by skill level. |
