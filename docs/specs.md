@@ -59,7 +59,7 @@ One user type. The user has full access. There is no login (see NFR-02).
 | Employee | |
 | Project | |
 | Leaf | The one leaf the employee worked on. An employee who worked on 2 leaves in a project has 2 assignments. |
-| Participation | Lead or member of the block design. |
+| Participation | Lead or member of the design work on that leaf. |
 | Role description | Free text. |
 
 ### 2.5 Skill level
