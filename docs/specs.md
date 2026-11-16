@@ -99,6 +99,7 @@ The system has two search modes. Experience search looks for people with the exp
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
 | FR-05 | U | The system shall show each search result with name, job title, team and a short reason for the match. In experience search, the result shall also show the top matching leaves. |
 | FR-06 | E | When the user submits a free-text query in gap search, the system shall return employees ranked by semantic match between the query and their skill gaps. |
+| FR-07 | E | When the user applies one or more filters and enters no query text, the system shall list all employees that meet the filters. |
 
 ### 3.2 Views
 | ID | Type | Requirement |
@@ -186,4 +187,3 @@ Source: **Owner** means the product owner stated it. **Inferred** means Claude d
 ## 9. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-01 | Can the user search with filters only and no text? An Aware-only employee has no assignment, so only a filter can find them. | Yes. The system lists all employees that meet the filters. |
