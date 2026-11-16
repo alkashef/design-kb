@@ -52,7 +52,7 @@ One user type. The user has full access. There is no login (see NFR-02).
 |-----------|-------|
 | Employee | |
 | Project | |
-| Skill block | The block the employee worked on. |
+| Skill block | The one block the employee worked on. An employee who worked on 2 blocks in a project has 2 assignments. |
 | Participation | Lead or member of the block design. |
 | Role description | Free text. |
 
@@ -130,7 +130,6 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ## 7. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-01 | One assignment may cover one block or several blocks. | One or more blocks. |
 | OI-02 | The "minimum skill level" filter needs a skill block to apply to. | The user picks a block, then a minimum level. |
 | OI-03 | The filter set (team, career level, minimum skill level) was inferred, not confirmed. | As in FR-03. |
 | OI-04 | Delete rules for employees, projects and assignments are not defined. | Allow delete. |
