@@ -7,3 +7,4 @@ Design decisions for `design-kb`, a proof of concept (PoC). Requirements are in 
 | D-01 | Store people records in a vector store. | The PoC teaches vector stores. |
 | D-02 | Use embeddings to implement semantic search. | Meets the requirement to match meaning, not keywords. |
 | D-03 | Generate fake data for the demo. | No real employee data is needed to prove the idea. |
+| D-04 | Implement the search filters as vector store metadata filters. | Teaches filtered vector search. Meets FR-04. |
