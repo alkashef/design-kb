@@ -90,7 +90,10 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | FR-11 | U | The profile page shall give a 360 view: all employee attributes, the level for every leaf, and each project with its assignment details. |
 | FR-12 | E | When the user selects a leaf, the system shall list all employees with a level in that leaf, sorted by level, highest first. |
 | FR-13 | E | When the user selects a node, the system shall list all employees with a level in any leaf under that node, with their level in each leaf. |
-| FR-14 | E | When the user selects an x-axis dimension, a y-axis dimension and a value, the system shall draw a matrix that colors each intersection by that value. Example: employees by leaves, colored by skill level. |
+| FR-14 | E | When the user selects an x-axis dimension, a y-axis dimension and a value, the system shall draw a matrix that colors each intersection by that value. Example: employees by leaves, colored by level. |
+| FR-15 | U | The system shall offer these dimensions for either axis: employee, team, career level, job title, process technology, project and skill tree node. |
+| FR-16 | U | The system shall offer these values: level, number of assignments, number of lead assignments and number of member assignments. |
+| FR-17 | E | When an intersection covers more than one employee, leaf or assignment, the system shall combine them with an aggregation function the user selects. |
 
 ### 3.3 Data entry
 | ID | Type | Requirement |
@@ -147,5 +150,5 @@ The PoC passes when AC-01 is met.
 | ID | Item | Proposed default |
 |----|------|------------------|
 | OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
-| OI-03 | FR-14 does not yet say which dimensions and values the user may pick. "Any x, any y" is open-ended. | Axes: employee, team, leaf. Value: skill level only. |
+| OI-03 | Which aggregation functions does FR-17 offer? A team by leaf, or a parent node by employee, covers many values. | Max, average and count. |
 | OI-04 | "Draw/define" the skill tree: a visual editor (drag and drop) or a form-based outline editor (indented list). | Outline editor. |
