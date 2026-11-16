@@ -135,6 +135,11 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 
 The PoC passes when AC-01 is met.
 
+### Example searches for AC-01
+| # | Query | Expected person |
+|---|-------|-----------------|
+| 1 | Who has led a PLL design in a 7nm process? | A seed employee with level 3 or 4 in PLL and 7nm in process technologies. |
+
 ## 7. Out of Scope
 - Staffing engineers into projects.
 - Target role profiles and computed skill gaps.
@@ -146,4 +151,4 @@ The PoC passes when AC-01 is met.
 ## 8. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
+| OI-01 | Example searches 2 and 3 for AC-01 are not yet defined. | Write them with the seed data. |
