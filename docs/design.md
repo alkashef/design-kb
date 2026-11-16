@@ -16,7 +16,8 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-06 | Proposed | Store the skill tree as nodes, each with a link to its parent. | Supports any depth and uneven branches (section 2.2). A leaf is a node with no children. |
 | D-07 | Proposed | Build the UI as a web app for desktop browsers. Run it on one machine with no login. | Meets NFR-01, NFR-02 and NFR-03. |
 | D-08 | Decided | Store one vector per assignment. Group the results by employee and rank the employees. | Matches precisely, such as "led PLL in 7nm" (example search 1). The text of each vector holds the leaf name and its path in the tree, participation, assignment description and the project's process technology. Employee metadata (team, career level) is copied onto each vector for the filters. |
-| D-09 | Decided | Also store one profile vector per employee. Its text holds job title, team, career level, skill gaps, and the leaves with an Aware or Expert flag. | Makes employees without assignments searchable. Meets the need that Aware and Expert flags work with search and filters. |
+| D-09 | Decided | Also store one profile vector per employee. Its text holds the skill gaps. | Serves gap search. Aware and Expert flags are not embedded. Filters handle them. |
+| D-10 | Decided | Experience search queries only the assignment vectors. Gap search queries only the profile vectors. Each search mode returns a ranked list of employees. | Two separate searches, each with its own vector type. |
 
 ## Open Design Questions
 
@@ -26,4 +27,4 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | DQ-03 | How does the system produce the "short reason for the match" (FR-05)? For example, show the best matching assignment description. |
 | DQ-04 | When data changes, how does the system update the embeddings? For example, re-embed the employee on every save. |
 | DQ-05 | Filters on a leaf's minimum level (D-04) need levels in the vector store metadata. D-05 says levels are not stored. Resolve by storing a copy that updates on every save, or by filtering after retrieval. |
-| DQ-07 | An employee can match through several vectors (assignments and profile). How does the system combine their scores into one rank per employee? |
+| DQ-07 | An employee can have several assignment vectors that match. How does the system combine their scores into one rank per employee? |

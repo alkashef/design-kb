@@ -89,13 +89,16 @@ The level is per employee per leaf.
 Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The Type column shows the template: U = ubiquitous, E = event-driven (When), S = state-driven (While), O = optional feature (Where), X = unwanted behavior (If, then).
 
 ### 3.1 Search
+The system has two search modes. Experience search looks for people with the experience in the query. Gap search looks for people with the skill gap in the query. Both return a ranked list of employees.
+
 | ID | Type | Requirement |
 |----|------|-------------|
-| FR-01 | E | When the user submits a free-text query, the system shall return employees ranked by semantic match to the query. |
+| FR-01 | E | When the user submits a free-text query in experience search, the system shall return employees ranked by semantic match between the query and their assignments. |
 | FR-02 | U | The system shall match a query to employees by meaning, not by keywords. |
-| FR-03 | U | The system shall offer these optional filters: team, career level, and one leaf with a minimum level for that leaf. The Aware and Expert flags count as levels 1 and 5 in this filter. |
+| FR-03 | U | The system shall offer these optional filters: team, career level, and one leaf with a minimum level for that leaf. The Aware and Expert flags count as levels 1 and 5 in this filter. The filters apply to both search modes. |
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
-| FR-05 | U | The system shall show each search result with name, job title, team, top matching leaves and a short reason for the match. |
+| FR-05 | U | The system shall show each search result with name, job title, team and a short reason for the match. In experience search, the result shall also show the top matching leaves. |
+| FR-06 | E | When the user submits a free-text query in gap search, the system shall return employees ranked by semantic match between the query and their skill gaps. |
 
 ### 3.2 Views
 | ID | Type | Requirement |
@@ -183,3 +186,4 @@ Source: **Owner** means the product owner stated it. **Inferred** means Claude d
 ## 9. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
+| OI-01 | Can the user search with filters only and no text? An Aware-only employee has no assignment, so only a filter can find them. | Yes. The system lists all employees that meet the filters. |
