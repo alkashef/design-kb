@@ -8,7 +8,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 
 | ID | Status | Decision | Reason |
 |----|--------|----------|--------|
-| D-01 | Decided | Store people records in a vector store. | The PoC teaches vector stores. |
+| D-01 | Decided | Use one vector store that holds both structured data and embeddings. It stores all records: employees, projects, assignments, flags, the skill tree and settings. There is no separate database. | The PoC teaches vector stores. |
 | D-02 | Decided | Use embeddings to implement semantic search. | Meets FR-02. |
 | D-03 | Decided | Generate fake data for the demo. | No real employee data is needed to prove the idea (NFR-04, NFR-06). |
 | D-04 | Proposed | Implement the search filters (team, career level, leaf with minimum level) as vector store metadata filters. | Teaches filtered vector search. Meets FR-04. |
@@ -25,7 +25,6 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 
 | ID | Question |
 |----|----------|
-| DQ-02 | Which vector store and which embedding model? |
+| DQ-02 | Which vector store and which embedding model? The store must hold structured records, filter on their fields (D-12), and keep records that have no vector, such as the skill tree, settings and employees with no assignments. |
 | DQ-03 | How does gap search produce the "short reason for the match" (FR-05)? For example, show the skill gap text. |
 | DQ-04 | When data changes, how does the system update the embeddings? For example, re-embed the employee on every save. |
-| DQ-08 | D-01 says people records live in the vector store. Filter-only search (FR-07), flags, the skill tree and settings also need a normal database. Is there a separate primary database, with the vector store as a search index? |
