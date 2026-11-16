@@ -124,14 +124,22 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 - The system stores data in a vector store and uses embeddings (see `design.md`).
 - The data is entered manually.
 
-## 6. Out of Scope
+## 6. Acceptance Criteria
+| ID | Type | Criterion |
+|----|------|-----------|
+| AC-01 | E | When the demo runs the 3 example searches in OI-01, the system shall show the expected person in the top 5 results of each search. |
+
+The PoC passes when AC-01 is met.
+
+## 7. Out of Scope
 - Staffing engineers into projects.
 - Target role profiles and computed skill gaps.
 - A team skill-gap report.
 - Login, roles and access control.
 - Mobile support.
-- Success criteria for the PoC. The product owner chose not to define them. Without them, the team cannot show that the PoC worked.
 
-## 7. Open Items
+## 8. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
+| OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
+| OI-02 | The meaning of "block" (a tag for a sub-skill, such as VCO, PLL or CDR) and where levels attach are not settled. | See question in session. |
