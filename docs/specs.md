@@ -99,6 +99,8 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | FR-25 | U | The system shall compute levels 2, 3 and 4 from assignments. |
 | FR-26 | X | If the user tries to enter level 2, 3 or 4 directly, then the system shall not accept the entry. |
 | FR-27 | S | While the Expert flag is set on a skill block, the system shall show level 5 for that block, whatever the computed level. |
+| FR-28 | U | The system shall allow the user to delete employees, projects and assignments. |
+| FR-29 | E | When the user deletes an employee or a project, the system shall also delete the assignments that refer to it. |
 
 ### 3.4 Settings
 | ID | Type | Requirement |
@@ -133,4 +135,4 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | ID | Item | Proposed default |
 |----|------|------------------|
 | OI-03 | "Certain skill" in the request for a block view and a skill view may mean a skill category. FR-13 assumes this. | Skill category. |
-| OI-04 | Delete rules for employees, projects and assignments are not defined. | Allow delete. |
+| OI-05 | The effect of deleting a skill block (FR-30) on its assignments, flags and levels is not defined. | Block delete is refused while assignments or flags refer to it. |
