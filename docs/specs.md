@@ -76,7 +76,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 |----|------|-------------|
 | FR-01 | E | When the user submits a free-text query, the system shall return employees ranked by semantic match to the query. |
 | FR-02 | U | The system shall match a query to employees by meaning, not by keywords. |
-| FR-03 | U | The system shall offer these optional filters: team, career level and minimum skill level. |
+| FR-03 | U | The system shall offer these optional filters: team, career level, and one skill block with a minimum level for that block. |
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
 | FR-05 | U | The system shall show each search result with name, job title, team, top matching skills and a short reason for the match. |
 
@@ -130,6 +130,5 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ## 7. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-02 | The "minimum skill level" filter needs a skill block to apply to. | The user picks a block, then a minimum level. |
 | OI-03 | The filter set (team, career level, minimum skill level) was inferred, not confirmed. | As in FR-03. |
 | OI-04 | Delete rules for employees, projects and assignments are not defined. | Allow delete. |
