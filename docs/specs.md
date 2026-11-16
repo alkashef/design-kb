@@ -56,6 +56,11 @@ One user type. The user has full access. There is no login (see NFR-02).
 - The tree has no fixed depth. Branches may differ in depth.
 - Levels and assignments attach to leaves.
 
+| Node attribute | Notes |
+|----------------|-------|
+| Name | Such as "CDR". |
+| Description | Optional free text, such as "Clock and data recovery". |
+
 ### 2.3 Project
 | Attribute | Notes |
 |-----------|-------|
@@ -126,7 +131,7 @@ The system has two search modes. Experience search looks for people with the exp
 ### 3.4 Settings
 | ID | Type | Requirement |
 |----|------|-------------|
-| FR-30 | U | The system shall provide an outline editor (an indented list with add, rename and delete actions) for the user to define the skill tree. |
+| FR-30 | U | The system shall provide an outline editor (an indented list with add, rename, describe and delete actions) for the user to define the skill tree, including the optional description of each node. |
 | FR-31 | U | The system shall allow the user to set the number of lead and member assignments required for each computed level (2, 3 and 4). |
 | FR-32 | U | The system shall use the default thresholds in section 2.5 until the user changes them. |
 | FR-33 | X | If the user deletes a node that has children, or a leaf that has assignments or flags, then the system shall refuse the deletion and show a message. |
