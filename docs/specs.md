@@ -140,6 +140,7 @@ The PoC passes when AC-01 is met.
 |---|-------|-----------------|
 | 1 | Who has led a PLL design in a 7nm process? | A seed employee with level 3 or 4 in PLL and 7nm in process technologies. |
 | 2 | Who has experience recovering a clock from a serial data stream? | A seed employee with level 2 or higher in the CDR leaf. The query does not contain the word "CDR". |
+| 3 | Query: low-noise amplifier design. Filters: team = Analog, career level = Senior. | A senior seed employee in the Analog team with a level in a low-noise amplifier leaf. |
 
 ## 7. Out of Scope
 - Staffing engineers into projects.
@@ -152,4 +153,3 @@ The PoC passes when AC-01 is met.
 ## 8. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-01 | Example search 3 for AC-01 is not yet defined. | Write it with the seed data. |
