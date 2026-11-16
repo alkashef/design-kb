@@ -93,7 +93,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 |----|------|-------------|
 | FR-01 | E | When the user submits a free-text query, the system shall return employees ranked by semantic match to the query. |
 | FR-02 | U | The system shall match a query to employees by meaning, not by keywords. |
-| FR-03 | U | The system shall offer these optional filters: team, career level, and one leaf with a minimum level for that leaf. |
+| FR-03 | U | The system shall offer these optional filters: team, career level, and one leaf with a minimum level for that leaf. The Aware and Expert flags count as levels 1 and 5 in this filter. |
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
 | FR-05 | U | The system shall show each search result with name, job title, team, top matching leaves and a short reason for the match. |
 
