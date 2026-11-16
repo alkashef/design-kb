@@ -108,7 +108,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ### 3.4 Settings
 | ID | Type | Requirement |
 |----|------|-------------|
-| FR-30 | U | The system shall allow the user to define the skill tree by adding, renaming and deleting nodes. |
+| FR-30 | U | The system shall provide an outline editor (an indented list with add, rename and delete actions) for the user to define the skill tree. |
 | FR-31 | U | The system shall allow the user to set the number of lead and member assignments required for each computed level (2, 3 and 4). |
 | FR-32 | U | The system shall use the default thresholds in section 2.5 until the user changes them. |
 | FR-33 | X | If the user deletes a node that has children, or a leaf that has assignments or flags, then the system shall refuse the deletion and show a message. |
@@ -147,4 +147,3 @@ The PoC passes when AC-01 is met.
 | ID | Item | Proposed default |
 |----|------|------------------|
 | OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
-| OI-04 | "Draw/define" the skill tree: a visual editor (drag and drop) or a form-based outline editor (indented list). | Outline editor. |
