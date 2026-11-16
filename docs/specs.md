@@ -15,10 +15,9 @@ This is a proof of concept (PoC). It proves the idea. It is not a full product. 
 ### 1.3 Definitions
 | Term | Meaning |
 |------|---------|
-| Skill | The top-level group, such as circuit design, system design, coding or leadership. |
-| Sub-skill | A group of blocks inside a skill, such as clock generation. |
-| Block | An optional tag for one specific skill inside a sub-skill, such as VCO, PLL or CDR. |
-| Leaf | A skill, sub-skill or block with no children. Levels and assignments attach to leaves. |
+| Skill tree | The hierarchy of skills that the user defines. It has any number of levels. |
+| Node | One item in the skill tree, such as "Circuit design", "PLL" or "VCO". |
+| Leaf | A node with no children. Levels and assignments attach to leaves. |
 | Assignment | The work of one employee on one project. |
 | Semantic search | Search that matches meaning, not keywords. |
 
@@ -38,13 +37,11 @@ One user type. The user has full access. There is no login (see NFR-02).
 | Process technologies | List of process names, such as "TSMC 7nm". No level or count. |
 | Skill gaps | Free text. Entered manually. |
 
-### 2.2 Skill, sub-skill and block
-- Hierarchy: skill, then sub-skill, then block.
-- A sub-skill belongs to one skill. A block belongs to one sub-skill.
-- Blocks are optional. A sub-skill without blocks, such as Verilog, is a leaf.
-- A leaf is the lowest defined node in a branch: any skill, sub-skill or block with no children.
+### 2.2 Skill tree
+- The user defines the skill tree (FR-30).
+- A node has one parent, except top-level nodes. A node has any number of children.
+- The tree has no fixed depth. Branches may differ in depth.
 - Levels and assignments attach to leaves.
-- The user manages both in Settings (FR-30).
 
 ### 2.3 Project
 | Attribute | Notes |
@@ -92,7 +89,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | FR-10 | E | When the user opens an employee, the system shall show a profile page for that employee. |
 | FR-11 | U | The profile page shall give a 360 view: all employee attributes, the level for every leaf, and each project with its assignment details. |
 | FR-12 | E | When the user selects a leaf, the system shall list all employees with a level in that leaf, sorted by level, highest first. |
-| FR-13 | E | When the user selects a skill, the system shall list all employees with a level in any leaf under that skill, with their level in each leaf. |
+| FR-13 | E | When the user selects a node, the system shall list all employees with a level in any leaf under that node, with their level in each leaf. |
 | FR-14 | E | When the user selects an x-axis dimension, a y-axis dimension and a value, the system shall draw a matrix that colors each intersection by that value. Example: employees by leaves, colored by skill level. |
 
 ### 3.3 Data entry
@@ -112,7 +109,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 ### 3.4 Settings
 | ID | Type | Requirement |
 |----|------|-------------|
-| FR-30 | U | The system shall allow the user to create, rename and delete skills, sub-skills and blocks. |
+| FR-30 | U | The system shall allow the user to define the skill tree by adding, renaming and deleting nodes. |
 | FR-31 | U | The system shall allow the user to set the number of lead and member assignments required for each computed level (2, 3 and 4). |
 | FR-32 | U | The system shall use the default thresholds in section 2.5 until the user changes them. |
 | FR-33 | X | If the user deletes a node that has children, or a leaf that has assignments or flags, then the system shall refuse the deletion and show a message. |
@@ -124,7 +121,7 @@ Requirements use the EARS (Easy Approach to Requirements Syntax) templates. The 
 | NFR-01 | U | The system shall provide a web UI for desktop browsers only. |
 | NFR-02 | U | The system shall not require login or roles. One local user shall have full access. |
 | NFR-03 | U | The system shall run on one machine. |
-| NFR-04 | U | The system shall include fake seed data: 40 employees, 15 projects, 6 skills, about 12 sub-skills and about 30 leaves. |
+| NFR-04 | U | The system shall include fake seed data: 40 employees, 15 projects, a skill tree with 6 top-level nodes and about 30 leaves. |
 | NFR-05 | U | The seed data shall give skill levels that match the assignments. |
 | NFR-06 | U | The system shall contain no real employee data. |
 
@@ -150,4 +147,5 @@ The PoC passes when AC-01 is met.
 | ID | Item | Proposed default |
 |----|------|------------------|
 | OI-01 | The 3 example searches and the expected person for each are not yet defined. | Write them with the seed data. |
-| OI-03 | FR-14 does not yet say which dimensions and values the user may pick. "Any x, any y" is open-ended. | Axes: employee, team, skill, sub-skill, leaf. Value: skill level only. |
+| OI-03 | FR-14 does not yet say which dimensions and values the user may pick. "Any x, any y" is open-ended. | Axes: employee, team, leaf. Value: skill level only. |
+| OI-04 | "Draw/define" the skill tree: a visual editor (drag and drop) or a form-based outline editor (indented list). | Outline editor. |
