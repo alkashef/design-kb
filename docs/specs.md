@@ -48,7 +48,7 @@ One user type. The user has full access. There is no login (see NFR-02).
 | Project name | |
 | Description | Short text. |
 | Year | |
-| Process technology | Name, such as "TSMC 7nm". An employee's process experience comes from the projects they worked on. |
+| Process technology | One name, such as "TSMC 7nm". An employee's process experience comes from the projects they worked on. |
 
 ### 2.4 Assignment (employee on a project)
 | Attribute | Notes |
@@ -153,4 +153,3 @@ The PoC passes when AC-01 is met.
 ## 8. Open Items
 | ID | Item | Proposed default |
 |----|------|------------------|
-| OI-01 | Does a project have one process technology or several? | One. |
