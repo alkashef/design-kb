@@ -33,9 +33,10 @@ class UnknownNode(Exception):
 class SkillTreeService:
     """Adds, saves and deletes nodes of the skill tree through the store."""
 
-    def __init__(self, store):
-        """Use store (a LanceStore or a fake) for the nodes."""
+    def __init__(self, store, indexing):
+        """Use store (a LanceStore or a fake) for the nodes and indexing for the vectors."""
         self._store = store
+        self._indexing = indexing
 
     def outline(self) -> List[Tuple[Node, int, bool]]:
         """Return every node with its depth and its leaf flag, in outline order."""
@@ -76,9 +77,16 @@ class SkillTreeService:
         return node.id
 
     def save(self, node_id: str, name: str, description: str) -> None:
-        """Rename and describe a node."""
-        self.get(node_id)
-        self._store.update_node(node_id, self._clean_name(name), description.strip())
+        """Rename and describe a node, and embed the assignments below it again (D-13)."""
+        node = self.get(node_id)
+        clean_name = self._clean_name(name)
+        changed = Node(node.id, node.parent_id, clean_name, description.strip(), node.position)
+        nodes = [changed if n.id == node_id else n for n in self._store.list_nodes()]
+        leaf_ids = {leaf.id for leaf in skill_tree.leaves_under(nodes, node_id)}
+        below = [a for a in self._store.list_assignments() if a.leaf_id in leaf_ids]
+        vectors = self._indexing.embed_assignments(below, nodes=nodes)
+        self._store.update_node(node_id, changed.name, changed.description)
+        self._indexing.save_assignment_vectors(vectors)
 
     def delete(self, node_id: str) -> None:
         """Delete a node with no children; refuse otherwise (FR-33)."""

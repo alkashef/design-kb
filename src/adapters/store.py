@@ -1,12 +1,21 @@
 """LanceStore: the only module that imports LanceDB (D-15, D-21)."""
 
 import logging
-from typing import List
+from typing import Dict, List
 
 import lancedb
 import pyarrow as pa
 
-from src.domain.models import Assignment, Employee, Flag, Node, Project, Threshold
+from src.domain.models import (
+    Assignment,
+    AssignmentVector,
+    Employee,
+    Flag,
+    Node,
+    ProfileVector,
+    Project,
+    Threshold,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +91,41 @@ THRESHOLDS_SCHEMA = pa.schema(
 )
 
 
+META_TABLE = "meta"
+META_SCHEMA = pa.schema([("key", pa.string()), ("value", pa.string())])
+
+ASSIGNMENT_VECTORS_TABLE = "assignment_vectors"
+PROFILE_VECTORS_TABLE = "profile_vectors"
+
+
+def _assignment_vectors_schema(vector_size: int) -> pa.Schema:
+    """Return the schema of the table assignment_vectors for vectors of vector_size numbers."""
+    return pa.schema(
+        [
+            ("assignment_id", pa.string()),
+            ("employee_id", pa.string()),
+            ("text", pa.string()),
+            ("vector", pa.list_(pa.float32(), vector_size)),
+        ]
+    )
+
+
+def _profile_vectors_schema(vector_size: int) -> pa.Schema:
+    """Return the schema of the table profile_vectors for vectors of vector_size numbers."""
+    return pa.schema(
+        [
+            ("employee_id", pa.string()),
+            ("text", pa.string()),
+            ("vector", pa.list_(pa.float32(), vector_size)),
+        ]
+    )
+
+
+def _id_list(values: List[str]) -> str:
+    """Return values as a quoted SQL list for an IN filter."""
+    return "(" + ", ".join(_quote(value) for value in values) + ")"
+
+
 def _quote(value: str) -> str:
     """Return value as a quoted SQL text for a filter."""
     return "'" + value.replace("'", "''") + "'"
@@ -107,6 +151,7 @@ class LanceStore:
         self._thresholds = self._db.create_table(
             THRESHOLDS_TABLE, schema=THRESHOLDS_SCHEMA, exist_ok=True
         )
+        self._meta = self._db.create_table(META_TABLE, schema=META_SCHEMA, exist_ok=True)
         logger.info("Opened the store.")
 
     def list_nodes(self) -> List[Node]:
@@ -212,3 +257,78 @@ class LanceStore:
         self._thresholds.delete("level >= 0")
         if thresholds:
             self._thresholds.add([vars(t) for t in thresholds], mode="append")
+
+    def get_meta(self) -> Dict[str, str]:
+        """Return the rows of the table meta as a dict of key and value (D-27)."""
+        return {row["key"]: row["value"] for row in self._meta.to_arrow().to_pylist()}
+
+    def set_meta(self, values: Dict[str, str]) -> None:
+        """Write the keys and values to the table meta, and replace the rows of the same keys."""
+        if not values:
+            return
+        self._meta.delete(f"key IN {_id_list(list(values))}")
+        self._meta.add([{"key": k, "value": v} for k, v in values.items()], mode="append")
+
+    def list_assignment_vectors(self) -> List[AssignmentVector]:
+        """Return all rows of the table assignment_vectors (D-35)."""
+        rows = self._vector_rows(ASSIGNMENT_VECTORS_TABLE)
+        return [AssignmentVector(**row) for row in rows]
+
+    def list_profile_vectors(self) -> List[ProfileVector]:
+        """Return all rows of the table profile_vectors (D-35)."""
+        return [ProfileVector(**row) for row in self._vector_rows(PROFILE_VECTORS_TABLE)]
+
+    def save_assignment_vectors(self, vectors: List[AssignmentVector]) -> None:
+        """Write the vectors, and replace the rows of the same assignments."""
+        if not vectors:
+            return
+        self.delete_assignment_vectors([v.assignment_id for v in vectors])
+        schema = _assignment_vectors_schema(len(vectors[0].vector))
+        self._add_vectors(ASSIGNMENT_VECTORS_TABLE, schema, [vars(v) for v in vectors])
+
+    def delete_assignment_vectors(self, assignment_ids: List[str]) -> None:
+        """Delete the vectors of the given assignments."""
+        if assignment_ids:
+            where = f"assignment_id IN {_id_list(assignment_ids)}"
+            self._delete_vectors(ASSIGNMENT_VECTORS_TABLE, where)
+
+    def delete_assignment_vectors_of_employee(self, employee_id: str) -> None:
+        """Delete the assignment vectors of one employee."""
+        self._delete_vectors(ASSIGNMENT_VECTORS_TABLE, f"employee_id = {_quote(employee_id)}")
+
+    def save_profile_vector(self, vector: ProfileVector) -> None:
+        """Write the profile vector, and replace the one of the same employee."""
+        self.delete_profile_vector(vector.employee_id)
+        schema = _profile_vectors_schema(len(vector.vector))
+        self._add_vectors(PROFILE_VECTORS_TABLE, schema, [vars(vector)])
+
+    def delete_profile_vector(self, employee_id: str) -> None:
+        """Delete the profile vector of one employee."""
+        self._delete_vectors(PROFILE_VECTORS_TABLE, f"employee_id = {_quote(employee_id)}")
+
+    def drop_vectors(self) -> None:
+        """Delete both vector tables; the next write creates them with its vector size (D-27)."""
+        self._db.drop_table(ASSIGNMENT_VECTORS_TABLE, ignore_missing=True)
+        self._db.drop_table(PROFILE_VECTORS_TABLE, ignore_missing=True)
+
+    def _has_table(self, name: str) -> bool:
+        """Tell whether the table name exists in the folder."""
+        return name in self._db.list_tables()
+
+    def _vector_rows(self, name: str) -> List[dict]:
+        """Return the rows of a vector table, or none when the table does not exist yet."""
+        if not self._has_table(name):
+            return []
+        return self._db.open_table(name).to_arrow().to_pylist()
+
+    def _add_vectors(self, name: str, schema: pa.Schema, rows: List[dict]) -> None:
+        """Append rows to a vector table, and create the table first when it does not exist."""
+        if self._has_table(name):
+            self._db.open_table(name).add(rows, mode="append")
+        else:
+            self._db.create_table(name, data=rows, schema=schema)
+
+    def _delete_vectors(self, name: str, where: str) -> None:
+        """Delete the rows of a vector table that match the filter where."""
+        if self._has_table(name):
+            self._db.open_table(name).delete(where)

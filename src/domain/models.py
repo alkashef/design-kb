@@ -1,7 +1,7 @@
 """The data classes and errors of the domain (docs/design.md, Interfaces)."""
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 
 class EmbeddingUnavailable(Exception):
@@ -75,3 +75,22 @@ class Threshold:
     lead_to: Optional[int]
     member_from: int
     member_to: Optional[int]
+
+
+@dataclass
+class AssignmentVector:
+    """The embedded text of one assignment (D-08, D-35)."""
+
+    assignment_id: str
+    employee_id: str
+    text: str
+    vector: List[float]
+
+
+@dataclass
+class ProfileVector:
+    """The embedded skill gaps of one employee (D-09, D-35)."""
+
+    employee_id: str
+    text: str
+    vector: List[float]

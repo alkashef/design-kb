@@ -34,9 +34,10 @@ class AssignmentRow:
 class AssignmentService:
     """Reads and changes assignments through the store."""
 
-    def __init__(self, store):
-        """Use store (a LanceStore or a fake)."""
+    def __init__(self, store, indexing):
+        """Use store (a LanceStore or a fake) and indexing (an IndexingService) for the vectors."""
         self._store = store
+        self._indexing = indexing
 
     def for_project(self, project_id: str) -> List[AssignmentRow]:
         """Return the rows of one project, ordered by employee name and leaf path."""
@@ -78,7 +79,9 @@ class AssignmentService:
             uuid.uuid4().hex, employee_id, project_id, leaf_id, participation, description.strip()
         )
         self._check(assignment)
+        vectors = self._indexing.embed_assignments([assignment])
         self._store.add_assignment(assignment)
+        self._indexing.save_assignment_vectors(vectors)
         logger.info("Added an assignment.")
         return assignment.id
 
@@ -89,12 +92,15 @@ class AssignmentService:
             old.id, old.employee_id, old.project_id, leaf_id, participation, description.strip()
         )
         self._check(assignment)
+        vectors = self._indexing.embed_assignments([assignment])
         self._store.update_assignment(assignment)
+        self._indexing.save_assignment_vectors(vectors)
 
     def delete(self, assignment_id: str) -> None:
         """Delete an assignment."""
         self.get(assignment_id)
         self._store.delete_assignment(assignment_id)
+        self._indexing.delete_assignment_vectors([assignment_id])
         logger.info("Deleted an assignment.")
 
     def _check(self, assignment: Assignment) -> None:

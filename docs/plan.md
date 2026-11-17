@@ -8,28 +8,12 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M10** Vectors | Embedding on each change; message when Ollama is down | opus | high | open |
 | **M11** Seed data | 40 employees, 15 projects, about 30 leaves, loaded at first start | sonnet | high | open |
 | **M12** Experience search | Ranked results, reasons, top leaves, preview | sonnet | high | open |
 | **M13** Search filters | Team, career level, leaf with minimum level; filters with no query | sonnet | medium | open |
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M10 — Vectors
-
-- **Refs:** D-08, D-09, D-13, D-16, D-27.
-- **Owner:** `src/domain/vector_text.py`, `src/services/indexing.py`, `src/adapters/embedder.py`, `src/adapters/store.py`.
-- **Tests first:** unit: `test_d_08_assignment_text_has_its_6_lines_in_order`,
-  `test_d_09_profile_text_is_the_skill_gaps`.
-  route: `test_d_13_new_assignment_embeds_its_text`,
-  `test_d_13_changed_process_technology_embeds_the_assignments_of_the_project_again`,
-  `test_d_13_changed_leaf_name_embeds_its_assignments_again`,
-  `test_d_13_changed_skill_gaps_embed_the_profile_again`, `test_d_13_changed_team_embeds_nothing`,
-  `test_d_27_empty_skill_gaps_embed_no_profile`,
-  `test_d_27_model_that_does_not_answer_gives_503_and_saves_nothing`.
-- **Build:** the tables `assignment_vectors`, `profile_vectors` and `meta`. `indexing.py` embeds first and then writes, and the services of assignments, projects, the skill tree and employees call it. A deleted record loses its vectors. `create_app` embeds all vectors again when the model or the vector size in `meta` differs. `OllamaEmbedder` calls `POST /api/embed` with `urllib`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M10` pass.
 
 ### M11 — Seed data
 

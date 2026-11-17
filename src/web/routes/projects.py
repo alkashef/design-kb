@@ -6,8 +6,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from src.domain.entry_rules import PARTICIPATIONS
+from src.domain.models import EmbeddingUnavailable
 from src.services.assignments import AssignmentError, AssignmentService, UnknownAssignment
 from src.services.projects import ProjectError, ProjectService, UnknownProject
+from src.web.errors import failure_of
 
 
 def _fields(name, description, year, process_technology) -> dict:
@@ -36,11 +38,11 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
 
     def service_of(request: Request) -> ProjectService:
         """Return the project service of the app."""
-        return ProjectService(request.app.state.store)
+        return ProjectService(request.app.state.store, request.app.state.indexing)
 
     def assignments_of(request: Request) -> AssignmentService:
         """Return the assignment service of the app."""
-        return AssignmentService(request.app.state.store)
+        return AssignmentService(request.app.state.store, request.app.state.indexing)
 
     def render(
         request, selected, mode="view", form=None, message="", status=200, assignment_form=None,
@@ -144,9 +146,10 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         project = find(request, project_id)
         try:
             service_of(request).save(project_id, name, description, year, process_technology)
-        except ProjectError as error:
+        except (ProjectError, EmbeddingUnavailable) as error:
+            message, status = failure_of(error)
             form = _fields(name, description, year, process_technology)
-            return render(request, project, "edit", form, str(error), 422)
+            return render(request, project, "edit", form, message, status)
         return RedirectResponse(f"/projects/{project_id}", status_code=303)
 
     @router.post("/projects/{project_id}/delete")
@@ -169,9 +172,10 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         project = find(request, project_id)
         try:
             assignments_of(request).add(project_id, employee_id, leaf_id, participation, description)
-        except AssignmentError as error:
+        except (AssignmentError, EmbeddingUnavailable) as error:
+            message, status = failure_of(error)
             form = _assignment_fields(employee_id, leaf_id, participation, description)
-            return render(request, project, message=str(error), status=422, assignment_form=form)
+            return render(request, project, message=message, status=status, assignment_form=form)
         return RedirectResponse(f"/projects/{project_id}", status_code=303)
 
     @router.post("/assignments/{assignment_id}")
@@ -186,11 +190,12 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         assignment = find_assignment(request, assignment_id)
         try:
             assignments_of(request).save(assignment_id, leaf_id, participation, description)
-        except AssignmentError as error:
+        except (AssignmentError, EmbeddingUnavailable) as error:
+            message, status = failure_of(error)
             project = find(request, assignment.project_id)
             form = _assignment_fields(assignment.employee_id, leaf_id, participation, description)
             return render(
-                request, project, message=str(error), status=422, assignment_form=form,
+                request, project, message=message, status=status, assignment_form=form,
                 editing_id=assignment_id,
             )
         return RedirectResponse(f"/projects/{assignment.project_id}", status_code=303)

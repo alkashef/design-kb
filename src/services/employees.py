@@ -75,10 +75,11 @@ def _level_source(lead_count: int, member_count: int, flag: str, level: int) -> 
 class EmployeeService:
     """Reads and changes employees through the store."""
 
-    def __init__(self, store, page_size: int):
-        """Use store (a LanceStore or a fake) and the number of rows on one page."""
+    def __init__(self, store, page_size: int, indexing):
+        """Use store (a LanceStore or a fake), the rows on one page and indexing for the vectors."""
         self._store = store
         self._page_size = page_size
+        self._indexing = indexing
 
     def teams(self) -> List[str]:
         """Return the distinct team names, sorted."""
@@ -112,7 +113,9 @@ class EmployeeService:
     def add(self, name: str, job_title: str, career_level: str, team: str, skill_gaps: str) -> str:
         """Add an employee with the next free ID and return the ID."""
         employee = self._build(self._next_id(), name, job_title, career_level, team, skill_gaps)
+        vector = self._indexing.embed_profile(employee)
         self._store.add_employee(employee)
+        self._indexing.save_profile(employee, vector)
         logger.info("Added an employee.")
         return employee.id
 
@@ -128,7 +131,9 @@ class EmployeeService:
         """Change the fields of an employee."""
         self.get(employee_id)
         employee = self._build(employee_id, name, job_title, career_level, team, skill_gaps)
+        vector = self._indexing.embed_profile(employee)
         self._store.update_employee(employee)
+        self._indexing.save_profile(employee, vector)
 
     def delete(self, employee_id: str) -> None:
         """Delete an employee."""
@@ -136,6 +141,7 @@ class EmployeeService:
         self._store.delete_assignments_of_employee(employee_id)
         self._store.delete_flags_of_employee(employee_id)
         self._store.delete_employee(employee_id)
+        self._indexing.delete_employee_vectors(employee_id)
         logger.info("Deleted an employee.")
 
     def skill_groups(self, employee_id: str) -> List[SkillGroup]:

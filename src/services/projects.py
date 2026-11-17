@@ -4,7 +4,7 @@ import logging
 import uuid
 from typing import List
 
-from src.domain.models import Project
+from src.domain.models import Assignment, Project
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +20,10 @@ class UnknownProject(Exception):
 class ProjectService:
     """Reads and changes projects through the store."""
 
-    def __init__(self, store):
-        """Use store (a LanceStore or a fake)."""
+    def __init__(self, store, indexing):
+        """Use store (a LanceStore or a fake) and indexing (an IndexingService) for the vectors."""
         self._store = store
+        self._indexing = indexing
 
     def list(self) -> List[Project]:
         """Return all projects, ordered by name."""
@@ -45,18 +46,25 @@ class ProjectService:
     def save(
         self, project_id: str, name: str, description: str, year: str, process_technology: str
     ) -> None:
-        """Change the fields of a project."""
+        """Change the fields of a project, and embed its assignments again when needed (D-13)."""
         self.get(project_id)
-        self._store.update_project(
-            self._build(project_id, name, description, year, process_technology)
-        )
+        project = self._build(project_id, name, description, year, process_technology)
+        vectors = self._indexing.embed_assignments(self._assignments_of(project_id), project)
+        self._store.update_project(project)
+        self._indexing.save_assignment_vectors(vectors)
 
     def delete(self, project_id: str) -> None:
         """Delete a project."""
         self.get(project_id)
+        assignment_ids = [a.id for a in self._assignments_of(project_id)]
         self._store.delete_assignments_of_project(project_id)
         self._store.delete_project(project_id)
+        self._indexing.delete_assignment_vectors(assignment_ids)
         logger.info("Deleted a project.")
+
+    def _assignments_of(self, project_id: str) -> List[Assignment]:
+        """Return the assignments of one project."""
+        return [a for a in self._store.list_assignments() if a.project_id == project_id]
 
     @staticmethod
     def _build(

@@ -75,9 +75,11 @@ It is a proof of concept (PoC). The app is built in milestones (`docs/plan.md`).
    ollama list
    ```
 
-   The app needs Ollama only when it is built. The checks do not use it.
+   The app embeds each saved change with this model. When Ollama does not answer, the app saves nothing and shows a message. The checks do not use Ollama.
 
 ## How to run
+
+Start Ollama first. Then:
 
 ```
 python main.py

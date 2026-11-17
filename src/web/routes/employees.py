@@ -7,10 +7,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from src.domain.levels import LEVEL_NAMES
-from src.domain.models import CAREER_LEVELS, Employee
+from src.domain.models import CAREER_LEVELS, EmbeddingUnavailable, Employee
 from src.services.assignments import AssignmentService
 from src.services.employees import EmployeeError, EmployeeService, UnknownEmployee
 from src.services.flags import FlagError, FlagService
+from src.web.errors import failure_of
 
 
 def create_router(templates: Jinja2Templates) -> APIRouter:
@@ -19,7 +20,8 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
 
     def service_of(request: Request) -> EmployeeService:
         """Return the employee service of the app."""
-        return EmployeeService(request.app.state.store, request.app.state.options.page_size)
+        state = request.app.state
+        return EmployeeService(state.store, state.options.page_size, state.indexing)
 
     def find(request: Request, employee_id: str) -> Employee:
         """Return the employee, or answer 404."""
@@ -84,9 +86,10 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         """Create an employee and open the profile."""
         try:
             employee_id = service_of(request).add(name, job_title, career_level, team, skill_gaps)
-        except EmployeeError as error:
+        except (EmployeeError, EmbeddingUnavailable) as error:
+            message, status = failure_of(error)
             form = Employee("", name, job_title, career_level, team, skill_gaps)
-            return render_form(request, form, True, str(error), 422)
+            return render_form(request, form, True, message, status)
         return RedirectResponse(f"/employees/{employee_id}", status_code=303)
 
     @router.get("/employees/{employee_id}", response_class=HTMLResponse)
@@ -101,9 +104,9 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
                 "employee": employee,
                 "skill_groups": service_of(request).skill_groups(employee_id),
                 "level_names": LEVEL_NAMES,
-                "assignment_rows": AssignmentService(request.app.state.store).for_employee(
-                    employee_id
-                ),
+                "assignment_rows": AssignmentService(
+                    request.app.state.store, request.app.state.indexing
+                ).for_employee(employee_id),
             },
         )
 
@@ -127,9 +130,10 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             service_of(request).save(employee_id, name, job_title, career_level, team, skill_gaps)
         except UnknownEmployee:
             raise HTTPException(status_code=404, detail="Unknown employee")
-        except EmployeeError as error:
+        except (EmployeeError, EmbeddingUnavailable) as error:
+            message, status = failure_of(error)
             form = Employee(employee_id, name, job_title, career_level, team, skill_gaps)
-            return render_form(request, form, False, str(error), 422)
+            return render_form(request, form, False, message, status)
         return RedirectResponse(f"/employees/{employee_id}", status_code=303)
 
     @router.post("/employees/{employee_id}/delete")

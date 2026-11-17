@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from src.services.indexing import IndexingService
 from src.web import request_log
 from src.web.routes import employees, projects, search, settings, skill_tree
 
@@ -29,6 +30,8 @@ def create_app(store, embedder, options: AppOptions) -> FastAPI:
     app.state.store = store
     app.state.embedder = embedder
     app.state.options = options
+    app.state.indexing = IndexingService(store, embedder)
+    app.state.indexing.sync_model()
     templates = Jinja2Templates(directory=WEB_DIR / "templates")
     app.middleware("http")(request_log.log_request)
     app.mount("/static", StaticFiles(directory=WEB_DIR / "static"), name="static")
