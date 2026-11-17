@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M6** Assignments | Create, edit and delete assignments; leaf-only and duplicate rules | sonnet | high | open |
 | **M7** Flags and 360 view | Aware and Expert flags; the profile shows every level | sonnet | high | open |
 | **M8** Tree guards and node views | Refused deletions; employees of a leaf or a node | sonnet | medium | open |
 | **M9** Threshold settings | The Settings page: ranges, checks, reset | sonnet | medium | open |
@@ -19,20 +18,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M6 — Assignments
-
-- **Refs:** FR-22, FR-28, FR-29, FR-40, FR-41, FR-42, D-25, D-29.
-- **Owner:** `src/services/assignments.py`, `src/domain/entry_rules.py`, `src/web/routes/projects.py`, `src/web/templates/projects.html`, `employee_profile.html`.
-- **Tests first:** route: `test_fr_22_create_assignment_shows_on_the_project_and_on_the_profile`,
-  `test_fr_22_edit_assignment_saves_participation_and_description`,
-  `test_fr_28_delete_assignment_removes_it`, `test_fr_29_delete_employee_deletes_its_assignments`,
-  `test_fr_29_delete_project_deletes_its_assignments`,
-  `test_fr_40_assignment_form_lists_only_leaves`,
-  `test_fr_41_assignment_on_a_node_with_children_is_rejected_with_a_message`,
-  `test_fr_42_second_assignment_for_the_same_employee_project_and_leaf_is_rejected`.
-- **Build:** the table `assignments`. The assignment rows and the "Add assignment" panel of `docs/ui/Projects.dc.html`. The table "Projects and assignments" of the profile page. The rules for a leaf and for a duplicate in `entry_rules.py`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M6` pass.
 
 ### M7 — Flags and 360 view
 

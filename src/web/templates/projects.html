@@ -44,9 +44,61 @@
         <button class="button-outline" type="submit">Delete</button>
       </form>
     </div>
+    <div class="mono muted">ASSIGNMENTS · {{ assignment_rows|length }}</div>
+    {% for r in assignment_rows %}
+    <div class="assignment" data-assignment-id="{{ r.assignment.id }}">
+      <div class="assignment-head">
+        <span class="assignment-who">{{ r.employee_name }}</span>
+        <span class="mono">{{ r.leaf_path }}</span>
+        <span class="role-tag{% if r.assignment.participation == 'lead' %} lead{% endif %}">{{ r.assignment.participation }}</span>
+        <span class="spacer"></span>
+        <a class="button-outline link-button small" href="/projects/{{ selected.id }}?edit_assignment={{ r.assignment.id }}" aria-label="Edit assignment">Edit</a>
+        <form method="post" action="/assignments/{{ r.assignment.id }}/delete">
+          <button class="button-outline small" type="submit" aria-label="Delete assignment">Delete</button>
+        </form>
+      </div>
+      <div class="assignment-text">{{ r.assignment.description }}</div>
+    </div>
+    {% else %}
+    <p class="hint flush">No assignment yet. Add one in the panel.</p>
+    {% endfor %}
     {% else %}
     <p class="hint">No project yet. Choose New to add one.</p>
     {% endif %}
   </section>
+  {% if mode == "view" and selected %}
+  <aside class="assignment-panel" aria-label="{{ 'Edit assignment' if editing_id else 'Add assignment' }}">
+    <h2>{{ "Edit assignment" if editing_id else "Add assignment" }}</h2>
+    <form class="panel" method="post" action="{{ '/assignments/' ~ editing_id if editing_id else '/projects/' ~ selected.id ~ '/assignments' }}">
+      <label for="a-project">Project</label>
+      <input id="a-project" type="text" value="{{ selected.name }}" readonly>
+      <label for="a-emp">Employee</label>
+      {% if editing_id %}
+      <input id="a-emp" type="text" value="{% for e in employees if e.id == assignment_form.employee_id %}{{ e.name }}{% endfor %}" readonly>
+      {% else %}
+      <select id="a-emp" name="employee_id" required>
+        <option value="">Choose an employee</option>
+        {% for e in employees %}<option value="{{ e.id }}"{% if e.id == assignment_form.employee_id %} selected{% endif %}>{{ e.name }}</option>{% endfor %}
+      </select>
+      {% endif %}
+      <label for="a-leaf">Skill</label>
+      <select id="a-leaf" name="leaf_id" required>
+        <option value="">Choose a skill</option>
+        {% for leaf, leaf_path in leaves %}<option value="{{ leaf.id }}"{% if leaf.id == assignment_form.leaf_id %} selected{% endif %}>{{ leaf_path }}</option>{% endfor %}
+      </select>
+      <span class="hint">One assignment covers one skill. Add a second assignment for a second skill.</span>
+      <label for="a-part">Participation</label>
+      <select id="a-part" name="participation">
+        {% for p in participations %}<option value="{{ p }}"{% if p == assignment_form.participation %} selected{% endif %}>{{ p|capitalize }}</option>{% endfor %}
+      </select>
+      <label for="a-desc">Assignment description</label>
+      <textarea id="a-desc" name="description" rows="4">{{ assignment_form.description }}</textarea>
+      <div class="actions">
+        <button class="button-accent" type="submit">Save</button>
+        {% if editing_id %}<a class="button-outline link-button" href="/projects/{{ selected.id }}">Cancel</a>{% endif %}
+      </div>
+    </form>
+  </aside>
+  {% endif %}
 </div>
 {% endblock %}

@@ -54,6 +54,7 @@ class ProjectService:
     def delete(self, project_id: str) -> None:
         """Delete a project."""
         self.get(project_id)
+        self._store.delete_assignments_of_project(project_id)
         self._store.delete_project(project_id)
         logger.info("Deleted a project.")
 

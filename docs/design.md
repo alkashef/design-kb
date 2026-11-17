@@ -41,6 +41,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-31 | Decided | Build each page as a Jinja template from its artboard in `docs/ui/`. `docs/ui/` holds a copy of the 8 chosen artboards of the canvas (D-19), made on 2026-11-17. Never edit the copies: copy them again from the canvas. Keep the Graphite colors as CSS custom properties in one stylesheet. Keep HTMX and the 2 fonts (Inter, JetBrains Mono) as local files in `src/web/static/vendor/`. When a font file is missing, the page uses the system font. | The canvas is locked (D-17, D-18, D-19). An unattended session cannot read the canvas, so it needs the copy. Local files keep the app on one machine (NFR-03). |
 | D-32 | Proposed | Log each request in `src/web/request_log.py`, a web module that `create_app` adds as an HTTP middleware. It logs the method, the path, the status and the time, and logs an error with its context. It does not log the query string. | The app factory holds no logic (`CLAUDE.md`), and the log must hold no user data. Auto-decided in M1, review. |
 | D-33 | Proposed | Import `pyarrow` in `src/adapters/store.py` to give each LanceDB table an explicit schema, and list it in `requirements.txt` (pinned to the installed version). | LanceDB already installs it, and an empty table needs a schema. Auto-decided in M3, review. |
+| D-34 | Proposed | Open an assignment for editing with `GET /projects/{id}?edit_assignment=<assignment id>`: the Project page shows the panel of the artboard in edit mode (the employee read-only) and the other assignments as read-only rows. `AssignmentService` in `src/services/assignments.py` adds the rows for a project and for an employee. The assignment rules (leaf, participation, duplicate) are the functions of `entry_rules.py`; the service raises `AssignmentError` with their message. | Meets FR-22 and FR-41. The route list had no way to open an edit form for an assignment. Auto-decided in M6, review. |
 
 ## Open Design Questions
 
@@ -126,7 +127,7 @@ The text of an assignment vector has these lines, in this order: the leaf name, 
 | Name | Interface |
 |------|-----------|
 | `create_app(store, embedder, options)` in `src/app.py` | Returns the FastAPI app. `options` is an `AppOptions` data class of `src/app.py` with `search_result_limit`, `page_size` and `load_seed`. When `load_seed` is true and `store` has no employee, the app loads the seed data. `main.py` sets `load_seed` to true. |
-| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. For the table `nodes` it has `list_nodes()`, `add_node(node)`, `update_node(node_id, name, description)` and `delete_node(node_id)`. For the table `employees` it has `list_employees()`, `add_employee(employee)`, `update_employee(employee)` (changes every field of the employee with that ID) and `delete_employee(employee_id)`. |
+| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. For the table `nodes` it has `list_nodes()`, `add_node(node)`, `update_node(node_id, name, description)` and `delete_node(node_id)`. For the table `employees` it has `list_employees()`, `add_employee(employee)`, `update_employee(employee)` (changes every field of the employee with that ID) and `delete_employee(employee_id)`. For the table `assignments` it has `list_assignments()`, `add_assignment(assignment)`, `update_assignment(assignment)`, `delete_assignment(assignment_id)`, `delete_assignments_of_employee(employee_id)` and `delete_assignments_of_project(project_id)`. |
 | The embedder | An object with `embed(texts)`, which takes a list of texts and returns one list of numbers for each text, and with the properties `model_name` and `vector_size`. It raises `EmbeddingUnavailable` (defined in `src/domain/models.py`) when the model does not answer. |
 | `OllamaEmbedder(url, model, timeout_seconds)` in `src/adapters/embedder.py` | Calls `POST <url>/api/embed` with the fields `model` and `input` (a list of texts) and reads the field `embeddings`. |
 
@@ -168,7 +169,7 @@ A `GET` route answers with a page (status 200). A `POST` route that succeeds ans
 | `POST /employees/{id}/flags` | `leaf_id`, `flag` (`aware` or `expert`) | Sets the flag. Redirects to the Edit employee page. | FR-23, FR-24, FR-26, FR-41 |
 | `POST /employees/{id}/flags/{leaf_id}/delete` | | Removes the flag. Redirects to the Edit employee page. | FR-23 |
 | `GET /projects` | | The Project and assignments page with the first project selected. | FR-21 |
-| `GET /projects/{id}` | | The Project and assignments page with that project selected. | FR-21, FR-22 |
+| `GET /projects/{id}` | `edit_assignment` (optional assignment ID, D-34) | The Project and assignments page with that project selected. | FR-21, FR-22 |
 | `GET /projects/new` | | The Project page with the form for a new project. | FR-21 |
 | `GET /projects/{id}/edit` | | The Project page with the form of that project. | FR-21 |
 | `POST /projects` | `name`, `description`, `year`, `process_technology` | Creates the project. Redirects to `/projects/{id}`. | FR-21 |

@@ -25,5 +25,22 @@
     <div class="mono muted">SKILL GAPS</div>
     <p>{{ employee.skill_gaps or "No skill gaps entered." }}</p>
   </section>
+  <section class="assignments">
+    <div class="mono muted">PROJECTS AND ASSIGNMENTS</div>
+    <div class="table">
+      <div class="table-row assignment-row table-head"><span>PROJECT</span><span>YEAR</span><span>SKILL</span><span>ROLE</span><span>ASSIGNMENT</span></div>
+      {% for r in assignment_rows %}
+      <div class="table-row assignment-row" data-assignment-id="{{ r.assignment.id }}">
+        <span><a href="/projects/{{ r.assignment.project_id }}">{{ r.project_name }}</a><br><span class="tag">{{ r.process_technology }}</span></span>
+        <span class="muted">{{ r.project_year }}</span>
+        <span>{{ r.leaf_path }}</span>
+        <span>{{ r.assignment.participation|capitalize }}</span>
+        <span>{{ r.assignment.description }}</span>
+      </div>
+      {% else %}
+      <div class="table-row assignment-row"><span class="muted">No assignments yet.</span></div>
+      {% endfor %}
+    </div>
+  </section>
 </div>
 {% endblock %}

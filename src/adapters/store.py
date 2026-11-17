@@ -6,7 +6,7 @@ from typing import List
 import lancedb
 import pyarrow as pa
 
-from src.domain.models import Employee, Node, Project
+from src.domain.models import Assignment, Employee, Node, Project
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,19 @@ PROJECTS_SCHEMA = pa.schema(
 )
 
 
+ASSIGNMENTS_TABLE = "assignments"
+ASSIGNMENTS_SCHEMA = pa.schema(
+    [
+        ("id", pa.string()),
+        ("employee_id", pa.string()),
+        ("project_id", pa.string()),
+        ("leaf_id", pa.string()),
+        ("participation", pa.string()),
+        ("description", pa.string()),
+    ]
+)
+
+
 def _quote(value: str) -> str:
     """Return value as a quoted SQL text for a filter."""
     return "'" + value.replace("'", "''") + "'"
@@ -64,6 +77,9 @@ class LanceStore:
         )
         self._projects = self._db.create_table(
             PROJECTS_TABLE, schema=PROJECTS_SCHEMA, exist_ok=True
+        )
+        self._assignments = self._db.create_table(
+            ASSIGNMENTS_TABLE, schema=ASSIGNMENTS_SCHEMA, exist_ok=True
         )
         logger.info("Opened the store.")
 
@@ -118,3 +134,28 @@ class LanceStore:
     def delete_project(self, project_id: str) -> None:
         """Delete one project."""
         self._projects.delete(f"id = {_quote(project_id)}")
+
+    def list_assignments(self) -> List[Assignment]:
+        """Return all assignments."""
+        return [Assignment(**row) for row in self._assignments.to_arrow().to_pylist()]
+
+    def add_assignment(self, assignment: Assignment) -> None:
+        """Write a new assignment."""
+        self._assignments.add([vars(assignment)], mode="append")
+
+    def update_assignment(self, assignment: Assignment) -> None:
+        """Change every field of the assignment with the same ID."""
+        values = {key: value for key, value in vars(assignment).items() if key != "id"}
+        self._assignments.update(where=f"id = {_quote(assignment.id)}", values=values)
+
+    def delete_assignment(self, assignment_id: str) -> None:
+        """Delete one assignment."""
+        self._assignments.delete(f"id = {_quote(assignment_id)}")
+
+    def delete_assignments_of_employee(self, employee_id: str) -> None:
+        """Delete the assignments of one employee."""
+        self._assignments.delete(f"employee_id = {_quote(employee_id)}")
+
+    def delete_assignments_of_project(self, project_id: str) -> None:
+        """Delete the assignments of one project."""
+        self._assignments.delete(f"project_id = {_quote(project_id)}")

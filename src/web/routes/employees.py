@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from src.domain.models import CAREER_LEVELS, Employee
+from src.services.assignments import AssignmentService
 from src.services.employees import EmployeeError, EmployeeService, UnknownEmployee
 
 
@@ -83,7 +84,15 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         """Show the profile of one employee."""
         employee = find(request, employee_id)
         return templates.TemplateResponse(
-            request, "employee_profile.html", {"active_page": "employees", "employee": employee}
+            request,
+            "employee_profile.html",
+            {
+                "active_page": "employees",
+                "employee": employee,
+                "assignment_rows": AssignmentService(request.app.state.store).for_employee(
+                    employee_id
+                ),
+            },
         )
 
     @router.get("/employees/{employee_id}/edit", response_class=HTMLResponse)

@@ -90,6 +90,7 @@ class EmployeeService:
     def delete(self, employee_id: str) -> None:
         """Delete an employee."""
         self.get(employee_id)
+        self._store.delete_assignments_of_employee(employee_id)
         self._store.delete_employee(employee_id)
         logger.info("Deleted an employee.")
 
