@@ -37,9 +37,9 @@ Use focused questions such as these when the corresponding concern is unresolved
 | Real work | What happened the last time you needed to do this? |
 | Business value | What would improve if this task worked better? |
 | User goal | What must this person accomplish before the task is complete? |
-| Rule | What makes a request eligible for approval? |
-| Exception | What should happen if another person changes the record first? |
-| Data | Which information determines whether these are the same customer? |
+| Rule | What makes an employee an Expert in a leaf? |
+| Exception | What should happen if the user deletes a leaf that has assignments? |
+| Data | Which information tells two employees with the same name apart? |
 | Quality | How long can this person wait before the task is disrupted? |
 | Acceptance | For this specific input, what result would you accept? |
 
@@ -72,10 +72,10 @@ Capture the situation, relevant input, business rule, and expected result.
 Record unresolved questions instead of choosing an answer to make the example complete.
 Use invented or redacted data. The domain owner must review the expected result.
 
-For example, suppose a user requests a late-payment alert. Clarify who receives it,
-what establishes the due date, and when a payment counts as received. Investigate
-partial payments, disputed invoices, and time boundaries when they affect the rule.
-Do not choose a grace period or notification channel without supporting context.
+For example, suppose the user requests a filter for recent experience. Clarify which
+date an assignment has, and what counts as recent. Investigate assignments in a
+project with no year, and time boundaries when they affect the rule.
+Do not choose a number of years without supporting context.
 
 The examples become candidate acceptance tests. Their execution belongs downstream.
 User approval establishes the intended outcome within the agreed scope. It does

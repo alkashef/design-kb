@@ -1,68 +1,52 @@
-# Design — <project name>
+# Design Choices
 
-How to build what `spec.md` says. If this file and the spec disagree, the spec wins.
+Design decisions for `design-kb`, a proof of concept (PoC). Requirements are in `specs.md`.
 
-Review state: <draft, awaiting a named decision, or approved scope with its approval reference>.
-Spec baseline: <document path and revision when available>.
+Status: **Decided** means the product owner chose it. **Proposed** means Claude derived it from a requirement. The product owner has not confirmed it.
 
-## 1. Decisions
+## Decisions
 
-Keep one current decision per topic. Keep previous decisions in Git history. Never reuse or renumber a decision ID.
+Keep one current decision per topic. Never reuse or renumber a decision ID. Keep the row of a replaced decision with the Status `Superseded`.
 
-| ID | Decision | Why and requirement references |
-| --- | --- | --- |
-| <DEC ID> | <chosen approach> | <reason, spec IDs, project constraint references> |
+| ID | Status | Decision | Reason |
+|----|--------|----------|--------|
+| D-NN | <Decided, Proposed or Superseded> | <chosen approach> | <reason, requirement IDs, alternatives and validation when they affect the choice> |
 
-### <DEC ID>: <topic>
+## Open Design Questions
 
-- Context: <driver or risk>.
-- Alternatives: <feasible alternatives and reasons for rejection>.
-- Consequences: <benefits, costs, limitations, and remaining risk>.
-- Evidence: <source or actual result, otherwise explicit assumption>.
-- Validation: <check and pass criterion, with planned or executed status>.
-- Revisit when: <specific change that would invalidate the choice>.
+| ID | Question |
+|----|----------|
+| DQ-NN | <question that the design cannot settle, and who decides it> |
 
-## 2. Architecture
+Write "None." below the table when no question is open.
 
-### 2.1 Components
+<The sections below are optional. Add one when the design first needs it, and cite the decisions that own its content. Remove the ones that are not used.>
 
-| Component or layer | Responsibility and owned state | Allowed dependencies | References |
-| --- | --- | --- | --- |
+## Architecture
 
-### 2.2 Directory structure
+| Layer or module | Responsibility and owned state | Allowed dependencies | References |
+|-----------------|--------------------------------|----------------------|------------|
 
-Create a folder only when it is listed here. Keep the layout consistent with the components.
+## Directory structure
+
+Create a folder only when it is listed here. Keep the layout consistent with the modules.
 
 | Path | Purpose and owner |
-| --- | --- |
+|------|-------------------|
 
-### 2.3 Settings
+## Settings
 
 | Setting | Default | Meaning and references |
-| --- | --- | --- |
+|---------|---------|------------------------|
 
-### 2.4 Technology choices
+## Data storage
 
-Record selected technologies and proposals here. Keep the installed dependency inventory and exact pins in the dependency files.
+<Define the tables of the vector store, the text of each vector, identities, and links between records. The data model is in `specs.md`, section 2: cite it and do not copy it.>
 
-| Technology | Role | Decision | State and compatibility constraint | Official source and date checked |
-| --- | --- | --- | --- | --- |
+## Interfaces
 
-### 2.5 Critical flows and operations
+<Define the routes, request and response fields, stored records, and public functions that a test needs. Cite the requirement IDs.>
 
-<Describe applicable workflow paths, failures, deployment, recovery, and external data flows. Cite requirements and decisions.>
+## Test policy
 
-## 3. Data model
-
-<Define entities, types, ownership, relationships, integrity, persistence, and migration boundaries where applicable. Cite the relevant IDs.>
-
-## 4. Interfaces
-
-<Define applicable public contracts, inputs, outputs, validation, authorization, errors, and recovery. Cite the relevant IDs.>
-
-## 5. Unresolved risks and design checks
-
-| Issue and references | Owner | Evidence needed | Blocks what? |
-| --- | --- | --- | --- |
-
-<Remove unused optional sections. Resolve material blockers before declaring the design ready for planning.>
+<State which requirements and modules get automated tests, the test level of each requirement (unit, route or browser), the test harness, and the fake for each external system.>

@@ -1,0 +1,21 @@
+# Settings and secrets (CLAUDE.md, Configuration and constants)
+config/.env
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# The files of the vector store at run time
+data/
+
+# Logs
+*.log
+log/
+.claude/logs/
+
+# Local Claude Code settings of one user
+.claude/settings.local.json

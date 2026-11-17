@@ -1,0 +1,7 @@
+Third-party files in this folder. Do not edit them: download them again.
+
+htmx.min.js            htmx 2.0.11, https://unpkg.com/htmx.org@2.0.11/dist/htmx.min.js, Zero-Clause BSD license
+inter-latin.woff2      Inter (variable font, Latin, weights 400 to 600), Google Fonts v20, SIL Open Font License 1.1
+jetbrains-mono-latin.woff2  JetBrains Mono (variable font, Latin, weights 400 to 500), Google Fonts v24, SIL Open Font License 1.1
+
+Downloaded on 2026-11-17.

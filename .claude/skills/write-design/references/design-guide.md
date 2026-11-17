@@ -41,7 +41,7 @@ Use a separate visual design process for typography, detailed layouts, or aesthe
 ## Walk behavior through the design
 
 Trace at least one critical workflow from entry point to result. Identify where validation, authorization, persistence, and external calls happen.
-Examine relevant failures, such as duplicate submissions, interrupted writes, unavailable services, stale data, or invalid AI output.
+Examine relevant failures, such as duplicate submissions, interrupted writes, an embedding model that is unavailable, or vectors that are out of date.
 Choose recovery behavior already supported by the spec. Propose a requirement change if the expected behavior is missing.
 Use a sequence or state diagram only when prose leaves an important ambiguity.
 
@@ -70,4 +70,4 @@ Use the following original sources as the method's basis. The workflow and templ
 - [SEI: ADD method collection](https://www.sei.cmu.edu/library/attribute-driven-design-method-collection/): design from significant functional requirements, quality requirements, and constraints.
 - [George Fairbanks: Risk-driven model](https://www.georgefairbanks.com/software-architecture/risk-driven-model/): choose design effort and techniques according to technical risk.
 - [arc42 method](https://arc42.org/method/): connect requirements, structures, crosscutting concepts, communication, implementation, and evaluation.
-- [Michael Nygard: Architecture decisions](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions): preserve decision context and consequences. Adapt record storage to project-init's current-state documents and Git history.
+- [Michael Nygard: Architecture decisions](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions): preserve decision context and consequences. Adapt record storage to the Decisions table of `docs/design.md` and Git history.

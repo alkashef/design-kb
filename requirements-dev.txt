@@ -1,0 +1,3 @@
+# What only the tests and the check scripts need, each pinned to the installed version (D-23).
+pytest==9.2.0
+httpx==0.28.1

@@ -1,0 +1,7 @@
+# Direct dependencies of the app, each pinned to the installed version (CLAUDE.md, Dependencies).
+# docs/design.md approves them (D-23).
+fastapi==0.163.1
+uvicorn==0.54.0
+jinja2==3.1.6
+python-multipart==0.0.34
+lancedb==0.41.0

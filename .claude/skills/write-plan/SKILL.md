@@ -10,51 +10,54 @@ plan only. Do not write code, install dependencies, or start a milestone.
 
 ## Establish the baseline
 
-- Read project instructions, `docs/workflow.md`, `docs/spec.md`, `docs/design.md`, and the current
+- Read project instructions, `docs/workflow.md`, `docs/specs.md`, `docs/design.md`, and the current
   `docs/plan.md`. Read existing code, manifests, and tests when they exist.
 - `docs/workflow.md` owns the row template, the block template, and the allowed model, effort, and
   status values. Follow it. Do not copy it into the plan.
-- Check that the spec and the design are approved. If the spec says `Status: Draft` or the design
-  has no approval, stop. Name the missing step: `/write-spec` or `/write-design`.
+- Check that the spec and the design are approved. If the spec says `Status: Draft`, or the design
+  has a `Proposed` decision or an open design question, stop. Name the missing step: `/write-spec`
+  or `/write-design`.
 - Read [the milestone guide](references/milestone-guide.md) before cutting milestones.
 - Number new milestones from the counter at the top of `plan.md`. Never renumber or reuse a number.
 
 ## Cut the milestones
 
-1. List the requirements in `spec.md` and the decisions in `design.md` that the plan must deliver.
+1. List the requirements in `specs.md` and the decisions in `design.md` that the plan must deliver.
 2. Cut thin slices. Each milestone delivers behavior that the project's tests or a manual check can
    prove, and fits one unattended session. Order them by dependency: foundations first. The runner
    works without a person, so a milestone's Gate must be one a session can meet alone: offline,
-   with AI calls off or a fake LLM client, with no user data and no human step. A check that needs a live LLM call or a
-   person is not a Gate. List it under "Human checks" (see 5).
+   with the fake embedding client, with no user data and no human step. A check that needs the live
+   embedding model or a person is not a Gate. List it under "Human checks" (see 5).
 3. Check coverage. Every requirement ID belongs to at least one milestone. List any that does not,
    and say why. Run `python scripts/spec_coverage.py` when it exists: it lists each spec ID as
    tested, manual, planned or missing.
 4. Write one block per milestone, in the workflow's template:
-   - **Refs:** the spec IDs and the `DEC-NNN` it implements.
+   - **Refs:** the spec IDs (`FR-NN`, `NFR-NN`, `AC-NN`) and the `D-NN` it implements.
    - **Owner:** the module or file that owns the change.
    - **Tests first:** follow the project's test policy (`CLAUDE.md`, Testing, and the test
      decision in `design.md`). Give one test name per spec ID that the policy tests, named after the
      ID, grouped by the level the design gives it: `unit:`, `route:`, `browser:`. A separate test
-     session writes them with `/write-tests` from the spec's examples and the design, without the
-     code, so each name must say which example and which result it checks. Write `Manual: EX-nnn`
-     only for what needs a person or a live AI call: look and feel, and the quality of AI output.
+     session writes them with `/write-tests` from the spec's requirements and examples and the
+     design, without the code, so each name must say which case and which result it checks. Write
+     `Manual: <spec ID>` (for example `Manual: AC-01`) only for what needs a person or the live
+     embedding model: look and feel, and the quality of the search results.
    - **Build:** the smallest change that passes the tests, in terms the design already fixed.
    - **Gate:** what must be true before the commit, by checks a session can run alone. Name no
      README or design update unless the project rules ask for it in this milestone.
 5. When the project rules defer documentation, end the plan with a "Doc sync" milestone: it updates
-   `README.md` and `docs/design.md` to match the code and runs the browser tests. The manual `EX-nnn`
-   checks and every check that needs a live LLM call or a person are not a milestone: write them as
-   a list under a heading "## Human checks", after the last milestone block, for the user to do
-   after the run.
+   `README.md` and `docs/design.md` to match the code and runs the browser tests. The manual
+   checks and every check that needs the live embedding model or a person are not a milestone:
+   write them as a list under a heading "## Human checks", after the last milestone block, for the
+   user to do after the run.
 6. Do not add a requirement or a dependency that the spec and design do not have. If the plan needs
    one, stop and propose the spec or design change for approval. For a decision the design leaves
    open, the milestone's session decides and records it (`docs/workflow.md`, Rules): do not turn it
    into a question.
-7. List the libraries each milestone first imports. Check that each is approved in `design.md` 2.4.
+7. List the libraries each milestone first imports. Check that a `Decided` decision in `design.md`
+   names each.
    Tell the user to approve and install every one before the run: an unattended session cannot
-   install a library (`.claude/settings.json` asks for `pip install`), and a library the design does
-   not list as approved stops the milestone.
+   install a library (`.claude/settings.json` asks for `pip install`), and a library that no
+   `Decided` decision names stops the milestone.
 
 ## Choose the model and effort
 
@@ -75,8 +78,8 @@ user asks to pin a version.
 
 ## Update an existing plan
 
-- A fix, however small, is a milestone (`docs/workflow.md`, Rules). Refs: the spec ID or section
-  whose behavior is broken, and the `DEC-NNN` it breaks, if any. Tests first: a test, named after
+- A fix, however small, is a milestone (`docs/workflow.md`, Rules). Refs: the spec ID whose
+  behavior is broken, and the `D-NN` it breaks, if any. Tests first: a test, named after
   that ID, that fails while the fault is there. Use the smallest model and effort that fit.
 
 - Add new milestones after the last one. Do not renumber.

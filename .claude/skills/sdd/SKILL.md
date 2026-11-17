@@ -1,6 +1,6 @@
 ---
 name: sdd
-description: The way into spec-driven development in this repo. Reads the state of docs/spec.md, docs/design.md and docs/plan.md and what the user asks, names the step of docs/workflow.md that comes next, and starts that one skill (/write-spec, /write-design, /write-plan, or a milestone with /write-tests). Use when the user asks for a new feature, a change, a fix of any size, the next step, to build or run milestones, or where the project stands, even if they do not name a skill. Runs one step, then stops.
+description: The way into spec-driven development in this repo. Reads the state of docs/specs.md, docs/design.md and docs/plan.md and what the user asks, names the step of docs/workflow.md that comes next, and starts that one skill (/write-spec, /write-design, /write-plan, or a milestone with /write-tests). Use when the user asks for a new feature, a change, a fix of any size, the next step, to build or run milestones, or where the project stands, even if they do not name a skill. Runs one step, then stops.
 ---
 
 # SDD
@@ -13,14 +13,16 @@ gate for the user.
 
 Read the files, not memory:
 
-- **Spec:** the `Status` line of `docs/spec.md` (`Draft` or `Approved`).
-- **Design:** the review-state lines at the top of `docs/design.md`, and whether the design was
-  approved after the spec's last change. Compare the dates in those lines, and the dates of the last
-  commits of each file (`git log -1 --format=%cs -- docs/spec.md docs/design.md`). A spec commit
-  newer than the design's approval means the design may be stale.
+- **Spec:** the `Status` in the version line at the top of `docs/specs.md` (`Draft` or `Approved`),
+  and its table "Open Items".
+- **Design:** the Status of each decision in `docs/design.md` (`Decided`, `Proposed` or
+  `Superseded`), and its table "Open Design Questions". The design is approved when no decision is
+  `Proposed` and no question is open. Compare the date of the last commit of each file
+  (`git log -1 --format=%cs -- docs/specs.md`, then the same for `docs/design.md`). A spec commit
+  newer than the last design commit means the design may be stale.
 - **Plan:** the rows of "Milestones at a glance" in `docs/plan.md`, and the Status of each (`open`,
   `blocked`, `approved`).
-- **Git:** `git status --short`, and whether `main` is ahead of its remote.
+- **Git:** `git status --short`, and whether the branch is ahead of its remote.
 
 If a state is unclear (for example, you cannot tell whether the design covers the newest spec), ask
 the user that one question before you route.
@@ -43,7 +45,8 @@ When the request does not say which row it is, ask one question. Quote the user'
 The loop runs in order. Before you start a step, check that the steps before it are done:
 
 1. A spec in `Draft` comes first: resume `/write-spec`, or ask the user to approve it.
-2. A design that is stale for the approved spec comes next: `/write-design`.
+2. A design that is stale for the approved spec, or that has a `Proposed` decision or an open
+   design question, comes next: `/write-design`.
 3. A plan that is missing for an approved design comes next: `/write-plan`.
 4. A `blocked` milestone comes before every other milestone: show its **Blocked** entry, and ask the
    user to approve or change it (`docs/workflow.md`, Approval). Do not edit its entries.

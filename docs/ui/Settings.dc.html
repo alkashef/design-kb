@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA1AD}a:hover{color:#6EE7B7}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; display: flex; flex-wrap: wrap; background: #0C0D10; color: #ECEEF2; font-family: 'Inter', system-ui, sans-serif;">
+
+  <aside style="flex: 1 1 232px; max-width: 248px; box-sizing: border-box; padding: 28px 20px; display: flex; flex-direction: column; gap: 32px; border-right: 1px solid #1E2128;">
+    <div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #6EE7B7; display: inline-block;"></span>design-kb
+    </div>
+    <nav style="display: flex; flex-direction: column; gap: 4px; font-size: 14px;">
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Search</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Employees</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Skill tree</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Projects</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #181B21; color: #ECEEF2; font-weight: 500;">Settings</a>
+    </nav>
+    <div style="margin-top: auto;">
+      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #2A2E38; background: transparent; color: #ECEEF2; font: 500 14px 'Inter', sans-serif;">Add employee</button>
+    </div>
+  </aside>
+
+  <main style="flex: 999 1 720px; min-width: 0; box-sizing: border-box; padding: 40px 48px 64px; display: flex; flex-direction: column; gap: 28px;">
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #6EE7B7;">DESIGN-KB / SETTINGS</div>
+      <h1 style="margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600;">Settings</h1>
+    </div>
+
+    <section style="width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: 22px; padding: 28px; border: 1px solid #23262E; border-radius: 16px; background: #101216;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em;">Level thresholds</h2>
+        <div style="font-size: 14px; line-height: 1.55; color: #9AA1AD; max-width: 640px;">Set how many projects an employee needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the employee.</div>
+      </div>
+
+      <div style="border: 1px solid #1E2128; border-radius: 12px; overflow-x: auto;">
+        <div style="min-width: 760px;">
+          <div style="display: grid; grid-template-columns: 56px 130px 130px minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; padding: 12px 20px; border-bottom: 1px solid #1E2128; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #9AA1AD;">
+            <span>LEVEL</span><span>NAME</span><span>SOURCE</span><span>LEAD PROJECTS (FROM · TO)</span><span>MEMBER PROJECTS (FROM · TO)</span>
+          </div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 56px 130px 130px minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: center; padding: 14px 20px; border-top: {{r.rule}}; font-size: 14px;">
+              <span style="font-family: 'JetBrains Mono', monospace; color: #6EE7B7;">{{r.level}}</span>
+              <span style="font-weight: 500;">{{r.name}}</span>
+              <span style="font-size: 13px; color: #9AA1AD;">{{r.source}}</span>
+              <sc-if value="{{r.editable}}" hint-placeholder-val="{{ true }}">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <input type="text" aria-label="{{r.name}} lead from" value="{{r.leadFrom}}" style="width: 64px; height: 38px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'JetBrains Mono', monospace; text-align: center;">
+                  <span style="color: #9AA1AD;">to</span>
+                  <input type="text" aria-label="{{r.name}} lead to" value="{{r.leadTo}}" style="width: 64px; height: 38px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'JetBrains Mono', monospace; text-align: center;">
+                </span>
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <input type="text" aria-label="{{r.name}} member from" value="{{r.memFrom}}" style="width: 64px; height: 38px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'JetBrains Mono', monospace; text-align: center;">
+                  <span style="color: #9AA1AD;">to</span>
+                  <input type="text" aria-label="{{r.name}} member to" value="{{r.memTo}}" style="width: 64px; height: 38px; box-sizing: border-box; padding: 0 10px; border-radius: 8px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'JetBrains Mono', monospace; text-align: center;">
+                </span>
+              </sc-if>
+              <sc-if value="{{r.manual}}" hint-placeholder-val="{{ false }}">
+                <span style="grid-column: 4 / 6; font-size: 13px; color: #9AA1AD;">{{r.note}}</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="font-size: 13px; color: #9AA1AD;">Leave "to" empty for no upper limit. Saving recomputes every employee's levels.</div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <button style="height: 44px; padding: 0 24px; border: 0; border-radius: 10px; background: #6EE7B7; color: #04130D; font: 600 14px 'Inter', sans-serif;">Save thresholds</button>
+        <button style="height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid #2A2E38; background: transparent; color: #ECEEF2; font: 500 14px 'Inter', sans-serif;">Reset to defaults</button>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      { level: '1', name: 'Aware', source: 'Manual flag', editable: false, manual: true, note: 'Set on the employee. Allowed only where the employee has no project on the skill.' },
+      { level: '2', name: 'Hands-on', source: 'Computed', editable: true, manual: false, leadFrom: '0', leadTo: '0', memFrom: '1', memTo: '' },
+      { level: '3', name: 'Lead', source: 'Computed', editable: true, manual: false, leadFrom: '1', leadTo: '2', memFrom: '0', memTo: '' },
+      { level: '4', name: 'Senior lead', source: 'Computed', editable: true, manual: false, leadFrom: '3', leadTo: '', memFrom: '0', memTo: '' },
+      { level: '5', name: 'Expert', source: 'Manual flag', editable: false, manual: true, note: 'Set on the employee, on any skill. Overrides the computed level.' }
+    ];
+    return { rows: rows.map((r, i) => ({ ...r, rule: i === 0 ? '0' : '1px solid #1E2128' })) };
+  }
+}
+</script>
+</body>
+</html>

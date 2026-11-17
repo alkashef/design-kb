@@ -1,0 +1,2 @@
+# The git hooks are shell scripts: keep LF line ends on every system, or the hook fails on Windows.
+.githooks/* text eol=lf

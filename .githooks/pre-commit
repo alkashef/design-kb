@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run the project's checks before each commit (docs/workflow.md).
+# Turn this hook on, one time for each clone: git config core.hooksPath .githooks
+# Commit from a shell where the conda environment design-kb is active.
+exec python scripts/check.py

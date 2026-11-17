@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Employees</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA1AD}a:hover{color:#6EE7B7}
+</style>
+</helmet>
+<div style="min-height: 1060px; box-sizing: border-box; display: flex; flex-wrap: wrap; background: #0C0D10; color: #ECEEF2; font-family: 'Inter', system-ui, sans-serif;">
+
+  <aside style="flex: 1 1 232px; max-width: 248px; box-sizing: border-box; padding: 28px 20px; display: flex; flex-direction: column; gap: 32px; border-right: 1px solid #1E2128;">
+    <div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #6EE7B7; display: inline-block;"></span>design-kb
+    </div>
+    <nav style="display: flex; flex-direction: column; gap: 4px; font-size: 14px;">
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Search</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #181B21; color: #ECEEF2; font-weight: 500;">Employees</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Skill tree</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Projects</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Settings</a>
+    </nav>
+    <div style="margin-top: auto;">
+      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #2A2E38; background: transparent; color: #ECEEF2; font: 500 14px 'Inter', sans-serif;">Add employee</button>
+    </div>
+  </aside>
+
+  <main style="flex: 999 1 720px; min-width: 0; box-sizing: border-box; padding: 40px 48px 64px; display: flex; flex-direction: column; gap: 28px;">
+
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #6EE7B7;">DESIGN-KB / EMPLOYEES</div>
+        <h1 style="margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600;">Employees</h1>
+      </div>
+      <button style="height: 44px; padding: 0 22px; border: 0; border-radius: 10px; background: #6EE7B7; color: #04130D; font: 600 14px 'Inter', sans-serif;">Add employee</button>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+      <div style="flex: 1 1 320px; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 16px; background: #14161B; border: 1px solid #2A2E38; border-radius: 10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA1AD" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+        <input type="text" aria-label="Filter by name or ID" placeholder="Filter by name or ID" style="flex-grow: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 400 14px 'Inter', sans-serif; color: #ECEEF2;">
+      </div>
+      <select aria-label="Team" style="height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'Inter', sans-serif;"><option>Team: any</option></select>
+      <select aria-label="Career level" style="height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #2A2E38; background: #14161B; color: #ECEEF2; font: 400 14px 'Inter', sans-serif;"><option>Career level: any</option></select>
+    </div>
+
+    <div style="border: 1px solid #23262E; border-radius: 16px; background: #101216; overflow-x: auto;">
+      <div style="min-width: 940px;">
+        <div style="display: grid; grid-template-columns: 90px minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1fr) 120px minmax(0, 1.3fr) 24px; column-gap: 20px; padding: 14px 28px; border-bottom: 1px solid #23262E; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #9AA1AD;">
+          <span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span><span></span>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+          <a href="Profile.dc.html" style="display: grid; grid-template-columns: 90px minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1fr) 120px minmax(0, 1.3fr) 24px; column-gap: 20px; align-items: center; padding: 16px 28px; border-top: 1px solid #1E2128; text-decoration: none; color: #ECEEF2; font-size: 14px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA1AD;">{{r.id}}</span>
+            <span style="display: flex; align-items: center; gap: 12px; font-weight: 600;">
+              <span style="width: 32px; height: 32px; border-radius: 50%; background: #12221D; color: #6EE7B7; display: inline-flex; align-items: center; justify-content: center; font: 500 11px 'JetBrains Mono', monospace; flex-shrink: 0;">{{r.initials}}</span>{{r.name}}
+            </span>
+            <span style="color: #D5D8DF;">{{r.title}}</span>
+            <span style="color: #9AA1AD;">{{r.team}}</span>
+            <span style="color: #D5D8DF;">{{r.career}}</span>
+            <span style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <sc-for list="{{r.skills}}" as="s" hint-placeholder-count="2">
+                <span style="padding: 3px 9px; border-radius: 999px; border: 1px solid #2A2E38; font: 400 12px 'JetBrains Mono', monospace; color: #D5D8DF;">{{s}}</span>
+              </sc-for>
+            </span>
+            <span style="color: #9AA1AD;">&rsaquo;</span>
+          </a>
+        </sc-for>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-top: 1px solid #23262E; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA1AD;">
+          <span>1 TO 10 OF 40 · SAMPLE DATA</span>
+          <span style="display: flex; gap: 8px;">
+            <button style="height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid #2A2E38; background: transparent; color: #9AA1AD; font: 400 12px 'JetBrains Mono', monospace;">Previous</button>
+            <button style="height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid #2A2E38; background: transparent; color: #ECEEF2; font: 400 12px 'JetBrains Mono', monospace;">Next</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const raw = [
+      ['E-0142', 'Layla Haddad', 'Senior analog designer', 'Analog · Clocking', 'Senior', ['PLL · Sr lead', 'VCO · Lead']],
+      ['E-0118', 'Marcus Obi', 'Principal engineer', 'Mixed-signal', 'Principal', ['PLL · Expert', 'Digital PLL · Lead']],
+      ['E-0167', 'Sofia Lindqvist', 'Staff designer', 'Analog · Clocking', 'Staff', ['PLL · Lead', 'Jitter analysis · Lead']],
+      ['E-0203', 'Daniel Okafor', 'Designer', 'Mixed-signal', 'Mid', ['Charge pump · Lead', 'PLL · Hands-on']],
+      ['E-0211', 'Tomás Weber', 'Designer', 'Analog · Clocking', 'Mid', ['PLL · Hands-on', 'VCO · Hands-on']],
+      ['E-0129', 'Omar Farouk', 'Designer', 'Analog · Power', 'Mid', ['LDO · Lead', 'Bandgap · Hands-on']],
+      ['E-0154', 'Hannah Berg', 'Designer', 'Mixed-signal', 'Junior', ['ADC · Hands-on', 'Verilog · Hands-on']],
+      ['E-0097', 'Ravi Menon', 'Staff designer', 'Analog · Clocking', 'Staff', ['CDR · Sr lead', 'PLL · Lead']],
+      ['E-0188', 'Elena Petrova', 'Designer', 'Mixed-signal', 'Mid', ['ADC · Lead', 'Python · Hands-on']],
+      ['E-0176', 'Jonas Albrecht', 'Senior designer', 'Digital', 'Senior', ['Verilog · Sr lead', 'DFT · Lead']]
+    ];
+    return { rows: raw.map((r) => ({
+      id: r[0], name: r[1], initials: r[1].split(' ').map((p) => p[0]).join(''),
+      title: r[2], team: r[3], career: r[4], skills: r[5]
+    })) };
+  }
+}
+</script>
+</body>
+</html>

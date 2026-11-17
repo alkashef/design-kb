@@ -1,65 +1,77 @@
-# Spec - [Project name]
+# Software Requirements Specification: design-kb
 
-Status: Draft
+Version <n.n> · <date> · Status: Draft
 
-## 1. Purpose and scope
+## 1. Introduction
 
-Record the business problem, affected people, current workaround, desired
-improvement, in-scope work, exclusions, and binding constraints.
-Record how the business outcome will be evaluated when applicable.
+### 1.1 Purpose
+State what this document holds. Design choices are in `design.md`.
 
-## 2. Roles and glossary
+### 1.2 Scope
+Record the business problem, the users, and the limits of the proof of concept.
 
-Define the relevant user roles, decision-makers, and ambiguous domain terms.
+### 1.3 Glossary
+| Term | Meaning |
+|------|---------|
 
-## 3. User scenarios
+Define each domain term one time. Keep the terms in alphabetical order.
 
-For each `SCN-NNN`, record:
+### 1.4 Users
+Define the user types and their access.
 
-- Actor and goal
-- Trigger and preconditions
-- Main success path
-- Relevant alternate paths and failure paths
-- Observable result
-- Source and confirmation status
+## 2. Data Model
 
-## 4. Functional requirements
+One subsection for each entity, with a table of its attributes.
 
-| ID | EARS requirement | Priority | Status | Business reason | Source | Scenarios | Examples |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| Attribute | Notes |
+|-----------|-------|
 
-Use the project's status convention. Otherwise, distinguish Proposed, Confirmed,
-and Withdrawn requirements. A confirmed requirement still needs the applicable
-spec approval before implementation.
+## 3. Functional Requirements
 
-## 5. Non-functional requirements
+Requirements use the EARS templates. The Type column shows the template: U = ubiquitous, E = event-driven (When), S = state-driven (While), O = optional feature (Where), X = unwanted behavior (If, then).
 
-| ID | EARS requirement | Priority | Status | Business reason | Source | Acceptance evidence |
-| --- | --- | --- | --- | --- | --- | --- |
+One subsection for each area, with its own block of ten IDs.
 
-State the relevant workload, conditions, and measurable acceptance limits.
-Keep unknown limits in the open questions. Do not invent values.
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-NN | <U, E, S, O or X> | <one required behavior> |
 
-## 6. Acceptance examples
+## 4. Non-Functional Requirements
+| ID | Type | Requirement |
+|----|------|-------------|
+| NFR-NN | <U, E, S, O or X> | <one required behavior, with measurable limits> |
 
-| ID | Requirement IDs | Situation and input | Expected result | Reviewed by |
-| --- | --- | --- | --- | --- |
+Keep unknown limits in the open items. Do not invent values.
 
-Record the actual reviewer or mark the example as awaiting review.
-Link rules by ID instead of repeating their text.
+## 5. Constraints
+List the binding constraints. Cite `design.md` for a design choice.
 
-## 7. Assumptions and open questions
+## 6. Acceptance Criteria
+| ID | Type | Criterion |
+|----|------|-----------|
+| AC-NN | <U, E, S, O or X> | <what the demo must show> |
 
-| Item | Evidence or assumption | Consequence if wrong | Owner | Resolution or revisit condition |
-| --- | --- | --- | --- | --- |
+State which criteria the proof of concept must meet to pass.
 
-Identify what each material unresolved question blocks.
-Record deliberately deferred decisions with their limits.
+### Examples for AC-NN
+| # | Situation and input | Expected result |
+|---|---------------------|-----------------|
 
-## 8. Review and approval
+Use invented data. Cite the requirement that an example checks.
 
-Record the actual approval, its scope, and remaining exclusions when it occurs.
-Do not prefill approval or treat silence as consent.
+## 7. Out of Scope
+List what the proof of concept excludes.
 
-For amendments, record the approved change and affected IDs here only if the
-project has no existing change-record convention. Preserve IDs and withdrawn rows.
+## 8. Assumptions
+Source: **Owner** means the product owner stated it. **Inferred** means Claude derived it. The product owner has not confirmed it.
+
+| ID | Assumption | Source |
+|----|------------|--------|
+| A-NN | <assumption> | <Owner or Inferred> |
+
+## 9. Open Items
+| ID | Item | Proposed default |
+|----|------|------------------|
+| OI-NN | <open question> | <the answer that applies until the product owner decides> |
+
+Delete the row of an item when the product owner closes it. Do not prefill approval or treat silence as consent.

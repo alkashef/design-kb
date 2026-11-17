@@ -1,6 +1,6 @@
 # Software Requirements Specification: design-kb
 
-Version 0.1 · 2026-11-16 · Status: Draft
+Version 0.3 · 2026-11-17 · Status: Approved
 
 ## 1. Introduction
 
@@ -102,7 +102,7 @@ The system has two search modes. Experience search looks for people with the exp
 | FR-02 | U | The system shall match a query to employees by meaning, not by keywords. |
 | FR-03 | U | The system shall offer these optional filters: team, career level, and one leaf with a minimum level for that leaf. The Aware and Expert flags count as levels 1 and 5 in this filter. The filters apply to both search modes. |
 | FR-04 | S | While one or more filters are set, the system shall rank only the employees that meet all filters. |
-| FR-05 | U | The system shall show each search result with name, job title, team and a short reason for the match. In experience search, the result shall also show the top matching leaves. |
+| FR-05 | U | The system shall show each search result with name, job title, team and a short reason for the match. In experience search, the result shall also show the leaves of the employee's best matching assignments: at most 3 leaves, best first, each leaf one time. |
 | FR-06 | E | When the user submits a free-text query in gap search, the system shall return employees ranked by semantic match between the query and their skill gaps. |
 | FR-07 | E | When the user applies one or more filters and enters no query text, the system shall list all employees that meet the filters. |
 
@@ -122,20 +122,25 @@ The system has two search modes. Experience search looks for people with the exp
 | FR-22 | U | The system shall allow the user to create and edit assignments. |
 | FR-23 | U | The system shall allow the user to set the Aware flag and the Expert flag on a leaf for an employee. |
 | FR-24 | X | If the user sets the Aware flag on a leaf where the employee has an assignment, then the system shall reject the change and show a message. |
-| FR-25 | U | The system shall compute levels 2, 3 and 4 from assignments. |
+| FR-25 | U | The system shall compute levels 2, 3 and 4 from assignments: an employee has, in a leaf, the highest of these levels whose lead range and member range (FR-31) both contain the employee's number of lead projects and number of member projects in that leaf. |
 | FR-26 | X | If the user tries to enter level 2, 3 or 4 directly, then the system shall not accept the entry. |
 | FR-27 | S | While the Expert flag is set on a leaf, the system shall show level 5 for that leaf, whatever the computed level. |
 | FR-28 | U | The system shall allow the user to delete employees, projects and assignments. |
-| FR-29 | E | When the user deletes an employee or a project, the system shall also delete the assignments that refer to it. |
+| FR-29 | E | When the user deletes an employee or a project, the system shall also delete the assignments and the flags that refer to it. |
+| FR-40 | U | The system shall offer only leaves when the user selects the leaf of an assignment or of a flag. |
+| FR-41 | X | If the user enters an assignment or a flag on a node that has children, then the system shall reject the entry and show a message. |
+| FR-42 | X | If the user enters an assignment for an employee, a project and a leaf that already have an assignment, then the system shall reject the entry and show a message. |
 
 ### 3.4 Settings
 | ID | Type | Requirement |
 |----|------|-------------|
 | FR-30 | U | The system shall provide an outline editor (an indented list with add, rename, describe and delete actions) for the user to define the skill tree, including the optional description of each node. |
-| FR-31 | U | The system shall allow the user to set the number of lead and member assignments required for each computed level (2, 3 and 4). |
+| FR-31 | U | The system shall allow the user to set, for each computed level (2, 3 and 4), a range of lead projects and a range of member projects. A range has a "from" value and a "to" value. An empty "to" value means no upper limit. |
 | FR-32 | U | The system shall use the default thresholds in section 2.5 until the user changes them. |
 | FR-33 | X | If the user deletes a node that has children, or a leaf that has assignments or flags, then the system shall refuse the deletion and show a message. |
 | FR-34 | X | If the user adds a child to a leaf that has assignments or flags, then the system shall refuse the change and show a message. |
+| FR-35 | X | If the user enters a threshold that is not a whole number of 0 or more, or a "from" value that is greater than its "to" value, then the system shall reject the change and show a message. |
+| FR-36 | E | When the user resets the thresholds, the system shall restore the default thresholds in section 2.5. |
 
 ## 4. Non-Functional Requirements
 | ID | Type | Requirement |

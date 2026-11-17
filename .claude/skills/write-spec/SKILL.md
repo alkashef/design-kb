@@ -19,16 +19,15 @@ outside this skill.
 Use the approach described by Karl Wiegers and Joy Beatty. Apply the adaptations
 in [the interview guide](references/interview-guide.md). Read that guide before
 the first interview. Read [the EARS guide](references/ears-guide.md) when writing
-requirements. Use [the spec template](assets/spec-template.md) only when the
-project has no existing spec format.
+requirements. [The spec template](assets/spec-template.md) shows the format of
+`docs/specs.md`. Use it only to rebuild a section that is missing.
 
 ## Start from the available context
 
 1. Read the request, prior answers, and relevant supplied documents.
 2. Read project instructions and the existing spec, workflow, and glossary.
 3. Identify whether this is a new spec, a resumed interview, or a proposed amendment.
-4. Use the existing spec path. Otherwise, use `docs/spec.md` in the stated project.
-5. If no project or destination is known, interview in chat. Resolve the destination before saving.
+4. The spec is `docs/specs.md`. Use its sections, tables, and conventions.
 
 Use files and observation to establish facts. Reserve user questions for intent,
 priorities, domain rules, trade-offs, and facts the available evidence cannot establish.
@@ -90,12 +89,14 @@ Treat an unknown target as an open question with a way to resolve it.
 For each consequential rule, capture a concrete input or situation and its expected result.
 Include a representative success case and a relevant exception or boundary case.
 
-Every requirement ID links at least one acceptance example (`EX-NNN`). These examples are the
-tests designed from the spec: `/write-tests` later turns them into code without reading the code.
-So write each one so that a test can be built from it before the design exists: a starting state
-with invented data, the person's action, and a result a test can observe (what the page shows,
-what the server answers, what is saved). Avoid words a test cannot check, such as "clear",
-"fast", or "easy". Name no routes, modules, or screen internals; those belong to the design.
+The requirements and the examples of the acceptance criteria (`AC-NN`, section 6) are the tests
+designed from the spec: `/write-tests` later turns them into code without reading the code.
+So write each requirement so that a test can be built from it before the design exists: a
+starting state, the person's action, and a result a test can observe (what the page shows, what
+the server answers, what is stored). When a requirement needs a concrete case to be testable, add
+an example with invented data to an acceptance criterion and cite the requirement there. Avoid
+words a test cannot check, such as "clear", "fast", or "easy". Name no routes, modules, or screen
+internals; those belong to the design.
 Ask the user or appropriate domain owner to review the expected results.
 
 Restate a small, coherent part when enough evidence exists. Ask what is wrong or missing.
@@ -110,22 +111,25 @@ requirements document or copy requirements into the design or plan.
 
 For each requirement:
 
-- Write one required behavior in EARS syntax, with a stable ID and a priority.
-- State its business reason and identify its source or supporting evidence.
-- Link the relevant scenario and acceptance examples by ID.
-- Distinguish a confirmed requirement from an inference or proposed requirement.
+- Write one required behavior in EARS syntax, as a row of the table of its section: a stable ID,
+  the Type letter of its EARS pattern, and the requirement.
+- Cite the requirements that an acceptance criterion checks by ID.
+- Distinguish a confirmed requirement from an inference. Record an inference as an assumption
+  (`A-NN`) with the Source `Inferred`. The Source `Owner` means the product owner stated it.
+- Record an open question as an open item (`OI-NN`) with a proposed default. Delete the row when
+  the product owner closes it.
 
 Separate business outcomes from software acceptance. A response-time test can establish
 latency. It cannot establish that the app improves business decisions.
 Record how the business outcome will be evaluated after use, when relevant.
 
-Reuse the project's ID convention. If none exists, use `AREA-NNN` and `NFR-NNN`.
-Allocate after the highest number previously used in the relevant namespace.
+Use the ID convention of `docs/specs.md`: `FR-NN`, `NFR-NN`, `AC-NN`, `A-NN`, and `OI-NN`.
+The EARS guide gives the use and the number blocks of each.
+Allocate after the highest number previously used in the relevant block.
 Keep an ID when its requirement changes. Mark retired requirements `Withdrawn`.
 Never renumber, recycle IDs, or delete withdrawn requirements to close numbering gaps.
-Use `SCN-NNN` for scenarios and `EX-NNN` for examples if no convention exists.
 
-For amendments, show the proposed delta and its impact on existing scenarios and requirements.
+For amendments, show the proposed delta and its impact on existing requirements and acceptance criteria.
 Apply the delta only under the project's approval rules. Flag downstream design or test
 impacts without changing those artifacts as part of this interview.
 
@@ -134,10 +138,10 @@ impacts without changing those artifacts as part of this interview.
 Review substance before wording:
 
 - Trace each requirement to a user task, business rule, quality need, or binding constraint.
-- Check that scenarios cover the agreed scope, including relevant roles and failure paths.
-- Check terminology, consistency, unique IDs, and unresolved conflicts.
-- Check that acceptance examples have domain-reviewed expected results.
-- Check that every requirement ID links an example whose result a test can observe.
+- Check that the requirements cover the agreed scope, including failure paths.
+- Check terminology against the glossary, consistency, unique IDs, and unresolved conflicts.
+- Check that the examples of the acceptance criteria have domain-reviewed expected results.
+- Check that every requirement states a result a test can observe.
 - Identify material unknowns that would change scope, behavior, or acceptance.
 
 Resolve material unknowns or explicitly defer them with an owner and a revisit condition.
