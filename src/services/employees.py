@@ -174,6 +174,16 @@ class EmployeeService:
             result[employee_id] = reached[:TOP_SKILL_COUNT]
         return result
 
+    def levels_in(self, employee_id: str, leaf_ids: List[str]) -> List[SkillLevel]:
+        """Return the level of the employee in each of the given leaves, in the order of leaf_ids."""
+        by_leaf = self._levels_of(
+            employee_id,
+            self._store.list_nodes(),
+            self._store.list_assignments(),
+            self._store.list_flags(),
+        )
+        return [by_leaf[leaf_id] for leaf_id in leaf_ids if leaf_id in by_leaf]
+
     def _levels_of(self, employee_id, nodes, assignments, flags) -> Dict[str, SkillLevel]:
         """Return the SkillLevel of the employee in each leaf, in tree order."""
         flag_of = {f.leaf_id: f.flag for f in flags if f.employee_id == employee_id}

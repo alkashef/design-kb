@@ -1,7 +1,7 @@
 """LanceStore: the only module that imports LanceDB (D-15, D-21)."""
 
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import lancedb
 import pyarrow as pa
@@ -15,6 +15,7 @@ from src.domain.models import (
     ProfileVector,
     Project,
     Threshold,
+    VectorMatch,
 )
 
 logger = logging.getLogger(__name__)
@@ -305,6 +306,23 @@ class LanceStore:
     def delete_profile_vector(self, employee_id: str) -> None:
         """Delete the profile vector of one employee."""
         self._delete_vectors(PROFILE_VECTORS_TABLE, f"employee_id = {_quote(employee_id)}")
+
+    def search_assignment_vectors(
+        self, query_vector: List[float], employee_ids: Optional[List[str]] = None
+    ) -> List[VectorMatch]:
+        """Return every assignment vector of the given employees (all when None), nearest first.
+
+        The search is exact and uses the cosine distance, and it looks only at the vectors of the
+        given employees (D-04, D-27, D-40).
+        """
+        if not self._has_table(ASSIGNMENT_VECTORS_TABLE) or employee_ids == []:
+            return []
+        table = self._db.open_table(ASSIGNMENT_VECTORS_TABLE)
+        query = table.search(query_vector).metric("cosine")
+        if employee_ids is not None:
+            query = query.where(f"employee_id IN {_id_list(employee_ids)}", prefilter=True)
+        rows = query.limit(table.count_rows()).to_list()
+        return [VectorMatch(r["assignment_id"], r["employee_id"], r["_distance"]) for r in rows]
 
     def drop_vectors(self) -> None:
         """Delete both vector tables; the next write creates them with its vector size (D-27)."""

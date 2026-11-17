@@ -8,27 +8,10 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M12** Experience search | Ranked results, reasons, top leaves, preview | sonnet | high | open |
 | **M13** Search filters | Team, career level, leaf with minimum level; filters with no query | sonnet | medium | open |
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M12 — Experience search
-
-- **Refs:** FR-01, FR-02, FR-05, D-04, D-10, D-11, D-14, D-18, D-28, D-29.
-- **Owner:** `src/domain/ranking.py`, `src/services/search.py`, `src/web/routes/search.py`, `src/web/templates/search.html`, `partials/`.
-- **Tests first:** unit: `test_fr_01_rank_employees_puts_the_smallest_best_distance_first`,
-  `test_fr_05_rank_employees_keeps_at_most_3_leaves_each_one_time`.
-  route: `test_fr_01_query_ranks_the_employee_with_the_matching_assignment_first`,
-  `test_fr_01_query_shows_at_most_search_result_limit_employees`,
-  `test_fr_01_no_query_and_no_filter_shows_no_results`,
-  `test_fr_05_result_shows_name_job_title_team_and_the_best_assignment_as_reason`,
-  `test_fr_05_result_shows_at_most_3_leaf_tags`, `test_fr_05_preview_shows_the_first_result`,
-  `test_fr_05_preview_route_shows_the_chosen_employee`.
-  Manual: FR-02.
-- **Build:** `rank_employees` in the domain. `search.py` embeds the query and searches the assignment vectors. The Search page from `docs/ui/SearchSplit.dc.html`: the query, the mode switch, the result list with `data-employee-id`, `data-reason` and `data-result-count`, and the preview that HTMX loads from `/search/preview/{employee_id}`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M12` pass.
 
 ### M13 — Search filters
 

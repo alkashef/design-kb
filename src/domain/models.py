@@ -94,3 +94,12 @@ class ProfileVector:
     employee_id: str
     text: str
     vector: List[float]
+
+
+@dataclass
+class VectorMatch:
+    """One assignment vector found by a vector search, with its cosine distance (D-40)."""
+
+    assignment_id: str
+    employee_id: str
+    distance: float

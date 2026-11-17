@@ -1,0 +1,42 @@
+{% set employee = preview.employee %}
+<div class="preview-card" data-employee-id="{{ employee.id }}">
+  <div class="preview-head">
+    <div class="avatar mono">{{ (employee.name.split()[:2] | map("first") | join) | upper }}</div>
+    <div class="preview-who">
+      <div class="preview-name">{{ employee.name }}</div>
+      <div class="muted">{{ employee.job_title }} · {{ employee.career_level }} · {{ employee.team }} · ID {{ employee.id }}</div>
+    </div>
+    <a class="button-outline link-button" href="/employees/{{ employee.id }}">Open full profile</a>
+  </div>
+  <div class="preview-section">
+    <div class="mono muted">SKILL LEVELS</div>
+    <div class="level-grid">
+      {% for g in preview.skill_groups %}{% for l in g.leaves if l.level %}
+      <div class="level-card" data-leaf-id="{{ l.leaf_id }}" data-level="{{ l.level }}">
+        <div class="level-card-head"><span class="level-name-text">{{ l.name }}</span><span class="mono muted">{{ preview.level_names[l.level] }}</span></div>
+        <span class="level-bars">{% for i in range(1, 6) %}<span class="level-bar{% if i <= l.level %} on{% endif %}"></span>{% endfor %}</span>
+        <span class="muted path-text">{{ g.path }}</span>
+      </div>
+      {% endfor %}{% else %}
+      <div class="muted">No skill tree leaves yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="preview-section">
+    <div class="mono muted">PROJECTS</div>
+    <div class="preview-projects">
+      {% for r in preview.assignment_rows %}
+      <div class="preview-project" data-assignment-id="{{ r.assignment.id }}">
+        <div class="preview-project-head"><span class="preview-project-name">{{ r.project_name }}</span><span class="mono muted">{{ r.process_technology }} · {{ r.project_year }} · {{ r.leaf_path.split(" / ")[-1] }} · {{ r.assignment.participation|upper }}</span></div>
+        <div class="result-reason">{{ r.assignment.description }}</div>
+      </div>
+      {% else %}
+      <div class="muted preview-project">No assignments yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="preview-section">
+    <div class="mono muted">SKILL GAPS</div>
+    <div class="result-reason">{{ employee.skill_gaps or "No skill gaps entered." }}</div>
+  </div>
+</div>
