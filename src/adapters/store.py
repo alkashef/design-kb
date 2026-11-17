@@ -6,7 +6,7 @@ from typing import List
 import lancedb
 import pyarrow as pa
 
-from src.domain.models import Assignment, Employee, Node, Project
+from src.domain.models import Assignment, Employee, Flag, Node, Project
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,16 @@ ASSIGNMENTS_SCHEMA = pa.schema(
 )
 
 
+FLAGS_TABLE = "flags"
+FLAGS_SCHEMA = pa.schema(
+    [
+        ("employee_id", pa.string()),
+        ("leaf_id", pa.string()),
+        ("flag", pa.string()),
+    ]
+)
+
+
 def _quote(value: str) -> str:
     """Return value as a quoted SQL text for a filter."""
     return "'" + value.replace("'", "''") + "'"
@@ -81,6 +91,7 @@ class LanceStore:
         self._assignments = self._db.create_table(
             ASSIGNMENTS_TABLE, schema=ASSIGNMENTS_SCHEMA, exist_ok=True
         )
+        self._flags = self._db.create_table(FLAGS_TABLE, schema=FLAGS_SCHEMA, exist_ok=True)
         logger.info("Opened the store.")
 
     def list_nodes(self) -> List[Node]:
@@ -159,3 +170,20 @@ class LanceStore:
     def delete_assignments_of_project(self, project_id: str) -> None:
         """Delete the assignments of one project."""
         self._assignments.delete(f"project_id = {_quote(project_id)}")
+
+    def list_flags(self) -> List[Flag]:
+        """Return all flags."""
+        return [Flag(**row) for row in self._flags.to_arrow().to_pylist()]
+
+    def set_flag(self, flag: Flag) -> None:
+        """Write the flag, and replace the one of the same employee and leaf."""
+        self.delete_flag(flag.employee_id, flag.leaf_id)
+        self._flags.add([vars(flag)], mode="append")
+
+    def delete_flag(self, employee_id: str, leaf_id: str) -> None:
+        """Delete the flag of one employee on one leaf."""
+        self._flags.delete(f"employee_id = {_quote(employee_id)} AND leaf_id = {_quote(leaf_id)}")
+
+    def delete_flags_of_employee(self, employee_id: str) -> None:
+        """Delete the flags of one employee."""
+        self._flags.delete(f"employee_id = {_quote(employee_id)}")

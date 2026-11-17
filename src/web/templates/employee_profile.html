@@ -26,6 +26,25 @@
     <p>{{ employee.skill_gaps or "No skill gaps entered." }}</p>
   </section>
   <section class="assignments">
+    <div class="mono muted">SKILL LEVELS · ALL SKILLS</div>
+    <span class="hint flush">Levels 2 to 4 are computed from projects.</span>
+    {% for g in skill_groups %}
+    <div class="table">
+      <div class="level-group">{{ g.path }}</div>
+      {% for l in g.leaves %}
+      <div class="level-row" data-leaf-id="{{ l.leaf_id }}" data-level="{{ l.level }}">
+        <span class="level-name{% if not l.level %} muted{% endif %}">{{ l.name }}</span>
+        <span class="muted">{{ l.source }}</span>
+        <span class="level-bars">{% for i in range(1, 6) %}<span class="level-bar{% if i <= l.level %} on{% endif %}"></span>{% endfor %}</span>
+        <span class="level-label{% if not l.level %} muted{% endif %}">{{ level_names[l.level] if l.level else "No level" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="muted">The skill tree has no leaves yet.</div>
+    {% endfor %}
+  </section>
+  <section class="assignments">
     <div class="mono muted">PROJECTS AND ASSIGNMENTS</div>
     <div class="table">
       <div class="table-row assignment-row table-head"><span>PROJECT</span><span>YEAR</span><span>SKILL</span><span>ROLE</span><span>ASSIGNMENT</span></div>

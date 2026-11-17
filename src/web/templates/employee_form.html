@@ -28,5 +28,41 @@
       <a class="button-outline link-button" href="{{ '/employees' if is_new else '/employees/' ~ employee.id }}">Cancel</a>
     </div>
   </form>
+  {% if not is_new %}
+  <section class="panel">
+    <div class="mono muted">SKILL FLAGS</div>
+    <span class="hint flush">Set Aware or Expert by hand. Levels 2 to 4 come from projects, so you cannot enter them here.</span>
+    <div class="table">
+      {% for f, leaf_path in flags %}
+      <div class="flag-row" data-leaf-id="{{ f.leaf_id }}" data-flag="{{ f.flag }}">
+        <span class="flag-leaf">{{ leaf_path }}</span>
+        <span class="role-tag{% if f.flag == 'expert' %} lead{% endif %}">{{ f.flag|capitalize }}</span>
+        <form method="post" action="/employees/{{ employee.id }}/flags/{{ f.leaf_id }}/delete">
+          <button class="button-outline small" type="submit" aria-label="Remove flag">Remove</button>
+        </form>
+      </div>
+      {% else %}
+      <div class="flag-row"><span class="muted">No flags yet.</span></div>
+      {% endfor %}
+    </div>
+    <form class="flag-form" method="post" action="/employees/{{ employee.id }}/flags">
+      <div class="field">
+        <label for="f-leaf">Skill</label>
+        <select id="f-leaf" name="leaf_id">
+          {% for leaf, leaf_path in leaf_options %}<option value="{{ leaf.id }}">{{ leaf_path }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-flag">Flag</label>
+        <select id="f-flag" name="flag">
+          <option value="aware">Aware</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <button class="button-outline fit" type="submit">Add flag</button>
+    </form>
+    {% if flag_message %}<div class="message" role="alert">{{ flag_message }}</div>{% endif %}
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

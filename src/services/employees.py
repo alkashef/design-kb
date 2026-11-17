@@ -2,13 +2,16 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
+from src.domain import levels, skill_tree
 from src.domain.models import CAREER_LEVELS, Employee
 
 logger = logging.getLogger(__name__)
 
 ID_PREFIX = "E-"
+TOP_SKILL_COUNT = 2
+TOP_LEVEL_GROUP = "Top level"
 
 
 class EmployeeError(Exception):
@@ -27,6 +30,45 @@ class EmployeePage:
     page: int
     page_count: int
     total: int
+
+
+@dataclass
+class SkillLevel:
+    """The level of an employee in one leaf and where it comes from (FR-11)."""
+
+    leaf_id: str
+    name: str
+    level: int
+    source: str
+
+
+@dataclass
+class SkillGroup:
+    """The leaves under one parent path, with the level of the employee in each."""
+
+    path: str
+    leaves: List[SkillLevel]
+
+
+def _plural(count: int, word: str) -> str:
+    """Return count and the word, such as '1 project' or '3 projects'."""
+    return f"{count} {word}" if count == 1 else f"{count} {word}s"
+
+
+def _level_source(lead_count: int, member_count: int, flag: str, level: int) -> str:
+    """Return the text that tells where the level comes from."""
+    if flag == "expert":
+        return "Expert flag"
+    if lead_count + member_count > 0:
+        parts = []
+        if lead_count:
+            parts.append(f"lead in {_plural(lead_count, 'project')}")
+        if member_count:
+            parts.append(f"member in {_plural(member_count, 'project')}")
+        return ("Computed: " if level else "No level from ") + ", ".join(parts)
+    if flag == "aware":
+        return "Aware flag"
+    return "No projects, no flag"
 
 
 class EmployeeService:
@@ -91,8 +133,56 @@ class EmployeeService:
         """Delete an employee."""
         self.get(employee_id)
         self._store.delete_assignments_of_employee(employee_id)
+        self._store.delete_flags_of_employee(employee_id)
         self._store.delete_employee(employee_id)
         logger.info("Deleted an employee.")
+
+    def skill_groups(self, employee_id: str) -> List[SkillGroup]:
+        """Return the levels of the employee, grouped by parent path, in tree order (FR-11)."""
+        nodes = self._store.list_nodes()
+        assignments = self._store.list_assignments()
+        levels_by_leaf = self._levels_of(employee_id, nodes, assignments, self._store.list_flags())
+        groups: Dict[str, SkillGroup] = {}
+        for node, _depth in skill_tree.outline(nodes):
+            if node.id not in levels_by_leaf:
+                continue
+            parent_path = skill_tree.path(nodes, node.parent_id) or TOP_LEVEL_GROUP
+            group = groups.setdefault(parent_path, SkillGroup(parent_path, []))
+            group.leaves.append(levels_by_leaf[node.id])
+        return list(groups.values())
+
+    def top_skills(self, employee_ids: List[str]) -> Dict[str, List[SkillLevel]]:
+        """Return the highest levels (at most TOP_SKILL_COUNT) of each employee, highest first."""
+        nodes = self._store.list_nodes()
+        assignments = self._store.list_assignments()
+        flags = self._store.list_flags()
+        result = {}
+        for employee_id in employee_ids:
+            reached = [
+                s
+                for s in self._levels_of(employee_id, nodes, assignments, flags).values()
+                if s.level > 0
+            ]
+            reached.sort(key=lambda s: -s.level)
+            result[employee_id] = reached[:TOP_SKILL_COUNT]
+        return result
+
+    def _levels_of(self, employee_id, nodes, assignments, flags) -> Dict[str, SkillLevel]:
+        """Return the SkillLevel of the employee in each leaf, in tree order."""
+        flag_of = {f.leaf_id: f.flag for f in flags if f.employee_id == employee_id}
+        mine = [a for a in assignments if a.employee_id == employee_id]
+        thresholds = levels.default_thresholds()
+        result = {}
+        for node, _depth in skill_tree.outline(nodes):
+            if not skill_tree.is_leaf(nodes, node.id):
+                continue
+            lead = sum(1 for a in mine if a.leaf_id == node.id and a.participation == "lead")
+            member = sum(1 for a in mine if a.leaf_id == node.id and a.participation == "member")
+            flag = flag_of.get(node.id, "")
+            level = levels.effective_level(lead, member, flag or None, thresholds) or 0
+            source = _level_source(lead, member, flag, level)
+            result[node.id] = SkillLevel(node.id, node.name, level, source)
+        return result
 
     def _next_id(self) -> str:
         """Return the ID after the highest one in use, such as E-0003."""

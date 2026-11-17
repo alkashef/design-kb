@@ -19,10 +19,11 @@
     <button class="button-outline fit" type="submit">Filter</button>
   </form>
   <div class="table">
-    <div class="table-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span></div>
+    <div class="table-row employee-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span></div>
     {% for e in result.rows %}
-    <a class="table-row" href="/employees/{{ e.id }}" data-employee-id="{{ e.id }}">
+    <a class="table-row employee-row" href="/employees/{{ e.id }}" data-employee-id="{{ e.id }}">
       <span class="mono">{{ e.id }}</span><span>{{ e.name }}</span><span>{{ e.job_title }}</span><span>{{ e.team }}</span><span>{{ e.career_level }}</span>
+      <span class="top-skills">{% for s in top_skills[e.id] %}<span class="role-tag">{{ s.name }} · {{ level_names[s.level] }}</span>{% endfor %}</span>
     </a>
     {% endfor %}
     <div class="table-foot">

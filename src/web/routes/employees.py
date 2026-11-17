@@ -1,4 +1,4 @@
-"""The Employees list, the profile and the employee form (FR-10, FR-20, FR-28)."""
+"""The Employees list, the profile, the employee form and the flags (FR-10, FR-11, FR-20, FR-23, FR-28)."""
 
 from urllib.parse import urlencode
 
@@ -6,9 +6,11 @@ from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from src.domain.levels import LEVEL_NAMES
 from src.domain.models import CAREER_LEVELS, Employee
 from src.services.assignments import AssignmentService
 from src.services.employees import EmployeeError, EmployeeService, UnknownEmployee
+from src.services.flags import FlagError, FlagService
 
 
 def create_router(templates: Jinja2Templates) -> APIRouter:
@@ -26,9 +28,14 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         except UnknownEmployee:
             raise HTTPException(status_code=404, detail="Unknown employee")
 
-    def render_form(request, employee, is_new, message="", status=200):
-        """Render the employee form with an optional message."""
+    def render_form(request, employee, is_new, message="", status=200, flag_message=""):
+        """Render the employee form with an optional message, and the flags of an existing employee."""
+        flag_service = FlagService(request.app.state.store)
         context = {
+            "flags": [] if is_new else flag_service.for_employee(employee.id),
+            "leaf_options": flag_service.leaf_options(),
+            "flag_message": flag_message,
+            "level_names": LEVEL_NAMES,
             "active_page": "employees",
             "employee": employee,
             "is_new": is_new,
@@ -45,9 +52,12 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     ):
         """Show one page of the Employees list."""
         service = service_of(request)
+        result = service.list(filter, team, career_level, page)
         context = {
             "active_page": "employees",
-            "result": service.list(filter, team, career_level, page),
+            "result": result,
+            "top_skills": service.top_skills([e.id for e in result.rows]),
+            "level_names": LEVEL_NAMES,
             "filter": filter,
             "team": team,
             "career_level": career_level,
@@ -89,6 +99,8 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             {
                 "active_page": "employees",
                 "employee": employee,
+                "skill_groups": service_of(request).skill_groups(employee_id),
+                "level_names": LEVEL_NAMES,
                 "assignment_rows": AssignmentService(request.app.state.store).for_employee(
                     employee_id
                 ),
@@ -126,5 +138,24 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         find(request, employee_id)
         service_of(request).delete(employee_id)
         return RedirectResponse("/employees", status_code=303)
+
+    @router.post("/employees/{employee_id}/flags")
+    def set_flag(
+        request: Request, employee_id: str, leaf_id: str = Form(""), flag: str = Form("")
+    ):
+        """Set the Aware or Expert flag of an employee on a leaf."""
+        employee = find(request, employee_id)
+        try:
+            FlagService(request.app.state.store).set(employee_id, leaf_id, flag)
+        except FlagError as error:
+            return render_form(request, employee, False, status=422, flag_message=str(error))
+        return RedirectResponse(f"/employees/{employee_id}/edit", status_code=303)
+
+    @router.post("/employees/{employee_id}/flags/{leaf_id}/delete")
+    def remove_flag(request: Request, employee_id: str, leaf_id: str):
+        """Remove the flag of an employee on a leaf."""
+        find(request, employee_id)
+        FlagService(request.app.state.store).remove(employee_id, leaf_id)
+        return RedirectResponse(f"/employees/{employee_id}/edit", status_code=303)
 
     return router

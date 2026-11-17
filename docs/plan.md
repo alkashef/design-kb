@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M7** Flags and 360 view | Aware and Expert flags; the profile shows every level | sonnet | high | open |
 | **M8** Tree guards and node views | Refused deletions; employees of a leaf or a node | sonnet | medium | open |
 | **M9** Threshold settings | The Settings page: ranges, checks, reset | sonnet | medium | open |
 | **M10** Vectors | Embedding on each change; message when Ollama is down | opus | high | open |
@@ -18,21 +17,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M7 — Flags and 360 view
-
-- **Refs:** FR-11, FR-23, FR-24, FR-26, FR-27, FR-29, FR-40, FR-41, D-05, D-29.
-- **Owner:** `src/services/flags.py`, `src/services/employees.py`, `src/domain/entry_rules.py`, `src/web/routes/employees.py`, `src/web/templates/employee_form.html`, `employee_profile.html`, `employees.html`.
-- **Tests first:** route: `test_fr_23_expert_flag_shows_level_5_on_the_profile`,
-  `test_fr_23_aware_flag_shows_level_1_on_the_profile`, `test_fr_23_removed_flag_removes_the_level`,
-  `test_fr_24_aware_flag_on_a_leaf_with_an_assignment_is_rejected_with_a_message`,
-  `test_fr_26_flag_value_other_than_aware_or_expert_is_rejected`,
-  `test_fr_27_expert_flag_shows_level_5_over_the_computed_level`,
-  `test_fr_11_profile_shows_attributes_the_level_of_every_leaf_and_the_assignments`,
-  `test_fr_29_delete_employee_deletes_its_flags`, `test_fr_40_flag_form_lists_only_leaves`,
-  `test_fr_41_flag_on_a_node_with_children_is_rejected_with_a_message`.
-- **Build:** the table `flags`. The section "Skill flags" of `docs/ui/EmployeeForm.dc.html`. The section "Skill levels" of the profile page: each leaf with `data-leaf-id` and `data-level` (0 for no level) and the source of the level. The column "Top skills" of the Employees list: the 2 highest levels.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M7` pass.
 
 ### M8 — Tree guards and node views
 

@@ -319,3 +319,21 @@ a:hover { color: var(--accent); }
 .panel input[readonly] { color: var(--text-muted); }
 .assignment-row { grid-template-columns: 140px 70px 1fr 90px 1.5fr; }
 .assignments { display: flex; flex-direction: column; gap: 14px; }
+
+/* Flags and the 360 view (M7). */
+.employee-row { grid-template-columns: 90px 1.2fr 1.2fr 1fr 110px 1.3fr; }
+.top-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.flag-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.flag-row:first-child { border-top: 0; }
+.flag-leaf { flex: 1 1 0; min-width: 0; font-weight: 500; }
+.flag-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.flag-form .field { flex: 1 1 200px; display: flex; flex-direction: column; gap: 8px; }
+.level-group { padding: 12px 20px; font-size: 13px; font-weight: 500; }
+.level-row { display: flex; align-items: center; gap: 16px; padding: 13px 20px; border-top: 1px solid var(--line); }
+.level-name { flex: 0 0 130px; font-size: 14px; font-weight: 500; }
+.level-row .muted:nth-child(2) { flex: 1 1 0; min-width: 0; font-size: 13px; }
+.level-bars { display: flex; gap: 3px; align-items: flex-end; }
+.level-bar { width: 4px; height: 14px; border-radius: 2px; background: var(--line-strong); display: inline-block; }
+.level-bar.on { background: var(--accent); }
+.level-label { flex: 0 0 84px; text-align: right; font: 400 12px var(--font-mono); color: var(--accent); }
+.level-label.muted { color: var(--text-muted); }
