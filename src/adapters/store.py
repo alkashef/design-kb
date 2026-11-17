@@ -6,7 +6,7 @@ from typing import List
 import lancedb
 import pyarrow as pa
 
-from src.domain.models import Employee, Node
+from src.domain.models import Employee, Node, Project
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,18 @@ EMPLOYEES_SCHEMA = pa.schema(
 )
 
 
+PROJECTS_TABLE = "projects"
+PROJECTS_SCHEMA = pa.schema(
+    [
+        ("id", pa.string()),
+        ("name", pa.string()),
+        ("description", pa.string()),
+        ("year", pa.int64()),
+        ("process_technology", pa.string()),
+    ]
+)
+
+
 def _quote(value: str) -> str:
     """Return value as a quoted SQL text for a filter."""
     return "'" + value.replace("'", "''") + "'"
@@ -49,6 +61,9 @@ class LanceStore:
         self._nodes = self._db.create_table(NODES_TABLE, schema=NODES_SCHEMA, exist_ok=True)
         self._employees = self._db.create_table(
             EMPLOYEES_TABLE, schema=EMPLOYEES_SCHEMA, exist_ok=True
+        )
+        self._projects = self._db.create_table(
+            PROJECTS_TABLE, schema=PROJECTS_SCHEMA, exist_ok=True
         )
         logger.info("Opened the store.")
 
@@ -86,3 +101,20 @@ class LanceStore:
     def delete_employee(self, employee_id: str) -> None:
         """Delete one employee."""
         self._employees.delete(f"id = {_quote(employee_id)}")
+
+    def list_projects(self) -> List[Project]:
+        """Return all projects."""
+        return [Project(**row) for row in self._projects.to_arrow().to_pylist()]
+
+    def add_project(self, project: Project) -> None:
+        """Write a new project."""
+        self._projects.add([vars(project)], mode="append")
+
+    def update_project(self, project: Project) -> None:
+        """Change every field of the project with the same ID."""
+        values = {key: value for key, value in vars(project).items() if key != "id"}
+        self._projects.update(where=f"id = {_quote(project.id)}", values=values)
+
+    def delete_project(self, project_id: str) -> None:
+        """Delete one project."""
+        self._projects.delete(f"id = {_quote(project_id)}")

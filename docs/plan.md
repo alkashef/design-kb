@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M5** Projects | Create, edit and delete projects | sonnet | medium | open |
 | **M6** Assignments | Create, edit and delete assignments; leaf-only and duplicate rules | sonnet | high | open |
 | **M7** Flags and 360 view | Aware and Expert flags; the profile shows every level | sonnet | high | open |
 | **M8** Tree guards and node views | Refused deletions; employees of a leaf or a node | sonnet | medium | open |
@@ -20,16 +19,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M5 — Projects
-
-- **Refs:** FR-21, FR-28, D-25, D-29.
-- **Owner:** `src/services/projects.py`, `src/web/routes/projects.py`, `src/web/templates/projects.html`.
-- **Tests first:** route: `test_fr_21_create_project_shows_in_the_list_and_is_selected`,
-  `test_fr_21_edit_project_saves_the_new_values`,
-  `test_fr_28_delete_project_removes_it_from_the_list`.
-- **Build:** the table `projects`. The page from `docs/ui/Projects.dc.html`: the project list with `data-project-id`, the selected project, New, Edit project and Delete.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M5` pass.
 
 ### M6 — Assignments
 

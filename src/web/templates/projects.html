@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Projects · design-kb{% endblock %}
+{% block main %}
+<div class="tree-body">
+  <section class="outline" aria-label="Projects">
+    <div class="outline-head page-head">
+      <h1>Projects</h1>
+      <a class="button-accent link-button" href="/projects/new">New</a>
+    </div>
+    <div class="outline-rows">
+      {% for p in projects %}
+      <a class="outline-row{% if selected and selected.id == p.id %} selected{% endif %}" style="padding-left: 28px" href="/projects/{{ p.id }}" data-project-id="{{ p.id }}">
+        <span class="outline-name">{{ p.name }}<br><span class="tag">{{ p.process_technology }} · {{ p.year }}</span></span>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="table-foot"><span>{{ projects|length }} PROJECTS</span></div>
+  </section>
+  <section class="node-detail" aria-label="Project detail">
+    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+    {% if mode != "view" %}
+    <h2>{{ "New project" if mode == "new" else "Edit project" }}</h2>
+    <form class="panel" method="post" action="{{ '/projects' if mode == 'new' else '/projects/' ~ selected.id }}">
+      <label for="p-name">Project name</label>
+      <input id="p-name" type="text" name="name" value="{{ form.name }}" required>
+      <label for="p-tech">Process technology</label>
+      <input id="p-tech" type="text" name="process_technology" value="{{ form.process_technology }}">
+      <label for="p-year">Year</label>
+      <input id="p-year" type="text" name="year" value="{{ form.year }}" inputmode="numeric" required>
+      <label for="p-desc">Project description</label>
+      <textarea id="p-desc" name="description" rows="4">{{ form.description }}</textarea>
+      <div class="actions">
+        <button class="button-accent" type="submit">Save</button>
+        <a class="button-outline link-button" href="{{ '/projects' if mode == 'new' else '/projects/' ~ selected.id }}">Cancel</a>
+      </div>
+    </form>
+    {% elif selected %}
+    <h2>{{ selected.name }}</h2>
+    <div><span class="tag">{{ selected.process_technology }}</span> <span class="tag">{{ selected.year }}</span></div>
+    <p>{{ selected.description }}</p>
+    <div class="actions">
+      <a class="button-outline link-button" href="/projects/{{ selected.id }}/edit">Edit project</a>
+      <form method="post" action="/projects/{{ selected.id }}/delete">
+        <button class="button-outline" type="submit">Delete</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="hint">No project yet. Choose New to add one.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

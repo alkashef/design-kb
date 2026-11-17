@@ -169,6 +169,8 @@ A `GET` route answers with a page (status 200). A `POST` route that succeeds ans
 | `POST /employees/{id}/flags/{leaf_id}/delete` | | Removes the flag. Redirects to the Edit employee page. | FR-23 |
 | `GET /projects` | | The Project and assignments page with the first project selected. | FR-21 |
 | `GET /projects/{id}` | | The Project and assignments page with that project selected. | FR-21, FR-22 |
+| `GET /projects/new` | | The Project page with the form for a new project. | FR-21 |
+| `GET /projects/{id}/edit` | | The Project page with the form of that project. | FR-21 |
 | `POST /projects` | `name`, `description`, `year`, `process_technology` | Creates the project. Redirects to `/projects/{id}`. | FR-21 |
 | `POST /projects/{id}` | The fields of `POST /projects` | Saves the project. Redirects to `/projects/{id}`. | FR-21 |
 | `POST /projects/{id}/delete` | | Deletes the project and its assignments. Redirects to `/projects`. | FR-28, FR-29 |
