@@ -62,6 +62,12 @@ It is a proof of concept (PoC). The app is not built yet: the repository holds t
    git config core.hooksPath .githooks
    ```
 
+   Then tell the hook where the Python of the environment is, with the environment active. The hook then also works for a commit from a program that does not have the environment active, such as the Source Control panel of VS Code. In PowerShell:
+
+   ```
+   git config hooks.python (python -c "import sys; print(sys.executable.replace(chr(92), '/'))")
+   ```
+
 5. Install Ollama from https://ollama.com. Then get the embedding model and make sure that it is in the list:
 
    ```
