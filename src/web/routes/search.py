@@ -12,6 +12,8 @@ from src.services.search import SearchFilters, SearchService
 from src.web.errors import search_failure
 
 DEFAULT_MIN_LEVEL = 1
+GAPS_MODE = "gaps"
+EXPERIENCE_MODE = "experience"
 
 SEARCH_PAGE = "search.html"
 BODY_PART = "partials/search_body.html"
@@ -44,7 +46,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "level_names": LEVEL_NAMES,
         }
 
-    def render_search(request: Request, query: str, filters: SearchFilters):
+    def render_search(request: Request, query: str, filters: SearchFilters, mode: str = EXPERIENCE_MODE):
         """Render the Search page, or only its results and preview for an HTMX request."""
         state = request.app.state
         employees = employees_of(request)
@@ -53,12 +55,14 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         )
         message, status, results = "", 200, []
         try:
-            results = search.experience(query, filters)
+            run = search.gaps if mode == GAPS_MODE else search.experience
+            results = run(query, filters)
         except EmbeddingUnavailable:
             message, status = search_failure()
         context = {
             "active_page": "search",
             "q": query,
+            "mode": mode,
             "filters": filters,
             "teams": employees.teams(),
             "career_levels": CAREER_LEVELS,
@@ -80,6 +84,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     def search_results(
         request: Request,
         q: str = "",
+        mode: str = EXPERIENCE_MODE,
         team: str = "",
         career_level: str = "",
         leaf_id: str = "",
@@ -88,7 +93,8 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         """Show the results for the query and filters and the preview of the first result."""
         level = int(min_level) if min_level.isdigit() else DEFAULT_MIN_LEVEL
         filters = SearchFilters(team, career_level, leaf_id, level)
-        return render_search(request, q, filters)
+        mode = GAPS_MODE if mode == GAPS_MODE else EXPERIENCE_MODE
+        return render_search(request, q, filters, mode)
 
     @router.get("/search/preview/{employee_id}", response_class=HTMLResponse)
     def search_preview(request: Request, employee_id: str):

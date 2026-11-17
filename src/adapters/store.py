@@ -12,6 +12,7 @@ from src.domain.models import (
     Employee,
     Flag,
     Node,
+    ProfileMatch,
     ProfileVector,
     Project,
     Threshold,
@@ -323,6 +324,14 @@ class LanceStore:
             query = query.where(f"employee_id IN {_id_list(employee_ids)}", prefilter=True)
         rows = query.limit(table.count_rows()).to_list()
         return [VectorMatch(r["assignment_id"], r["employee_id"], r["_distance"]) for r in rows]
+
+    def search_profile_vectors(self, query_vector: List[float]) -> List[ProfileMatch]:
+        """Return every profile vector, nearest first, by the exact cosine distance (D-10, D-41)."""
+        if not self._has_table(PROFILE_VECTORS_TABLE):
+            return []
+        table = self._db.open_table(PROFILE_VECTORS_TABLE)
+        rows = table.search(query_vector).metric("cosine").limit(table.count_rows()).to_list()
+        return [ProfileMatch(r["employee_id"], r["_distance"]) for r in rows]
 
     def drop_vectors(self) -> None:
         """Delete both vector tables; the next write creates them with its vector size (D-27)."""

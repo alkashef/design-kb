@@ -8,20 +8,8 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M14 — Gap search
-
-- **Refs:** FR-03, FR-06, D-09, D-10, D-14, D-29.
-- **Owner:** `src/services/search.py`, `src/web/routes/search.py`, `src/web/templates/search.html`, `partials/`.
-- **Tests first:** route: `test_fr_06_gap_query_ranks_the_employee_with_the_matching_skill_gap_first`,
-  `test_fr_06_gap_result_shows_the_skill_gap_text_as_reason`,
-  `test_fr_06_employee_with_empty_skill_gaps_is_not_in_the_gap_results`,
-  `test_fr_03_filters_apply_in_gap_search`.
-- **Build:** the mode `gaps` searches the profile vectors. The result list and the preview from `docs/ui/SearchGaps.dc.html`: the matching skill gap and the strongest skills.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M14` pass.
 
 ## Human checks
 

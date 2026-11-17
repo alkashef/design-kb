@@ -89,6 +89,37 @@ class SearchService:
         logger.info("Experience search found %d employees.", len(results))
         return results
 
+    def gaps(self, query: str, filters: SearchFilters = None) -> List[SearchResult]:
+        """Return the employees whose skill gaps match the query, best first (D-10, D-14).
+
+        Only the profile vectors of the employees that meet the filters are ranked. The reason is
+        the skill gap text, and the tags are the strongest skills. No query with filters lists all
+        matching employees by name (FR-07); no query and no filter gives no results.
+        """
+        filters = filters or SearchFilters()
+        if not query.strip() and not filters.is_set():
+            return []
+        allowed = self._employees.matching(
+            filters.team, filters.career_level, filters.leaf_id, filters.min_level
+        )
+        if not query.strip():
+            return self._listing(allowed, filters.leaf_id)
+        employees = {e.id: e for e in allowed}
+        query_vector = self._embedder.embed([query.strip()])[0]
+        matches = [
+            m
+            for m in self._store.search_profile_vectors(query_vector)
+            if m.employee_id in employees
+        ][: self._result_limit]
+        top = self._employees.top_skills([m.employee_id for m in matches])
+        results = [
+            SearchResult(number, employees[m.employee_id], employees[m.employee_id].skill_gaps,
+                         top[m.employee_id][:TAG_LIMIT])
+            for number, m in enumerate(matches, start=1)
+        ]
+        logger.info("Gap search found %d employees.", len(results))
+        return results
+
     def _listing(self, employees: List[Employee], leaf_id: str) -> List[SearchResult]:
         """Return the employees as results in the given order, with no reason (FR-07)."""
         top = self._employees.top_skills([e.id for e in employees])

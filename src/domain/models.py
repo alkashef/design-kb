@@ -103,3 +103,11 @@ class VectorMatch:
     assignment_id: str
     employee_id: str
     distance: float
+
+
+@dataclass
+class ProfileMatch:
+    """One profile vector found by a vector search, with its cosine distance (D-41)."""
+
+    employee_id: str
+    distance: float
