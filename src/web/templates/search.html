@@ -6,6 +6,23 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
     <input type="text" name="q" value="{{ q }}" aria-label="Search query" placeholder="Search for experience">
     <button class="button-accent" type="submit">Search</button>
+    <div class="filters">
+      <select name="team" aria-label="Team">
+        <option value="">Any team</option>
+        {% for t in teams %}<option value="{{ t }}"{% if t == filters.team %} selected{% endif %}>{{ t }}</option>{% endfor %}
+      </select>
+      <select name="career_level" aria-label="Career level">
+        <option value="">Any career level</option>
+        {% for c in career_levels %}<option value="{{ c }}"{% if c == filters.career_level %} selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <select name="leaf_id" aria-label="Leaf skill">
+        <option value="">Any leaf</option>
+        {% for leaf_id, path in leaf_options %}<option value="{{ leaf_id }}"{% if leaf_id == filters.leaf_id %} selected{% endif %}>{{ path }}</option>{% endfor %}
+      </select>
+      <select name="min_level" aria-label="Minimum level">
+        {% for number, name in level_names.items() %}<option value="{{ number }}"{% if number == filters.min_level %} selected{% endif %}>{{ name }} or higher</option>{% endfor %}
+      </select>
+    </div>
   </form>
 </div>
 {% include "partials/search_body.html" %}

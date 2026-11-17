@@ -8,24 +8,9 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M13** Search filters | Team, career level, leaf with minimum level; filters with no query | sonnet | medium | open |
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M13 — Search filters
-
-- **Refs:** FR-03, FR-04, FR-07, AC-01, D-04, D-29.
-- **Owner:** `src/services/search.py`, `src/web/routes/search.py`, `src/web/templates/search.html`.
-- **Tests first:** route: `test_fr_03_search_page_offers_team_career_level_and_leaf_with_minimum_level`,
-  `test_fr_04_team_filter_ranks_only_employees_of_that_team`,
-  `test_fr_04_leaf_filter_keeps_only_employees_at_the_minimum_level_or_higher`,
-  `test_fr_03_aware_and_expert_flags_count_as_levels_1_and_5_in_the_filter`,
-  `test_fr_04_employee_must_meet_all_set_filters`,
-  `test_fr_07_filters_with_no_query_list_all_matching_employees_by_name`.
-  Manual: AC-01.
-- **Build:** step 1 of D-04 in `search.py`: the employees that meet the filters, with levels from assignments, flags and thresholds. Step 2 searches only their vectors. The filter chips of the canvas as one `GET` form.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M13` pass.
 
 ### M14 — Gap search
 

@@ -5,11 +5,13 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from src.domain.levels import LEVEL_NAMES
-from src.domain.models import EmbeddingUnavailable
+from src.domain.models import CAREER_LEVELS, EmbeddingUnavailable
 from src.services.assignments import AssignmentService
 from src.services.employees import EmployeeService, UnknownEmployee
-from src.services.search import SearchService
+from src.services.search import SearchFilters, SearchService
 from src.web.errors import search_failure
+
+DEFAULT_MIN_LEVEL = 1
 
 SEARCH_PAGE = "search.html"
 BODY_PART = "partials/search_body.html"
@@ -42,20 +44,25 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "level_names": LEVEL_NAMES,
         }
 
-    def render_search(request: Request, query: str):
+    def render_search(request: Request, query: str, filters: SearchFilters):
         """Render the Search page, or only its results and preview for an HTMX request."""
         state = request.app.state
+        employees = employees_of(request)
         search = SearchService(
-            state.store, state.embedder, employees_of(request), state.options.search_result_limit
+            state.store, state.embedder, employees, state.options.search_result_limit
         )
         message, status, results = "", 200, []
         try:
-            results = search.experience(query)
+            results = search.experience(query, filters)
         except EmbeddingUnavailable:
             message, status = search_failure()
         context = {
             "active_page": "search",
             "q": query,
+            "filters": filters,
+            "teams": employees.teams(),
+            "career_levels": CAREER_LEVELS,
+            "leaf_options": employees.leaf_options(),
             "results": results,
             "level_names": LEVEL_NAMES,
             "message": message,
@@ -67,12 +74,21 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     @router.get("/", response_class=HTMLResponse)
     def search_page(request: Request):
         """Show the Search page with no results."""
-        return render_search(request, "")
+        return render_search(request, "", SearchFilters())
 
     @router.get("/search", response_class=HTMLResponse)
-    def search_results(request: Request, q: str = ""):
-        """Show the results for the query and the preview of the first result."""
-        return render_search(request, q)
+    def search_results(
+        request: Request,
+        q: str = "",
+        team: str = "",
+        career_level: str = "",
+        leaf_id: str = "",
+        min_level: str = "",
+    ):
+        """Show the results for the query and filters and the preview of the first result."""
+        level = int(min_level) if min_level.isdigit() else DEFAULT_MIN_LEVEL
+        filters = SearchFilters(team, career_level, leaf_id, level)
+        return render_search(request, q, filters)
 
     @router.get("/search/preview/{employee_id}", response_class=HTMLResponse)
     def search_preview(request: Request, employee_id: str):

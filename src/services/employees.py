@@ -184,6 +184,38 @@ class EmployeeService:
         )
         return [by_leaf[leaf_id] for leaf_id in leaf_ids if leaf_id in by_leaf]
 
+    def leaf_options(self) -> List[tuple]:
+        """Return (leaf ID, path) of each leaf, in tree order, for a filter list."""
+        nodes = self._store.list_nodes()
+        return [
+            (node.id, skill_tree.path(nodes, node.id))
+            for node, _depth in skill_tree.outline(nodes)
+            if skill_tree.is_leaf(nodes, node.id)
+        ]
+
+    def matching(
+        self, team: str = "", career_level: str = "", leaf_id: str = "", min_level: int = 1
+    ) -> List[Employee]:
+        """Return the employees that meet every set filter, sorted by name (D-04, step 1).
+
+        A leaf filter keeps the employees whose level in that leaf is at least min_level.
+        """
+        nodes = self._store.list_nodes()
+        assignments = self._store.list_assignments()
+        flags = self._store.list_flags()
+        matches = []
+        for employee in self._store.list_employees():
+            if (team and employee.team != team) or (
+                career_level and employee.career_level != career_level
+            ):
+                continue
+            if leaf_id:
+                by_leaf = self._levels_of(employee.id, nodes, assignments, flags)
+                if leaf_id not in by_leaf or by_leaf[leaf_id].level < max(min_level, 1):
+                    continue
+            matches.append(employee)
+        return sorted(matches, key=lambda e: (e.name.lower(), e.id))
+
     def _levels_of(self, employee_id, nodes, assignments, flags) -> Dict[str, SkillLevel]:
         """Return the SkillLevel of the employee in each leaf, in tree order."""
         flag_of = {f.leaf_id: f.flag for f in flags if f.employee_id == employee_id}
