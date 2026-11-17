@@ -21,10 +21,12 @@ and runs again. A session that did not finish is tried again (--retries, default
 session that resumes from the changes the first one left; a retry repeats only that session. A
 session that runs over --timeout-minutes counts as not finished. If the last try also fails, the
 run stops, and --resume starts the next run from the changes left on a dirty tree: when the hashes
-file of the milestone exists, its test session finished, so only the build session runs. It shows
-a live status line, logs each session to .claude/logs/M<n>-test.log and M<n>.log (with -<try> for
-a retry), appends a timing to .claude/logs/timings.csv, prints the DECISION lines of each report,
-and ends with a summary table.
+file of the milestone exists, its test session finished, so only the build session runs. It clears
+the screen and shows a table that it redraws every second: a row for each milestone of the run
+(the one that runs now last), and a footer with the total time, the percent and the count of the
+milestones done. The Decisions column counts the DECISION lines of the reports. It logs each
+session to .claude/logs/M<n>-test.log and M<n>.log (with -<try> for a retry), and appends a timing
+to .claude/logs/timings.csv.
 
 Does NOT edit the plan, the code or git: the claude sessions do that. The git pre-commit hook
 still runs the tests on each milestone's commit. Each session starts with permission prompts off,
@@ -90,21 +92,11 @@ TIMEOUT_EXIT_CODE: Final = 124  # the exit code of a session the runner cut off 
 OUTCOME_DONE: Final = "done"
 OUTCOME_FAILED: Final = "failed"
 OUTCOME_BLOCKED: Final = "blocked"
+OUTCOME_RUNNING: Final = "running"  # shown in the table for the milestone that runs now
+TABLE_HEADER: Final = ("ID", "Title", "Model", "Effort", "Duration", "Decisions", "Result")
+TITLE_COLUMN: Final = 1  # the column that is cut when the table is wider than the terminal
+MIN_TITLE_WIDTH: Final = 10
 STATUS_BLOCKED: Final = "blocked"  # in the Status column: the milestone waits for an approval
-
-
-@dataclass(frozen=True)
-class BarStyle:
-    """How a progress bar looks: its width in characters and its filled and empty characters."""
-
-    width: int
-    fill: str
-    empty: str
-
-
-# The live status line keeps within 79 columns, so an 80-column console does not wrap it.
-LIVE_BAR: Final = BarStyle(10, "█", "░")
-RANGE_BAR: Final = BarStyle(40, "|", "_")
 
 
 @dataclass(frozen=True)
@@ -129,20 +121,7 @@ class Result:
     started_at: str
     seconds: float
     outcome: str
-
-
-@dataclass(frozen=True)
-class Progress:
-    """Everything the live status line shows, at one moment."""
-
-    done: int
-    total: int
-    row_id: int
-    model: str
-    effort: str
-    milestone_seconds: float
-    total_seconds: float
-    finished_seconds: tuple[float, ...]
+    decisions: int
 
 
 @dataclass(frozen=True)
@@ -252,34 +231,37 @@ class Stopwatch:
 
 
 @dataclass
+class Running:
+    """The milestone that runs now: its row, its timer, its try and the decisions counted so far."""
+
+    row: Row
+    watch: Stopwatch
+    attempt: int = 1
+    decisions: int = 0
+
+
+@dataclass
 class RunState:
     """What this run has done so far: the milestones to run, the total timer and the results.
 
-    resume_next is True until the first milestone starts, when --resume was given.
+    resume_next is True until the first milestone starts, when --resume was given. running is the
+    milestone that runs now, or None between two milestones.
     """
 
     total: int
     stopwatch: Stopwatch
     results: list[Result] = field(default_factory=list)
     resume_next: bool = False
+    running: Running | None = None
 
     def take_resume(self) -> bool:
         """Return whether the milestone that starts now resumes work; only the first one does."""
         resume, self.resume_next = self.resume_next, False
         return resume
 
-    def progress(self, row: Row, milestone: Stopwatch) -> Progress:
-        """Return the numbers for the live status line while `row` runs."""
-        return Progress(
-            done=len(self.results),
-            total=self.total,
-            row_id=row.id,
-            model=row.model,
-            effort=row.effort,
-            milestone_seconds=milestone.elapsed(),
-            total_seconds=self.stopwatch.elapsed(),
-            finished_seconds=tuple(result.seconds for result in self.results),
-        )
+    def done_count(self) -> int:
+        """Return how many milestones of this run finished with the outcome done."""
+        return sum(1 for result in self.results if result.outcome == OUTCOME_DONE)
 
 
 @dataclass(frozen=True)
@@ -299,25 +281,22 @@ class Console:
         """Print one permanent line."""
         print(text if color is None else self.paint(text, color), flush=True)
 
-    def overwrite(self, text: str, color: str) -> None:
-        """Replace the current terminal line with the text, cut to the width of the terminal."""
-        width = shutil.get_terminal_size().columns - 1
-        sys.stdout.write(self._erase(width) + self.paint(text[:width], color))
-        sys.stdout.flush()
-
-    def clear_line(self) -> None:
-        """Erase the current terminal line and put the cursor at its start."""
-        sys.stdout.write(self._erase(shutil.get_terminal_size().columns - 1))
-        sys.stdout.flush()
-
-    def _erase(self, width: int) -> str:
-        """Return the characters that clear the current line."""
+    def clear_screen(self) -> None:
+        """Clear the screen and put the cursor at the top (only when colors, so a terminal, work)."""
         if self.use_color:
-            return "\r\x1b[2K"
-        return "\r" + " " * width + "\r"
+            sys.stdout.write("\x1b[2J\x1b[H")
+            sys.stdout.flush()
 
-
-PLAIN_CONSOLE: Final = Console(use_color=False)
+    def draw(self, lines: Sequence[str]) -> None:
+        """Show the lines from the top of the screen, replacing the last drawing (plain: print)."""
+        if not self.use_color:
+            for line in lines:
+                print(line)
+            sys.stdout.flush()
+            return
+        body = "".join(f"{line}\x1b[K\n" for line in lines)
+        sys.stdout.write("\x1b[H" + body + "\x1b[J")
+        sys.stdout.flush()
 
 
 @dataclass(frozen=True)
@@ -332,11 +311,14 @@ class Session:
     options: Options
 
 
-class LiveStatus:
-    """Redraws one status line every second from a thread. Use it in a `with` block."""
+class LiveTable:
+    """Redraws the table every second from a thread. Use it in a `with` block.
 
-    def __init__(self, console: Console, render: Callable[[], str]) -> None:
-        """Keep the console and the function that returns the text of the line."""
+    Without colors (not a terminal) it draws nothing; the table is printed when a milestone ends.
+    """
+
+    def __init__(self, console: Console, render: Callable[[], list[str]]) -> None:
+        """Keep the console and the function that returns the lines of the table."""
         self._console = console
         self._render = render
         self._stop = threading.Event()
@@ -353,15 +335,14 @@ class LiveStatus:
         exc: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        """Stop the thread, also after an error, and erase the line."""
+        """Stop the thread, also after an error."""
         self._stop.set()
         self._thread.join()
-        self._console.clear_line()
 
     def _loop(self) -> None:
-        """Draw, then wait one second or until stop; repeat."""
-        while True:
-            self._console.overwrite(self._render(), "yellow")
+        """Draw, then wait one second or until stop; repeat. Ends at once when colors are off."""
+        while self._console.use_color:
+            self._console.draw(self._render())
             if self._stop.wait(REFRESH_SECONDS):
                 return
 
@@ -921,107 +902,112 @@ def format_duration(seconds: float) -> str:
     return f"{minutes:02d}:{secs:02d}"
 
 
-def bar_text(done: int, total: int, style: BarStyle) -> str:
-    """Return a bar of `style.width` characters, filled by the share done/total (rounded down)."""
-    filled = min(style.width * done // total, style.width) if total > 0 else 0
-    return style.fill * filled + style.empty * (style.width - filled)
-
-
 def percent(done: int, total: int) -> int:
     """Return 100 * done / total, rounded (0 when total is 0)."""
     return round(100 * done / total) if total > 0 else 0
 
 
-def eta_text(finished_seconds: Sequence[float], left: int) -> str:
-    """Return "ETA mm:ss": the average time of the finished milestones times the milestones left."""
-    if not finished_seconds:
-        return "ETA --"
-    average = sum(finished_seconds) / len(finished_seconds)
-    return f"ETA {format_duration(average * left)}"
-
-
-def status_text(progress: Progress) -> str:
-    """Return the live status line (without colors) for one moment of the run."""
-    bar = bar_text(progress.done, progress.total, LIVE_BAR)
-    return " | ".join(
-        (
-            f"{bar} {percent(progress.done, progress.total)}% {progress.done}/{progress.total}",
-            f"M{progress.row_id} {progress.model.removeprefix('claude-')}/{progress.effort}",
-            f"this {format_duration(progress.milestone_seconds)}",
-            f"total {format_duration(progress.total_seconds)}",
-            eta_text(progress.finished_seconds, progress.total - progress.done),
-        )
-    )
-
-
 def outcome_color(outcome: str) -> str:
-    """Return green for done, yellow for blocked and red for failed."""
-    return {OUTCOME_DONE: "green", OUTCOME_BLOCKED: "yellow"}.get(outcome, "red")
-
-
-def result_line(result: Result) -> str:
-    """Return the permanent line of a finished milestone."""
-    return " | ".join(
-        (
-            f"M{result.id} {result.title}",
-            result.model,
-            result.effort,
-            format_duration(result.seconds),
-            result.outcome,
-        )
+    """Return green for done, yellow for blocked and running, red for failed."""
+    return {OUTCOME_DONE: "green", OUTCOME_BLOCKED: "yellow", OUTCOME_RUNNING: "yellow"}.get(
+        outcome, "red"
     )
 
 
-def _table_lines(results: Sequence[Result], console: Console) -> list[str]:
-    """Return the aligned table of this run's milestones, each row in the color of its outcome."""
-    header = ("ID", "Model", "Effort", "Duration", "Result")
-    cells = [
-        (f"M{r.id}", r.model, r.effort, format_duration(r.seconds), r.outcome) for r in results
-    ]
-    widths = [max(len(cell) for cell in column) for column in zip(header, *cells, strict=True)]
-    lines = [
-        "  ".join(cell.ljust(width) for cell, width in zip(row, widths, strict=True)).rstrip()
-        for row in (header, *cells)
-    ]
-    return [lines[0]] + [
-        console.paint(line, outcome_color(r.outcome))
-        for line, r in zip(lines[1:], results, strict=True)
-    ]
+def result_cells(result: Result) -> tuple[str, ...]:
+    """Return the cells of the table row of a finished milestone."""
+    return (
+        f"M{result.id}",
+        result.title,
+        result.model,
+        result.effort,
+        format_duration(result.seconds),
+        str(result.decisions),
+        result.outcome,
+    )
 
 
-def summary_lines(
-    results: Sequence[Result], total_seconds: float, console: Console = PLAIN_CONSOLE
-) -> list[str]:
-    """Return the summary of the run: a table, the total time, the average and the slowest one.
+def running_cells(running: Running) -> tuple[str, ...]:
+    """Return the cells of the table row of the milestone that runs now (Result: running/retry)."""
+    row = running.row
+    outcome = OUTCOME_RUNNING if running.attempt == 1 else f"retry {running.attempt - 1}"
+    return (
+        f"M{row.id}",
+        row.title,
+        row.model,
+        row.effort,
+        format_duration(running.watch.elapsed()),
+        "-",
+        outcome,
+    )
+
+
+def fit_text(text: str, width: int) -> str:
+    """Return the text cut to `width` characters, with "…" at the end when it was cut."""
+    return text if len(text) <= width else text[: width - 1] + "…"
+
+
+def column_widths(cells: Sequence[Sequence[str]], max_width: int) -> list[int]:
+    """Return the width of each column; the Title column shrinks if the table is wider than max."""
+    widths = [max(len(row[index]) for row in cells) for index in range(len(TABLE_HEADER))]
+    excess = sum(widths) + 3 * len(widths) + 1 - max_width
+    if excess > 0:
+        title = widths[TITLE_COLUMN]
+        widths[TITLE_COLUMN] = max(min(MIN_TITLE_WIDTH, title), title - excess)
+    return widths
+
+
+def border_line(widths: Sequence[int], left: str, middle: str, right: str) -> str:
+    """Return a horizontal line of the table, e.g. "├───┼───┤"."""
+    return left + middle.join("─" * (width + 2) for width in widths) + right
+
+
+def row_line(cells: Sequence[str], widths: Sequence[int]) -> str:
+    """Return one row of the table, each cell padded (or cut) to the width of its column."""
+    padded = (fit_text(cell, width).ljust(width) for cell, width in zip(cells, widths, strict=True))
+    return "│ " + " │ ".join(padded) + " │"
+
+
+def footer_line(state: RunState, inner_width: int) -> str:
+    """Return the last line of the table: the total time on the left, "71%  5/7" on the right."""
+    done = state.done_count()
+    left = f"Total {format_duration(state.stopwatch.elapsed())}"
+    right = f"{percent(done, state.total)}%  {done}/{state.total}"
+    gap = max(inner_width - 2 - len(left) - len(right), 1)
+    return "│ " + left + " " * gap + right + " │"
+
+
+def table_lines(state: RunState, console: Console, max_width: int) -> list[str]:
+    """Return the table of this run: a row for each finished milestone, the running one last.
 
     Args:
-        results: The milestones that ran, in order.
-        total_seconds: The total time of the run.
-        console: Paints the rows of the table (the default adds no colors).
+        state: The results so far, the milestone that runs now, the total timer and the total.
+        console: Paints each row in the color of its outcome.
+        max_width: The most characters of a line; a longer Title is cut.
 
     Returns:
-        The lines to print; an empty list when no milestone ran.
+        The lines of the table, from its top border to its bottom border.
     """
-    if not results:
-        return []
-    slowest = max(results, key=lambda result: result.seconds)
-    average = sum(result.seconds for result in results) / len(results)
+    records = [(result_cells(result), outcome_color(result.outcome)) for result in state.results]
+    if state.running is not None:
+        records.append((running_cells(state.running), outcome_color(OUTCOME_RUNNING)))
+    widths = column_widths([TABLE_HEADER, *(cells for cells, _ in records)], max_width)
+    inner_width = sum(width + 2 for width in widths) + len(widths) - 1
     return [
-        "Summary",
-        *_table_lines(results, console),
-        f"Total time: {format_duration(total_seconds)}",
-        f"Average: {format_duration(average)}",
-        f"Slowest: M{slowest.id} ({format_duration(slowest.seconds)})",
+        border_line(widths, "┌", "┬", "┐"),
+        row_line(TABLE_HEADER, widths),
+        border_line(widths, "├", "┼", "┤"),
+        *(console.paint(row_line(cells, widths), color) for cells, color in records),
+        border_line(widths, "├", "┴", "┤"),
+        footer_line(state, inner_width),
+        "└" + "─" * inner_width + "┘",
     ]
 
 
-def print_summary(console: Console, state: RunState) -> None:
-    """Print the summary of the run, if any milestone ran."""
-    lines = summary_lines(state.results, state.stopwatch.elapsed(), console)
-    if lines:
-        console.say()
-        for line in lines:
-            console.say(line)
+def current_table(session: Session) -> list[str]:
+    """Return the table of the run as it is now, at the width of the terminal."""
+    max_width = shutil.get_terminal_size().columns - 1
+    return table_lines(session.state, session.console, max_width)
 
 
 def enable_ansi() -> bool:
@@ -1215,32 +1201,17 @@ def append_timing(path: Path, result: Result) -> None:
 
 
 def record_result(session: Session, result: Result) -> None:
-    """Keep the result, add it to timings.csv (only a warning if that fails), and print its line."""
+    """Keep the result and add it to timings.csv (only a warning if that fails)."""
     session.state.results.append(result)
     try:
         append_timing(session.paths.timings, result)
     except OSError as exc:
         session.console.say(f"WARNING: could not write {session.paths.timings}: {exc}", "yellow")
-    session.console.say(result_line(result), outcome_color(result.outcome))
 
 
 def decision_lines(lines: Sequence[str]) -> list[str]:
     """Return the lines of a report that record an automatic decision (`DECISION: ...`)."""
     return [line.strip() for line in lines if re.match(r"^\W*DECISION:", line.strip())]
-
-
-def show_range_progress(session: Session, row: Row, run: ClaudeRun) -> None:
-    """Print a bar of the milestones done, then the TLDR line and DECISION lines of the report."""
-    done, total = len(session.state.results), session.state.total
-    bar = bar_text(done, total, RANGE_BAR)
-    session.console.say(f"M{row.id}/M{session.last} [{bar}] {percent(done, total)}%", "green")
-    tldr = next(
-        (line for line in reversed(run.lines) if re.search("TLDR", line, re.IGNORECASE)), None
-    )
-    if tldr is not None:
-        session.console.say(tldr)
-    for line in decision_lines(run.lines):
-        session.console.say(line, "yellow")
 
 
 def prepare_milestone(paths: Paths, row: Row) -> None:
@@ -1257,63 +1228,64 @@ def prepare_milestone(paths: Paths, row: Row) -> None:
 
 
 def run_attempts(
-    session: Session, row: Row, watch: Stopwatch, kind: str, resume: bool
+    session: Session, running: Running, kind: str, resume: bool
 ) -> tuple[ClaudeRun, Verdict]:
-    """Run one session of the milestone, with the live status line, until it is done or blocked.
+    """Run one session of the milestone, with the live table, until it is done or blocked.
 
-    A try that did not finish is repeated, as a resume, up to `--retries` times.
+    A try that did not finish is repeated, as a resume, up to `--retries` times. The table shows
+    a retry in the Result column of the running row.
     """
+    row = running.row
     judge_run = judge_test_session if kind == SESSION_TEST else judge
-    number = 1
+    number = running.attempt = 1
     while True:
         attempt = Attempt(number, resume, session.options.timeout_minutes * 60)
-        with LiveStatus(session.console, lambda: status_text(session.state.progress(row, watch))):
+        with LiveTable(session.console, lambda: current_table(session)):
             run = run_claude(session.paths, row, attempt, kind)
         verdict = judge_run(session.paths, row, run)
         if verdict.outcome != OUTCOME_FAILED or number > session.options.retries:
             return run, verdict
-        session.console.say(
-            f"M{row.id} {kind} session, try {number}, did not finish: {verdict.reason}", "yellow"
-        )
         number, resume = number + 1, True
+        running.attempt = number
 
 
 def run_test_session(
-    session: Session, row: Row, watch: Stopwatch, resume: bool
+    session: Session, running: Running, resume: bool
 ) -> tuple[ClaudeRun, Verdict]:
     """Read the milestone's block, run the test session, then save it with the hashes of tests/.
 
     The old hashes file is deleted first, so the file exists only after a test session finished.
     """
-    paths = session.paths
+    paths, row = session.paths, running.row
     block = milestone_block(_read_lines(paths.plan), row.id)
     paths.tests_file(row.id).unlink(missing_ok=True)
-    run, verdict = run_attempts(session, row, watch, SESSION_TEST, resume)
+    run, verdict = run_attempts(session, running, SESSION_TEST, resume)
+    running.decisions += len(decision_lines(run.lines))
     if verdict.outcome == OUTCOME_DONE:
         save_tests(paths.tests_file(row.id), SavedTests(block, snapshot_tests(paths.root)))
-        for line in decision_lines(run.lines):
-            session.console.say(line, "yellow")
     return run, verdict
 
 
 def run_sessions(
-    session: Session, row: Row, watch: Stopwatch, resume: bool
+    session: Session, running: Running, resume: bool
 ) -> tuple[ClaudeRun, Verdict]:
     """Run the test session (skipped on a resume after it finished), then the build session.
 
     Returns:
         The last session's run, and its verdict; a build session that changed tests/ or whose
-        spec-ID check fails counts as failed.
+        spec-ID check fails counts as failed. The decisions of both sessions are added to
+        `running.decisions`.
     """
-    paths = session.paths
+    paths, row = session.paths, running.row
     saved = load_tests(paths.tests_file(row.id)) if resume else None
     build_resumes = saved is not None
     if saved is None:
-        run, verdict = run_test_session(session, row, watch, resume)
+        run, verdict = run_test_session(session, running, resume)
         if verdict.outcome != OUTCOME_DONE:
             return run, verdict
         saved = load_tests(paths.tests_file(row.id))
-    run, verdict = run_attempts(session, row, watch, SESSION_BUILD, build_resumes)
+    run, verdict = run_attempts(session, running, SESSION_BUILD, build_resumes)
+    running.decisions += len(decision_lines(run.lines))
     if verdict.outcome == OUTCOME_DONE and saved is not None:
         problem = tests_problem(paths, row, saved)
         if problem is not None:
@@ -1327,24 +1299,30 @@ def run_milestone(session: Session, row: Row) -> None:
     Raises:
         RunStoppedError: If the milestone is blocked or did not finish.
     """
-    session.console.say()
-    session.console.say(f"Starting M{row.id} | {row.model} | {row.effort}")
     started_at = time.strftime("%Y-%m-%d %H:%M:%S")
-    watch = Stopwatch()
+    running = Running(row, Stopwatch())
+    session.state.running = running
     base = git_head(session.paths.root)
-    run, verdict = run_sessions(session, row, watch, session.state.take_resume())
+    run, verdict = run_sessions(session, running, session.state.take_resume())
     if verdict.outcome != OUTCOME_FAILED:
         problem = locked_problem(session.paths.root, base)
         if problem is not None:
             verdict = Verdict(OUTCOME_FAILED, problem)
-    seconds = watch.elapsed()
-    record_result(
-        session,
-        Result(row.id, row.title, row.model, row.effort, started_at, seconds, verdict.outcome),
+    result = Result(
+        row.id,
+        row.title,
+        row.model,
+        row.effort,
+        started_at,
+        running.watch.elapsed(),
+        verdict.outcome,
+        running.decisions,
     )
+    session.state.running = None
+    record_result(session, result)
+    session.console.draw(current_table(session))
     if verdict.outcome != OUTCOME_DONE:
         stop_for(session.paths, row, verdict, run)
-    show_range_progress(session, row, run)
 
 
 def _range_rows(session: Session) -> list[Row]:
@@ -1399,7 +1377,7 @@ def run_guarded(options: Options, console: Console, paths: Paths, state: RunStat
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run the milestones and print the summary, also when the run stops early.
+    """Clear the screen, then run the milestones with the live table of the run.
 
     Args:
         argv: The command-line arguments; None means sys.argv.
@@ -1409,12 +1387,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     """
     options = parse_args(argv)
     console = start_console()
+    console.clear_screen()
     paths = Paths(Path(__file__).resolve().parent.parent)
     state = RunState(total=0, stopwatch=Stopwatch())
-    try:
-        return run_guarded(options, console, paths, state)
-    finally:
-        print_summary(console, state)  # also after an unexpected error
+    return run_guarded(options, console, paths, state)
 
 
 if __name__ == "__main__":

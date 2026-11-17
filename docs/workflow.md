@@ -57,7 +57,7 @@ that did not finish is tried again in a new session (`--retries`, default 1) tha
 changes the first one left; a session that runs over `--timeout-minutes` (default 90) counts as not
 finished. After the last try the runner stops; `--resume` starts the next run on that dirty tree and
 continues from it. After you approve and commit, run it again: it continues with the approved
-milestone. The runner prints each `DECISION:` line of a finished milestone. Logs and timings go to
+milestone. The runner shows a table of the run, redrawn each second; its Decisions column counts the `DECISION:` lines of a milestone, and you read the lines themselves in its log. Logs and timings go to
 `.claude/logs/`. It needs a clean git tree (except with `--resume`) and a branch that pushes to a
 remote.
 
