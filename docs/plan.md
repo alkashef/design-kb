@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M3** Skill tree editor | Add, rename, describe and delete nodes in the outline | sonnet | medium | open |
 | **M4** Employees | The list, the profile, create, edit and delete | sonnet | medium | open |
 | **M5** Projects | Create, edit and delete projects | sonnet | medium | open |
 | **M6** Assignments | Create, edit and delete assignments; leaf-only and duplicate rules | sonnet | high | open |
@@ -22,17 +21,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M3 — Skill tree editor
-
-- **Refs:** FR-30, FR-33, D-06, D-25, D-29.
-- **Owner:** `src/domain/skill_tree.py`, `src/services/skill_tree.py`, `src/web/routes/skill_tree.py`, `src/web/templates/skill_tree.html`.
-- **Tests first:** route: `test_fr_30_add_top_level_node_shows_in_the_outline`,
-  `test_fr_30_add_child_shows_below_its_parent_and_parent_is_no_leaf`,
-  `test_fr_30_rename_and_describe_a_node`, `test_fr_30_delete_a_leaf_removes_it_from_the_outline`,
-  `test_fr_33_delete_a_node_with_children_is_refused_with_a_message`.
-- **Build:** the table `nodes`. `is_leaf`, `leaves_under` and `path` in the domain. The page from `docs/ui/SkillTree.dc.html`: the outline with the markers `data-node-id` and `data-leaf`, the node panel with Name, Description, Save, Add child and Delete, and "Add top-level skill".
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M3` pass.
 
 ### M4 — Employees
 

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Skill tree · design-kb{% endblock %}
+{% block main %}
+<div class="tree-body">
+  <section class="outline" aria-label="Outline editor">
+    <div class="outline-head">
+      <h1>Skill tree</h1>
+    </div>
+    <form class="inline-form" method="post" action="/skill-tree/nodes">
+      <input type="hidden" name="parent_id" value="">
+      <input type="text" name="name" aria-label="Name of the new top-level skill" placeholder="New top-level skill" required>
+      <button class="button-accent" type="submit">Add top-level skill</button>
+    </form>
+    <p class="hint">Levels and assignments attach to leaves: the nodes with no children.</p>
+    <div class="outline-rows">
+      {% for node, depth, leaf in rows %}
+      <a class="outline-row{% if selected and selected.id == node.id %} selected{% endif %}" href="/skill-tree/{{ node.id }}" style="padding-left: {{ 28 + depth * 22 }}px" data-node-id="{{ node.id }}"{% if leaf %} data-leaf="true"{% endif %}>
+        <span class="outline-name">{{ node.name }}</span>
+        {% if leaf %}<span class="tag">LEAF</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  <section class="node-detail" aria-label="Node detail">
+    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+    {% if selected %}
+    <div class="path">{{ selected_path }}</div>
+    <h2>{{ selected.name }}{% if selected_is_leaf %} <span class="tag">Leaf</span>{% endif %}</h2>
+    <form class="panel" method="post" action="/skill-tree/nodes/{{ selected.id }}">
+      <label for="n-name">Name</label>
+      <input id="n-name" type="text" name="name" value="{{ selected.name }}" required>
+      <label for="n-desc">Description (optional)</label>
+      <textarea id="n-desc" name="description" rows="3">{{ selected.description }}</textarea>
+      <span class="hint">Search reads this text, so use the full name of the acronym.</span>
+      <div class="actions">
+        <button class="button-accent" type="submit">Save</button>
+        <button class="button-outline" type="submit" formaction="/skill-tree/nodes/{{ selected.id }}/delete">Delete</button>
+      </div>
+    </form>
+    <form class="inline-form" method="post" action="/skill-tree/nodes">
+      <input type="hidden" name="parent_id" value="{{ selected.id }}">
+      <input type="text" name="name" aria-label="Name of the new child" placeholder="New child skill" required>
+      <button class="button-outline" type="submit">Add child</button>
+    </form>
+    {% else %}
+    <p class="hint">Select a skill in the outline to edit it.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

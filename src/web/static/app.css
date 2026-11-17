@@ -186,3 +186,93 @@ a:hover { color: var(--accent); }
   flex-direction: column;
   gap: 28px;
 }
+
+.tree-body { flex: 1 1 0; display: flex; flex-wrap: wrap; min-height: 0; }
+
+.outline {
+  flex: 0 1 420px;
+  min-width: 320px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.outline-head { padding: 28px 28px 18px; }
+.outline-head h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; font-weight: 600; }
+
+.hint { padding: 0 28px 14px; margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+.inline-form { display: flex; gap: 10px; padding: 0 28px 14px; }
+.inline-form input[type="text"] {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 400 14px var(--font-sans);
+}
+
+.outline-rows { display: flex; flex-direction: column; padding-bottom: 24px; }
+.outline-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding-right: 28px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+}
+.outline-row.selected { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); color: var(--accent); font-weight: 600; }
+.outline-name { flex: 1 1 0; min-width: 0; }
+.tag { font: 400 11px var(--font-mono); color: var(--text-muted); }
+
+.node-detail {
+  flex: 1 1 460px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 28px 40px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.node-detail h2 { margin: 0; font-size: 28px; letter-spacing: -0.025em; font-weight: 600; }
+.path { font: 400 12px var(--font-mono); color: var(--text-muted); }
+.node-detail .inline-form { padding: 0; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.panel label { font-size: 13px; color: var(--text-muted); }
+.panel input, .panel textarea {
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--text);
+  font: 400 14px var(--font-sans);
+}
+.panel .hint { padding: 0; font-size: 12px; }
+.actions { display: flex; gap: 10px; padding-top: 10px; }
+.actions .button-outline { width: auto; height: 40px; padding: 0 18px; background: transparent; color: var(--text); font: 500 14px var(--font-sans); }
+
+.message {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.5;
+}

@@ -5,3 +5,4 @@ uvicorn==0.54.0
 jinja2==3.1.6
 python-multipart==0.0.34
 lancedb==0.41.0
+pyarrow==26.0.1

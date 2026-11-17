@@ -40,6 +40,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-30 | Decided | Use the test policy in section "Test policy": unit tests for `src/domain`, route tests for the pages and forms with a fake embedder and a temporary store, and checks by hand for the look of the pages, FR-02 and AC-01. | The product owner chose unit and route tests. This is a PoC, so browser tests are cut. |
 | D-31 | Decided | Build each page as a Jinja template from its artboard in `docs/ui/`. `docs/ui/` holds a copy of the 8 chosen artboards of the canvas (D-19), made on 2026-11-17. Never edit the copies: copy them again from the canvas. Keep the Graphite colors as CSS custom properties in one stylesheet. Keep HTMX and the 2 fonts (Inter, JetBrains Mono) as local files in `src/web/static/vendor/`. When a font file is missing, the page uses the system font. | The canvas is locked (D-17, D-18, D-19). An unattended session cannot read the canvas, so it needs the copy. Local files keep the app on one machine (NFR-03). |
 | D-32 | Proposed | Log each request in `src/web/request_log.py`, a web module that `create_app` adds as an HTTP middleware. It logs the method, the path, the status and the time, and logs an error with its context. It does not log the query string. | The app factory holds no logic (`CLAUDE.md`), and the log must hold no user data. Auto-decided in M1, review. |
+| D-33 | Proposed | Import `pyarrow` in `src/adapters/store.py` to give each LanceDB table an explicit schema, and list it in `requirements.txt` (pinned to the installed version). | LanceDB already installs it, and an empty table needs a schema. Auto-decided in M3, review. |
 
 ## Open Design Questions
 
@@ -125,7 +126,7 @@ The text of an assignment vector has these lines, in this order: the leaf name, 
 | Name | Interface |
 |------|-----------|
 | `create_app(store, embedder, options)` in `src/app.py` | Returns the FastAPI app. `options` is an `AppOptions` data class of `src/app.py` with `search_result_limit`, `page_size` and `load_seed`. When `load_seed` is true and `store` has no employee, the app loads the seed data. `main.py` sets `load_seed` to true. |
-| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. |
+| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. For the table `nodes` it has `list_nodes()`, `add_node(node)`, `update_node(node_id, name, description)` and `delete_node(node_id)`. |
 | The embedder | An object with `embed(texts)`, which takes a list of texts and returns one list of numbers for each text, and with the properties `model_name` and `vector_size`. It raises `EmbeddingUnavailable` (defined in `src/domain/models.py`) when the model does not answer. |
 | `OllamaEmbedder(url, model, timeout_seconds)` in `src/adapters/embedder.py` | Calls `POST <url>/api/embed` with the fields `model` and `input` (a list of texts) and reads the field `embeddings`. |
 
@@ -139,6 +140,7 @@ The text of an assignment vector has these lines, in this order: the leaf name, 
 | `levels.effective_level(lead_count, member_count, flag, thresholds)` | `flag` is `None`, `"aware"` or `"expert"`. Expert gives 5 (FR-27). If not, one or more assignments give the computed level. If not, Aware gives 1. If not, `None`. |
 | `skill_tree.is_leaf(nodes, node_id)` | `True` when no node has `node_id` as its parent. |
 | `skill_tree.leaves_under(nodes, node_id)` | The leaves below the node, in tree order. A leaf gives itself. |
+| `skill_tree.children_of(nodes, parent_id)` and `skill_tree.outline(nodes)` | The children of a node ordered by `position`, and every node with its depth, parents before their children. |
 | `skill_tree.path(nodes, node_id)` | The names from the top-level node to the node, joined with ` / `, such as `Circuit design / Clocking / PLL`. |
 | `ranking.rank_employees(hits, limit)` | `hits` is a list of `Hit(employee_id, assignment_id, leaf_id, distance)`. Returns at most `limit` `RankedEmployee(employee_id, best_assignment_id, leaf_ids)` records, the smallest best distance first. `leaf_ids` holds at most 3 leaves of the best hits, each leaf one time. |
 | `vector_text.assignment_text(assignment, project, leaf, leaf_path)` | The text of an assignment vector. |
