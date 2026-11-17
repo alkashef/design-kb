@@ -42,6 +42,22 @@
       <input type="text" name="name" aria-label="Name of the new child" placeholder="New child skill" required>
       <button class="button-outline" type="submit">Add child</button>
     </form>
+    <h3>Employees with a level in {{ selected.name }}</h3>
+    {% if people %}
+    <div class="panel">
+      {% for person in people %}
+      <div class="person-row" data-employee-id="{{ person.employee_id }}">
+        <a href="/employees/{{ person.employee_id }}">{{ person.name }}</a>
+        <span class="hint">{{ person.team }}</span>
+        {% for leaf in leaves %}
+        <span class="level-cell" data-leaf-id="{{ leaf.id }}" data-level="{{ person.levels.get(leaf.id, 0) }}">{{ leaf.name }}: {{ person.levels.get(leaf.id, 0) or "-" }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="hint">No employee has a level here yet.</p>
+    {% endif %}
     {% else %}
     <p class="hint">Select a skill in the outline to edit it.</p>
     {% endif %}

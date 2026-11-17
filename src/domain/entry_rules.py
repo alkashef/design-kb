@@ -1,4 +1,4 @@
-"""The entry rules: decide whether an entry is valid and give the message (FR-24, FR-26, FR-41, FR-42).
+"""The entry rules: decide whether an entry is valid and give the message (FR-24, FR-26, FR-33, FR-34, FR-41, FR-42).
 
 Each function returns the message for a rejected entry, or None when the entry is valid.
 """
@@ -6,7 +6,7 @@ Each function returns the message for a rejected entry, or None when the entry i
 from typing import List, Optional
 
 from src.domain import skill_tree
-from src.domain.models import Assignment, Node
+from src.domain.models import Assignment, Flag, Node
 
 PARTICIPATIONS = ("lead", "member")
 FLAG_VALUES = ("aware", "expert")
@@ -20,6 +20,30 @@ def leaf_problem(nodes: List[Node], leaf_id: str) -> Optional[str]:
     if not skill_tree.is_leaf(nodes, leaf_id):
         return f"{node.name} has children. Choose one of its leaves."
     return None
+
+
+def leaf_in_use_problem(
+    nodes: List[Node], assignments: List[Assignment], flags: List[Flag], node_id: str
+) -> Optional[str]:
+    """Return a message when a leaf has assignments or flags, so it cannot get a child or be deleted (FR-33, FR-34)."""
+    if not skill_tree.is_leaf(nodes, node_id):
+        return None
+    leaf_assignments = [a for a in assignments if a.leaf_id == node_id]
+    leaf_flags = [f for f in flags if f.leaf_id == node_id]
+    if not leaf_assignments and not leaf_flags:
+        return None
+    name = next((n.name for n in nodes if n.id == node_id), node_id)
+    employees = {a.employee_id for a in leaf_assignments} | {f.employee_id for f in leaf_flags}
+    return (
+        f"{name} has {_plural(len(employees), 'employee')} with a level"
+        f" and {_plural(len(leaf_assignments), 'assignment')}."
+        " You cannot add a child or delete this skill until those are removed."
+    )
+
+
+def _plural(count: int, word: str) -> str:
+    """Return count and the word, such as '1 employee' or '3 employees'."""
+    return f"{count} {word}" if count == 1 else f"{count} {word}s"
 
 
 def participation_problem(participation: str) -> Optional[str]:

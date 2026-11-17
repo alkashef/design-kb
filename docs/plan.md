@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M8** Tree guards and node views | Refused deletions; employees of a leaf or a node | sonnet | medium | open |
 | **M9** Threshold settings | The Settings page: ranges, checks, reset | sonnet | medium | open |
 | **M10** Vectors | Embedding on each change; message when Ollama is down | opus | high | open |
 | **M11** Seed data | 40 employees, 15 projects, about 30 leaves, loaded at first start | sonnet | high | open |
@@ -17,19 +16,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M8 — Tree guards and node views
-
-- **Refs:** FR-12, FR-13, FR-33, FR-34, D-29.
-- **Owner:** `src/services/skill_tree.py`, `src/domain/entry_rules.py`, `src/web/routes/skill_tree.py`, `src/web/templates/skill_tree.html`.
-- **Tests first:** route: `test_fr_33_delete_a_leaf_with_an_assignment_is_refused_with_a_message`,
-  `test_fr_33_delete_a_leaf_with_a_flag_is_refused_with_a_message`,
-  `test_fr_34_add_child_to_a_leaf_with_an_assignment_is_refused_with_a_message`,
-  `test_fr_34_add_child_to_a_leaf_with_a_flag_is_refused_with_a_message`,
-  `test_fr_12_leaf_lists_its_employees_highest_level_first`,
-  `test_fr_13_node_lists_employees_with_their_level_in_each_leaf_below`.
-- **Build:** the two rules in `entry_rules.py`, and the message of `docs/ui/SkillTree.dc.html`. The list of the employees with a level, for a leaf and for a node with children.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M8` pass.
 
 ### M9 — Threshold settings
 
