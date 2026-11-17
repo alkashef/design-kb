@@ -9,6 +9,7 @@ How work goes from a requirement to a pushed commit. Project-specific rules are 
 | `docs/specs.md` | What to build: the requirements and the data model | The user owns it. The AI edits it with `/write-spec` and the user's approval |
 | `docs/design.md` | How to build it: the design decisions (architecture, storage, interfaces, settings, test policy) | AI, with `/write-design` |
 | `docs/plan.md` | What is left: only unfinished milestones, with their questions and approvals | AI, with `/write-plan`; the user adds approvals |
+| `docs/ui/` | The agreed pages (`docs/design.md`, D-19): what each page shows | The user owns it. The AI edits it only with the user's approval |
 
 Each fact lives in one file. Finished work is recorded by git history, not by the docs.
 
@@ -29,15 +30,15 @@ A requirement has an ID (`FR-NN` for a functional requirement, `NFR-NN` for a no
    5. Update the docs the change made inaccurate (`CLAUDE.md`, Living docs).
    6. Delete the milestone's row and block from `plan.md`.
    7. Commit only the files this milestone changed, with the message `M<n>: <title>`, then push. The pre-commit hook runs the checks again. Do not start the next milestone until the push succeeds.
-5. **Blocked.** If a milestone needs something it may not do on its own, stop it. These are the only reasons: a new or changed requirement in `specs.md`, an action `CLAUDE.md` forbids, a new flow of user data to an external service, real user data, a secret in a committed file, a library that `design.md` does not name in a `Decided` decision, or a test that the build session finds wrong. In `plan.md`, set its Status to `blocked` and add a **Blocked** entry to its block (template below). Undo its other changes, so that `plan.md` is the only changed file, commit `plan.md` alone with the message `M<n>: blocked`, and push. Ask in chat too if the user is present.
-6. **Approval.** The user answers in the milestone's block: an **Approval** entry with the decision, and Status `approved`. Then the user commits `plan.md` and the milestone runs again. The approval permits exactly what it says, even an action the rules otherwise forbid, and nothing more. A settings rule denies editing `specs.md` in an unattended run, so for a spec change the user edits the spec and the Approval says so. To refuse, the user rewrites or deletes the milestone instead.
+5. **Blocked.** If a milestone needs something it may not do on its own, stop it. These are the only reasons: a new or changed requirement in `specs.md`, a change to an agreed page in `docs/ui/`, an action `CLAUDE.md` forbids, a new flow of user data to an external service, real user data, a secret in a committed file, a library that `design.md` does not name in a `Decided` decision, or a test that the build session finds wrong. In `plan.md`, set its Status to `blocked` and add a **Blocked** entry to its block (template below). Undo its other changes, so that `plan.md` is the only changed file, commit `plan.md` alone with the message `M<n>: blocked`, and push. Ask in chat too if the user is present.
+6. **Approval.** The user answers in the milestone's block: an **Approval** entry with the decision, and Status `approved`. Then the user commits `plan.md` and the milestone runs again. The approval permits exactly what it says, even an action the rules otherwise forbid, and nothing more. A settings rule denies editing `specs.md` and the files in `docs/ui/` in an unattended run, so for a change to the spec or to an agreed page the user makes the edit and the Approval says so. To refuse, the user rewrites or deletes the milestone instead.
 
 ## Rules
 
 - Never edit `specs.md` without the user's approval, given in chat or in an **Approval** entry. Running `/write-spec` allows draft requirements only; the spec is final when the user approves it.
-- If the spec and the design disagree, the spec wins. In a chat session, stop and ask. In a milestone run, fix the design and record it as a decision (below).
-- Stay in scope. When in doubt about the spec, ask. In a milestone run, any other open question (a gap in `design.md`, a detail of a library) is decided, recorded and reported, not asked: nobody can answer.
-- A decision in a milestone run: pick the most conservative option and carry on. When it changes the design, add a `D-NN` (the next free number) to `design.md` with the Status `Proposed`, and write "auto-decided in M<n>, review" in its Reason. The final report has one line per decision: `DECISION: <what> | <why> | <D-NN or none>`. The user reviews these lines after the run and reverts or approves each.
+- If the spec and the design disagree, the spec wins. In a milestone, in chat or unattended, fix the design and record it as a decision (below). Outside a milestone, stop and ask.
+- Stay in scope. When in doubt about the spec, ask. Only the spec and the agreed pages in `docs/ui/` are locked: a milestone never changes them. Everything else that step 5 does not name as a blocker may change in a milestone, in chat or unattended, without a question: a design decision (also a `Decided` one), a module, an interface, a setting. Decide it, record it and report it.
+- A decision in a milestone: pick the most conservative option and carry on. When it changes the design, add a `D-NN` (the next free number) to `design.md` with the Status `Proposed`, and write "auto-decided in M<n>, review" in its Reason. When it replaces a `Decided` decision, set that one to `Superseded`. The final report has one line per decision: `DECISION: <what> | <why> | <D-NN or none>`. The user reviews these lines after the run and reverts or approves each.
 - Never report tests as passed unless they ran. Show failing output.
 - A milestone run makes no call to the embedding model in Ollama (`docs/design.md`, D-16). It does not start the app for a person; a test may start its own server on 127.0.0.1 with the fake embedding client. Its Gate is the checks of step 4. A check that needs the live embedding model or a person (AC-01 is one) is a human check in `plan.md`.
 - Every fix, however small, is a milestone. A fix that changes no requirement and no design decision goes straight to `/write-plan`: one milestone whose Tests first holds a test that fails while the fault is there.
@@ -48,7 +49,8 @@ A requirement has an ID (`FR-NN` for a functional requirement, `NFR-NN` for a no
 [--timeout-minutes N]`, run by the user from a terminal with the conda environment `design-kb`
 active, works through the table in order. Each milestone runs in two `claude -p` sessions, a test
 session and then a build session, with the model and effort of its row, following steps 4 to 6. A
-build session that changed a test file counts as not finished. The runner stops at a `blocked` row, at a
+build session that changed a test file counts as not finished, and so does a milestone whose
+sessions changed `docs/specs.md` or a file in `docs/ui/`. The runner stops at a `blocked` row, at a
 milestone that becomes blocked (and prints its question), or at one that did not finish (its row is
 still in the table, git is not clean, or a commit was not pushed) after its retries. A milestone
 that did not finish is tried again in a new session (`--retries`, default 1) that continues from the

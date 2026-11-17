@@ -36,7 +36,7 @@ End every task with the report: one line, whole line in bold, that starts with `
 
 - The TLDR always states a test that failed, a check that did not run, and a step that was skipped.
 - An open question does not go into the TLDR: it goes into a dialog.
-- In an unattended milestone run, nobody can answer a dialog. Follow `docs/workflow.md`, Rules, and put each `DECISION:` line above the TLDR.
+- In a milestone, in chat or unattended, ask only for a blocker of `docs/workflow.md`, step 5. Decide everything else by its Rules, and put each `DECISION:` line above the TLDR.
 
 ## Architecture and layers
 
@@ -46,7 +46,7 @@ End every task with the report: one line, whole line in bold, that starts with `
 - The UI (the Jinja templates and the HTMX attributes in them) contains no business or application logic; it only renders and translates user input into backend requests. All application logic lives in the backend. Business logic is pure: no HTTP, UI, or database imports. The API layer translates requests and delegates to business logic.
 - Exactly one module talks to each external system (a file area, a database, a network API). A module exposes only what others need and never reaches into another module's internals.
 - Pass anything that touches an external system (repository, API client, file writer) into the code that uses it, so tests can use fakes. Do not use a dependency-injection framework.
-- Changing a layer, a module boundary, the data storage, the public API, or the tech stack needs the user's approval and a decision recorded in `docs/design.md`.
+- Changing a layer, a module boundary, the data storage, the public API, or the tech stack needs a decision recorded in `docs/design.md`. Outside a milestone it also needs the user's approval; in a milestone, `docs/workflow.md`, Rules, applies.
 
 ## Code quality
 
@@ -74,7 +74,7 @@ End every task with the report: one line, whole line in bold, that starts with `
 
 - `README.md` (File structure) lists the top-level folders, and `docs/design.md` lists the modules and the folders below. Put a file where they say.
 - All source code lives under `src/`, except the entry point `main.py`.
-- `docs/specs.md` and `docs/workflow.md` change only after the user explicitly confirms that change; an earlier confirmation does not cover a later change. The AI keeps `docs/design.md` and `docs/plan.md` under the workflow. The app never reads or writes a file in `docs/`.
+- `docs/specs.md`, `docs/workflow.md` and the files in `docs/ui/` change only after the user explicitly confirms that change; an earlier confirmation does not cover a later change. The AI keeps `docs/design.md` and `docs/plan.md` under the workflow. The app never reads or writes a file in `docs/`.
 - Never edit a generated file by hand. Regenerate it with the script that makes it.
 - `scripts/cleanup.py` removes caches and generated artifacts by name (for example `__pycache__`, tool caches, logs). It never deletes source, docs, config, input data, or dependencies.
 

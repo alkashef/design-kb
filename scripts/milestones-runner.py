@@ -9,7 +9,8 @@ build session makes the tests pass and may not edit tests/. After it, the runner
 hashes and runs `python scripts/spec_coverage.py M<n>` over a temporary copy of docs/specs.md and
 tests/ with the block it read first (the build session deletes the block from the plan). A test
 file that changed, was added or was removed, or a failed coverage check, means the milestone did
-not finish.
+not finish. The same holds when docs/specs.md or a file in docs/ui/ differs from the commit the
+milestone started on: a milestone may not change the spec or an agreed page.
 
 Before the first milestone, the runner checks the conda environment, the settings file, the commit
 hook, a clean git tree, an upstream branch and .gitignore. After each one, it checks that the
@@ -77,6 +78,7 @@ TEST_SESSION_DENIED: Final = tuple(
     f"{tool}(./src/**/*.{extension})" for tool in ("Read", "Grep", "Glob") for extension in SRC_CODE
 )
 BUILD_SESSION_DENIED: Final = ("Edit(./tests/**)", "Write(./tests/**)")
+LOCKED_PATHS: Final = ("docs/specs.md", "docs/ui")  # a milestone may not change these
 SKIPPED_DIR: Final = "__pycache__"
 IGNORE_ENTRIES: Final = (".claude/logs/",)
 HOOKS_PATH: Final = ".githooks"  # the value of git's core.hooksPath that turns the commit hook on
@@ -512,7 +514,8 @@ def build_prompt(row: Row, resume: bool) -> str:
             "This is an unattended run: nobody can answer questions.",
             *resume_note,
             "Rules:",
-            "(a) never edit docs/specs.md: a settings rule denies that edit in an unattended run;",
+            "(a) never edit docs/specs.md or a file in docs/ui/: a settings rule denies those",
+            "edits in an unattended run;",
             "(b) in docs/plan.md, when the gate passes, delete the block of M<n> and its row in",
             'the table "Milestones at a glance", and edit nothing else in the plan;',
             "(c) do that edit before the commit so the commit includes it;",
@@ -520,7 +523,8 @@ def build_prompt(row: Row, resume: bool) -> str:
             "then run git push;",
             "(e) if the pre-commit hook refuses the commit, fix the cause; never bypass the hook;",
             "(f) stop the milestone only if it needs a new or changed requirement in",
-            "docs/specs.md, an action that CLAUDE.md 'Git and destructive actions' forbids, a new",
+            "docs/specs.md, a change to an agreed page in docs/ui/, an action that CLAUDE.md",
+            "'Git and destructive actions' forbids, a new",
             "flow of user data to an external service, real user data, a secret in a committed",
             "file, a library that docs/design.md does not name in a Decided decision (use the",
             "standard library first), or a change to a test in tests/ that you find wrong, and no",
@@ -534,11 +538,13 @@ def build_prompt(row: Row, resume: bool) -> str:
             "says, even an action these rules or CLAUDE.md otherwise forbid, and nothing more;",
             "(h) a tool call that a settings rule denies is not allowed in an unattended run: do",
             "not retry it or work around it. Choose another way, or stop as in (f) if none;",
-            "(i) for anything else that is open, such as a gap in docs/design.md or a detail of a",
-            "library, decide the most conservative option and carry on. If docs/specs.md and",
+            "(i) everything else may change without a question: a design decision (also a Decided",
+            "one), a module, an interface, a setting. Decide the most conservative option and",
+            "carry on. If docs/specs.md and",
             "docs/design.md disagree, the spec wins: fix the design. When the decision changes the",
             "design, add a D-NN (the next free number) to docs/design.md with the Status Proposed,",
-            "and write 'auto-decided in M<n>, review' in its Reason. Never renumber an ID;",
+            "and write 'auto-decided in M<n>, review' in its Reason. When it replaces a Decided",
+            "decision, set that one to Superseded. Never renumber an ID;",
             "(j) never call the embedding model in Ollama, and do not start the app for a person;",
             "a test may start its own server on 127.0.0.1 with the fake embedding client. The",
             "Gate is `python scripts/check.py`, whose tests run with the fake embedding client, in",
@@ -564,14 +570,18 @@ def build_test_prompt(row: Row, resume: bool = False) -> str:
             "Rules:",
             "(a) commit nothing; the only exception is the commit that blocks the milestone (d);",
             "(b) change only files under tests/, docs/design.md for an auto-decision (c), and",
-            "docs/plan.md only to block the milestone (d). Never edit docs/specs.md, and never",
+            "docs/plan.md only to block the milestone (d). Never edit docs/specs.md or a file in",
+            "docs/ui/, and never",
             "read the code in src/ (*.py, *.js, *.html, *.css), also not through the shell;",
-            "(c) for a gap in docs/design.md or a detail of a library, decide the most",
+            "(c) for anything else that is open, such as a gap in docs/design.md, a Decided",
+            "decision that the tests cannot follow, or a detail of a library, decide the most",
             "conservative option and carry on. When the decision changes the design, add a D-NN",
             "(the next free number) to docs/design.md with the Status Proposed, and write",
-            "'auto-decided in M<n>, review' in its Reason. Never renumber an ID;",
+            "'auto-decided in M<n>, review' in its Reason. When it replaces a Decided decision,",
+            "set that one to Superseded. Never renumber an ID;",
             "(d) stop the milestone only if its tests need a new or changed requirement in",
-            "docs/specs.md, an action that CLAUDE.md 'Git and destructive actions' forbids, real",
+            "docs/specs.md, a change to an agreed page in docs/ui/, an action that CLAUDE.md",
+            "'Git and destructive actions' forbids, real",
             "user data, or a library that docs/design.md does not name in a Decided decision, and",
             "no Approval entry in the block permits it. To stop: delete the files you added and",
             "undo your other changes, set its Status in the table to `blocked`, add a Blocked",
@@ -808,6 +818,31 @@ def git_has_unpushed(root: Path) -> bool:
     """Tell whether HEAD has commits that are not on the upstream (True when git cannot tell)."""
     done = _run(["git", "rev-list", "--count", "@{u}..HEAD"], root)
     return done.returncode != 0 or int(done.stdout.strip() or "0") > 0
+
+
+def git_head(root: Path) -> str:
+    """Return the ID of the commit that HEAD points to."""
+    return _run(["git", "rev-parse", "HEAD"], root).stdout.strip()
+
+
+def locked_problem(root: Path, base: str) -> str | None:
+    """Return why a milestone does not count: the spec or an agreed page differs from `base`.
+
+    Args:
+        root: The repository root.
+        base: The commit the milestone started on.
+
+    Returns:
+        The reason with the changed files (committed, uncommitted or new), or None.
+    """
+    diff = _run(["git", "diff", "--name-only", base, "--", *LOCKED_PATHS], root)
+    new = _run(["git", "ls-files", "--others", "--exclude-standard", "--", *LOCKED_PATHS], root)
+    if diff.returncode != 0 or new.returncode != 0:
+        return "git could not compare docs/specs.md and docs/ui/ with the start of the milestone."
+    changed = sorted({*_output_lines(diff.stdout), *_output_lines(new.stdout)})
+    if changed:
+        return f"a session changed the spec or an agreed page: {', '.join(changed)}."
+    return None
 
 
 def _error(message: str) -> RunStoppedError:
@@ -1296,7 +1331,12 @@ def run_milestone(session: Session, row: Row) -> None:
     session.console.say(f"Starting M{row.id} | {row.model} | {row.effort}")
     started_at = time.strftime("%Y-%m-%d %H:%M:%S")
     watch = Stopwatch()
+    base = git_head(session.paths.root)
     run, verdict = run_sessions(session, row, watch, session.state.take_resume())
+    if verdict.outcome != OUTCOME_FAILED:
+        problem = locked_problem(session.paths.root, base)
+        if problem is not None:
+            verdict = Verdict(OUTCOME_FAILED, problem)
     seconds = watch.elapsed()
     record_result(
         session,

@@ -19,8 +19,8 @@ Another session builds the code afterwards and may not change these tests. Write
   the fake embedding client. Read existing tests only to reuse their fixtures.
 - Do not read the code in `src/` (`*.py`, `*.js`, `*.html`, `*.css`). The tests must come from the
   spec and the design, so that they catch code that drifts from them. If a test needs an interface the design does not name, that is a gap in
-  the design. In chat, ask. In a milestone run, choose the most conservative name, use it, and
-  report it as a `DECISION:` line (`docs/workflow.md`, Rules).
+  the design. Choose the most conservative name, use it, and report it as a `DECISION:` line
+  (`docs/workflow.md`, Rules).
 
 ## Write the tests
 

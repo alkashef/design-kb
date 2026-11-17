@@ -66,7 +66,9 @@ For a status request, give only those lines and the next command.
 - **When the user asks to build a milestone in this chat:** run it as `docs/workflow.md`, Execute,
   says. Start a subagent that runs `/write-tests` for the milestone. It must not read the code in
   `src/`. Then build in this session without changing any file in `tests/`, run the checks of step
-  4, and finish steps 5 to 7. One milestone per request.
+  4, and finish steps 5 to 7. Ask the user only for a blocker of step 5; decide everything else as
+  the Rules of `docs/workflow.md` say, and report each decision as a `DECISION:` line. One
+  milestone per request.
 
 ## 5. Stop
 

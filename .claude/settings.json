@@ -20,6 +20,7 @@
     ],
     "ask": [
       "Edit(/docs/specs.md)",
+      "Edit(/docs/ui/**)",
       "Edit(/docs/workflow.md)",
       "Edit(/CLAUDE.md)",
       "Edit(/.claude/settings.json)",
