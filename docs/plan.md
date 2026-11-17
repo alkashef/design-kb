@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M2** Level rules | Levels 2 to 5 from counts, flags and thresholds | sonnet | medium | open |
 | **M3** Skill tree editor | Add, rename, describe and delete nodes in the outline | sonnet | medium | open |
 | **M4** Employees | The list, the profile, create, edit and delete | sonnet | medium | open |
 | **M5** Projects | Create, edit and delete projects | sonnet | medium | open |
@@ -23,19 +22,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M2 — Level rules
-
-- **Refs:** FR-25, FR-27, FR-32, D-05, D-25.
-- **Owner:** `src/domain/models.py`, `src/domain/levels.py`.
-- **Tests first:** unit: `test_fr_25_lead_in_3_projects_gives_level_4`,
-  `test_fr_25_lead_in_1_project_gives_level_3`, `test_fr_25_member_in_1_project_gives_level_2`,
-  `test_fr_25_counts_in_no_range_give_no_level`, `test_fr_25_highest_matching_level_wins`,
-  `test_fr_25_assignment_overrides_the_aware_flag`,
-  `test_fr_27_expert_flag_gives_level_5_over_the_computed_level`,
-  `test_fr_32_default_thresholds_equal_spec_section_2_5`.
-- **Build:** the data classes of the design, and `LEVEL_NAMES`, `default_thresholds`, `computed_level` and `effective_level` in `levels.py`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M2` pass.
 
 ### M3 — Skill tree editor
 
