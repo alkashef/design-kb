@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from src.domain import levels, skill_tree
 from src.domain.models import CAREER_LEVELS, Employee
+from src.services.thresholds import ThresholdService
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +172,7 @@ class EmployeeService:
         """Return the SkillLevel of the employee in each leaf, in tree order."""
         flag_of = {f.leaf_id: f.flag for f in flags if f.employee_id == employee_id}
         mine = [a for a in assignments if a.employee_id == employee_id]
-        thresholds = levels.default_thresholds()
+        thresholds = ThresholdService(self._store).current()
         result = {}
         for node, _depth in skill_tree.outline(nodes):
             if not skill_tree.is_leaf(nodes, node.id):

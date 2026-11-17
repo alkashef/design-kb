@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M9** Threshold settings | The Settings page: ranges, checks, reset | sonnet | medium | open |
 | **M10** Vectors | Embedding on each change; message when Ollama is down | opus | high | open |
 | **M11** Seed data | 40 employees, 15 projects, about 30 leaves, loaded at first start | sonnet | high | open |
 | **M12** Experience search | Ranked results, reasons, top leaves, preview | sonnet | high | open |
@@ -16,19 +15,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M9 — Threshold settings
-
-- **Refs:** FR-31, FR-32, FR-35, FR-36, D-25, D-29.
-- **Owner:** `src/services/thresholds.py`, `src/domain/entry_rules.py`, `src/web/routes/settings.py`, `src/web/templates/settings.html`.
-- **Tests first:** route: `test_fr_32_settings_page_shows_the_default_ranges`,
-  `test_fr_31_saved_ranges_change_the_level_on_a_profile`,
-  `test_fr_31_empty_to_value_means_no_upper_limit`,
-  `test_fr_35_value_that_is_not_a_whole_number_is_rejected_with_a_message`,
-  `test_fr_35_from_value_above_its_to_value_is_rejected_with_a_message`,
-  `test_fr_36_reset_restores_the_default_ranges`.
-- **Build:** the table `thresholds`. The page from `docs/ui/Settings.dc.html` with the 12 fields, "Save thresholds" and "Reset to defaults". Each page that shows a level reads the saved thresholds.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M9` pass.
 
 ### M10 — Vectors
 

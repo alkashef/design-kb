@@ -6,7 +6,7 @@ Each function returns the message for a rejected entry, or None when the entry i
 from typing import List, Optional
 
 from src.domain import skill_tree
-from src.domain.models import Assignment, Flag, Node
+from src.domain.models import Assignment, Flag, Node, Threshold
 
 PARTICIPATIONS = ("lead", "member")
 FLAG_VALUES = ("aware", "expert")
@@ -82,4 +82,14 @@ def aware_problem(
     if any(a.employee_id == employee_id and a.leaf_id == leaf_id for a in assignments):
         name = next((n.name for n in nodes if n.id == leaf_id), leaf_id)
         return f"Aware is not allowed on {name}. This employee has an assignment in it."
+    return None
+
+
+def threshold_problem(thresholds: List[Threshold]) -> Optional[str]:
+    """Return a message when a from value is greater than its to value (FR-35)."""
+    for t in thresholds:
+        ranges = (("lead", t.lead_from, t.lead_to), ("member", t.member_from, t.member_to))
+        for kind, low, high in ranges:
+            if high is not None and low > high:
+                return f"Level {t.level}: the {kind} from value must not be greater than the to value."
     return None

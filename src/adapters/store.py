@@ -6,7 +6,7 @@ from typing import List
 import lancedb
 import pyarrow as pa
 
-from src.domain.models import Assignment, Employee, Flag, Node, Project
+from src.domain.models import Assignment, Employee, Flag, Node, Project, Threshold
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +70,18 @@ FLAGS_SCHEMA = pa.schema(
 )
 
 
+THRESHOLDS_TABLE = "thresholds"
+THRESHOLDS_SCHEMA = pa.schema(
+    [
+        ("level", pa.int64()),
+        ("lead_from", pa.int64()),
+        ("lead_to", pa.int64()),
+        ("member_from", pa.int64()),
+        ("member_to", pa.int64()),
+    ]
+)
+
+
 def _quote(value: str) -> str:
     """Return value as a quoted SQL text for a filter."""
     return "'" + value.replace("'", "''") + "'"
@@ -92,6 +104,9 @@ class LanceStore:
             ASSIGNMENTS_TABLE, schema=ASSIGNMENTS_SCHEMA, exist_ok=True
         )
         self._flags = self._db.create_table(FLAGS_TABLE, schema=FLAGS_SCHEMA, exist_ok=True)
+        self._thresholds = self._db.create_table(
+            THRESHOLDS_TABLE, schema=THRESHOLDS_SCHEMA, exist_ok=True
+        )
         logger.info("Opened the store.")
 
     def list_nodes(self) -> List[Node]:
@@ -187,3 +202,13 @@ class LanceStore:
     def delete_flags_of_employee(self, employee_id: str) -> None:
         """Delete the flags of one employee."""
         self._flags.delete(f"employee_id = {_quote(employee_id)}")
+
+    def list_thresholds(self) -> List[Threshold]:
+        """Return the saved thresholds; an empty list means the defaults apply (FR-32)."""
+        return [Threshold(**row) for row in self._thresholds.to_arrow().to_pylist()]
+
+    def replace_thresholds(self, thresholds: List[Threshold]) -> None:
+        """Delete the saved thresholds and write the given ones (none writes nothing)."""
+        self._thresholds.delete("level >= 0")
+        if thresholds:
+            self._thresholds.add([vars(t) for t in thresholds], mode="append")

@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 
 from src.domain import entry_rules, levels, skill_tree
 from src.domain.models import Node
+from src.services.thresholds import ThresholdService
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,7 @@ class SkillTreeService:
         leaves = skill_tree.leaves_under(nodes, node_id)
         assignments = self._store.list_assignments()
         flag_of = {(f.employee_id, f.leaf_id): f.flag for f in self._store.list_flags()}
-        thresholds = levels.default_thresholds()
+        thresholds = ThresholdService(self._store).current()
         rows = []
         for employee in self._store.list_employees():
             by_leaf = {}
