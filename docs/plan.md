@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M1** App shell | The app starts and shows the Graphite shell with the sidebar; no login | opus | high | open |
 | **M2** Level rules | Levels 2 to 5 from counts, flags and thresholds | sonnet | medium | open |
 | **M3** Skill tree editor | Add, rename, describe and delete nodes in the outline | sonnet | medium | open |
 | **M4** Employees | The list, the profile, create, edit and delete | sonnet | medium | open |
@@ -24,17 +23,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M1 — App shell
-
-- **Refs:** NFR-01, NFR-02, NFR-03, D-17, D-18, D-20, D-21, D-24, D-29, D-30, D-31.
-- **Owner:** `main.py`, `src/config.py`, `src/app.py`, `src/adapters/store.py`, `src/web/routes/search.py`, `src/web/templates/base.html`, `src/web/static/app.css`.
-- **Tests first:** route: `test_nfr_02_search_page_opens_with_no_login` (`GET /` answers 200 with no
-  credentials and shows the links Search, Employees, Skill tree, Projects and Settings). Also write
-  `tests/conftest.py` and `tests/fakes.py` as the test policy of the design says.
-  Manual: NFR-01, NFR-03.
-- **Build:** `config.py` reads the 8 settings of the design, and `config/.env.example` gets the keys. `main.py` creates the store and the embedder and starts Uvicorn. `create_app(store, embedder, options)` connects the routes, the templates and the static files, and logs each request. `LanceStore(data_dir)` opens the folder. `OllamaEmbedder` gets its class with `model_name` and `vector_size`; M10 completes it. `base.html` is the shell of `docs/ui/SearchSplit.dc.html`. `app.css` holds the Graphite colors as custom properties and the two local fonts. `GET /` shows the Search page with no results.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M1` pass.
 
 ### M2 — Level rules
 

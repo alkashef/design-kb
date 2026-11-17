@@ -4,7 +4,7 @@
 
 `design-kb` is a knowledge base for an integrated circuit (IC) design team. It records who has experience in which skills. Users search it to find the right experience.
 
-It is a proof of concept (PoC). The app is not built yet: the repository holds the requirements, the design decisions, and the tools of the workflow.
+It is a proof of concept (PoC). The app is built in milestones (`docs/plan.md`). Now it starts and shows the Search page in the Graphite style, with the sidebar and no login. The repository also holds the requirements, the design decisions, and the tools of the workflow.
 
 | Document | Content |
 | --- | --- |
@@ -55,7 +55,7 @@ It is a proof of concept (PoC). The app is not built yet: the repository holds t
    pip install -r requirements-dev.txt
    ```
 
-3. Copy `config/.env.example` to `config/.env`. The file has no setting yet.
+3. Copy `config/.env.example` to `config/.env`. The defaults work on one machine. `docs/design.md`, section "Settings", explains each key.
 4. Turn the commit hook on, one time for each clone:
 
    ```
@@ -79,13 +79,11 @@ It is a proof of concept (PoC). The app is not built yet: the repository holds t
 
 ## How to run
 
-The app is not built yet. When the first milestones are done, this command starts it:
-
 ```
 python main.py
 ```
 
-The host and the port come from `config/.env`.
+Then open `http://127.0.0.1:8000` in a desktop browser. The host and the port come from `config/.env`.
 
 ## How to check
 

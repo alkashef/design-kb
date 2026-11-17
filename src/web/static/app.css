@@ -1,0 +1,188 @@
+/* The Graphite style (D-17): the colors of the canvas as custom properties, and the 2 local fonts
+   (D-31). When a font file is missing, the page uses the system font. */
+
+@font-face {
+  font-family: "Inter";
+  src: url("/static/vendor/inter-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/static/vendor/jetbrains-mono-latin.woff2") format("woff2");
+  font-weight: 400 500;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0C0D10;
+  --surface: #14161B;
+  --surface-raised: #181B21;
+  --panel: #101216;
+  --line: #1E2128;
+  --line-soft: #23262E;
+  --line-strong: #2A2E38;
+  --text: #ECEEF2;
+  --text-body: #D5D8DF;
+  --text-muted: #9AA1AD;
+  --accent: #6EE7B7;
+  --accent-ink: #04130D;
+  --accent-bg: #12221D;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+a { color: var(--text-muted); }
+a:hover { color: var(--accent); }
+
+.shell {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.sidebar {
+  flex: 1 1 232px;
+  max-width: 248px;
+  box-sizing: border-box;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  border-right: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.nav a {
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.nav a.active {
+  background: var(--surface-raised);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sidebar-footer { margin-top: auto; }
+
+.button-outline {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text);
+  font: 500 14px var(--font-sans);
+  text-decoration: none;
+}
+
+.main {
+  flex: 999 1 720px;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 36px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.query {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 8px 0 18px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+}
+
+.query input {
+  flex-grow: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: 400 16px var(--font-sans);
+  color: var(--text);
+}
+
+.button-accent {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 14px var(--font-sans);
+}
+
+.search-body {
+  flex: 1 1 0;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 0;
+}
+
+.results {
+  flex: 0 1 460px;
+  min-width: 320px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.preview {
+  flex: 1 1 420px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 32px 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}

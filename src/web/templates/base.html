@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}design-kb{% endblock %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/vendor/htmx.min.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-dot"></span>design-kb</div>
+      <nav class="nav">
+        {% set nav_links = [
+          ("search", "/", "Search"),
+          ("employees", "/employees", "Employees"),
+          ("skill_tree", "/skill-tree", "Skill tree"),
+          ("projects", "/projects", "Projects"),
+          ("settings", "/settings", "Settings"),
+        ] %}
+        {% for key, href, label in nav_links %}
+        <a href="{{ href }}"{% if active_page == key %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+      <div class="sidebar-footer">
+        <a class="button-outline" href="/employees/new">Add employee</a>
+      </div>
+    </aside>
+    <main class="main">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

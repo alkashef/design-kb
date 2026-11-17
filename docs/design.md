@@ -39,6 +39,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-29 | Decided | Use the routes, form fields, response rules and HTML markers in section "Interfaces". A form posts to the server, and the server answers with a redirect or with the page and a message. | The test session writes route tests from these names without the code. |
 | D-30 | Decided | Use the test policy in section "Test policy": unit tests for `src/domain`, route tests for the pages and forms with a fake embedder and a temporary store, and checks by hand for the look of the pages, FR-02 and AC-01. | The product owner chose unit and route tests. This is a PoC, so browser tests are cut. |
 | D-31 | Decided | Build each page as a Jinja template from its artboard in `docs/ui/`. `docs/ui/` holds a copy of the 8 chosen artboards of the canvas (D-19), made on 2026-11-17. Never edit the copies: copy them again from the canvas. Keep the Graphite colors as CSS custom properties in one stylesheet. Keep HTMX and the 2 fonts (Inter, JetBrains Mono) as local files in `src/web/static/vendor/`. When a font file is missing, the page uses the system font. | The canvas is locked (D-17, D-18, D-19). An unattended session cannot read the canvas, so it needs the copy. Local files keep the app on one machine (NFR-03). |
+| D-32 | Proposed | Log each request in `src/web/request_log.py`, a web module that `create_app` adds as an HTTP middleware. It logs the method, the path, the status and the time, and logs an error with its context. It does not log the query string. | The app factory holds no logic (`CLAUDE.md`), and the log must hold no user data. Auto-decided in M1, review. |
 
 ## Open Design Questions
 
@@ -78,6 +79,7 @@ The layers and their import rule are in D-21. `main.py` reads the settings with 
 | `src/web/routes/projects.py` | web | The Project and assignments page. | FR-21, FR-22, FR-28 |
 | `src/web/routes/skill_tree.py` | web | The Skill tree page. | FR-12, FR-13, FR-30 |
 | `src/web/routes/settings.py` | web | The Settings page. | FR-31, FR-36 |
+| `src/web/request_log.py` | web | Logs each request and each error of the app. | D-32 |
 | `src/web/templates/` | web | One template for each page, `base.html` for the shell, and `partials/` for the parts that HTMX swaps. | D-19, D-31 |
 | `src/web/static/` | web | `app.css`, and `vendor/` with HTMX and the fonts. | D-17, D-31 |
 
