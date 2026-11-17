@@ -27,6 +27,7 @@ Status: **Decided** means the product owner chose it. **Proposed** means Claude 
 | D-17 | Decided | Use the "Graphite" visual style: dark theme, Inter with JetBrains Mono details, mint accent. | Chosen from 3 styles on the UI canvas: https://claude.ai/artifact/VYZEh8JbCKG2AAPS81wozN |
 | D-18 | Decided | The landing page is search. Its layout is the split view: sidebar, a narrow result list, and a preview panel for the selected employee. | Lets the user inspect a candidate without leaving the page. Chosen from 3 layouts (L1 to L3) on the UI canvas. |
 | D-19 | Decided | The app has 8 pages in the Graphite style with the split view shell: Search (experience), Search (skill gaps), Employees, Employee profile (360 view), Edit employee, Project and assignments, Skill tree, Settings. The sidebar links to Search, Employees, Skill tree, Projects and Settings. | Product owner reviewed and approved the pages on the UI canvas: https://claude.ai/artifact/VYZEh8JbCKG2AAPS81wozN. The canvas is the visual reference for the build. |
+| D-20 | Decided | Build the app in Python with FastAPI. Render the pages on the server with Jinja templates. Use HTMX for the interactive parts. | One language and one process, with no separate front-end build. LanceDB, Ollama and the embedding step all work from Python. The canvas pages port directly to templates. |
 
 ## Open Design Questions
 
