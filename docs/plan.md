@@ -8,26 +8,11 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M11** Seed data | 40 employees, 15 projects, about 30 leaves, loaded at first start | sonnet | high | open |
 | **M12** Experience search | Ranked results, reasons, top leaves, preview | sonnet | high | open |
 | **M13** Search filters | Team, career level, leaf with minimum level; filters with no query | sonnet | medium | open |
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M11 — Seed data
-
-- **Refs:** NFR-04, NFR-05, NFR-06, D-03, D-26.
-- **Owner:** `src/domain/seed_data.py`, `src/services/seed.py`, `src/app.py`.
-- **Tests first:** unit: `test_nfr_04_seed_has_40_employees_15_projects_and_6_top_level_nodes`,
-  `test_nfr_04_seed_has_between_25_and_35_leaves`,
-  `test_nfr_04_seed_holds_the_persons_of_the_3_example_searches`,
-  `test_nfr_05_seed_assignments_and_flags_obey_the_entry_rules`.
-  route: `test_nfr_04_first_start_loads_the_seed_data_into_an_empty_store`,
-  `test_nfr_04_start_with_employees_in_the_store_loads_nothing`.
-  Manual: NFR-06.
-- **Build:** `seed_data.build()` with fixed records and invented names. The seed holds a lead of a PLL design on a 7nm project, a member with level 2 or higher in a CDR leaf, and a senior employee of the team Analog with a level in a low-noise amplifier leaf. `seed.py` loads the records and their vectors when `load_seed` is true and the store has no employee.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M11` pass.
 
 ### M12 — Experience search
 
