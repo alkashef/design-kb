@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Employees · design-kb{% endblock %}
+{% block main %}
+<div class="page">
+  <div class="page-head">
+    <h1>Employees</h1>
+    <a class="button-accent link-button" href="/employees/new">Add employee</a>
+  </div>
+  <form class="filters" method="get" action="/employees">
+    <input type="text" name="filter" value="{{ filter }}" aria-label="Filter by name or ID" placeholder="Filter by name or ID">
+    <select name="team" aria-label="Team">
+      <option value="">Team: any</option>
+      {% for t in teams %}<option value="{{ t }}"{% if t == team %} selected{% endif %}>{{ t }}</option>{% endfor %}
+    </select>
+    <select name="career_level" aria-label="Career level">
+      <option value="">Career level: any</option>
+      {% for c in career_levels %}<option value="{{ c }}"{% if c == career_level %} selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <button class="button-outline fit" type="submit">Filter</button>
+  </form>
+  <div class="table">
+    <div class="table-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span></div>
+    {% for e in result.rows %}
+    <a class="table-row" href="/employees/{{ e.id }}" data-employee-id="{{ e.id }}">
+      <span class="mono">{{ e.id }}</span><span>{{ e.name }}</span><span>{{ e.job_title }}</span><span>{{ e.team }}</span><span>{{ e.career_level }}</span>
+    </a>
+    {% endfor %}
+    <div class="table-foot">
+      <span>PAGE {{ result.page }} OF {{ result.page_count }} · {{ result.total }} EMPLOYEES</span>
+      <span class="pager">
+        {% if result.page > 1 %}<a href="/employees?{{ query }}&amp;page={{ result.page - 1 }}">Previous</a>{% endif %}
+        {% if result.page < result.page_count %}<a href="/employees?{{ query }}&amp;page={{ result.page + 1 }}">Next</a>{% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+{% endblock %}

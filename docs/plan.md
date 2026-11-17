@@ -8,7 +8,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M4** Employees | The list, the profile, create, edit and delete | sonnet | medium | open |
 | **M5** Projects | Create, edit and delete projects | sonnet | medium | open |
 | **M6** Assignments | Create, edit and delete assignments; leaf-only and duplicate rules | sonnet | high | open |
 | **M7** Flags and 360 view | Aware and Expert flags; the profile shows every level | sonnet | high | open |
@@ -21,18 +20,6 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 | **M14** Gap search | The skill gaps mode | sonnet | medium | open |
 
 ## Milestones
-
-### M4 — Employees
-
-- **Refs:** FR-10, FR-20, FR-28, D-25, D-29.
-- **Owner:** `src/services/employees.py`, `src/web/routes/employees.py`, `src/web/templates/employees.html`, `employee_profile.html`, `employee_form.html`.
-- **Tests first:** route: `test_fr_20_create_employee_gets_the_next_id_and_opens_the_profile`,
-  `test_fr_20_edit_employee_saves_the_new_values`, `test_fr_10_open_employee_shows_the_profile_page`,
-  `test_fr_10_unknown_employee_gives_404`, `test_fr_10_list_filters_by_name_team_and_career_level`,
-  `test_fr_10_list_shows_page_size_rows_on_one_page`,
-  `test_fr_28_delete_employee_removes_it_from_the_list`.
-- **Build:** the table `employees` and the ID rule of D-25. The pages from `docs/ui/Employees.dc.html`, `Profile.dc.html` (the details and the skill gaps) and `EmployeeForm.dc.html` (the profile fields). The sidebar button "Add employee" opens `/employees/new`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M4` pass.
 
 ### M5 — Projects
 

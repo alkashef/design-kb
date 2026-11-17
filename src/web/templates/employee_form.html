@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ "Add employee" if is_new else "Edit employee" }} · design-kb{% endblock %}
+{% block main %}
+<div class="page">
+  <div class="crumbs"><a href="/employees">Employees</a> / <span>{{ "New" if is_new else "Edit" }}</span></div>
+  <h1>{{ "Add employee" if is_new else "Edit employee" }}</h1>
+  {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+  <form class="panel" method="post" action="{{ '/employees' if is_new else '/employees/' ~ employee.id }}">
+    {% if not is_new %}
+    <label for="e-id">Employee ID</label>
+    <input id="e-id" type="text" value="{{ employee.id }}" readonly>
+    {% endif %}
+    <label for="e-name">Employee name</label>
+    <input id="e-name" type="text" name="name" value="{{ employee.name }}" required>
+    <label for="e-title">Job title</label>
+    <input id="e-title" type="text" name="job_title" value="{{ employee.job_title }}">
+    <label for="e-career">Career level</label>
+    <select id="e-career" name="career_level">
+      {% for c in career_levels %}<option value="{{ c }}"{% if c == employee.career_level %} selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <label for="e-team">Team / group</label>
+    <input id="e-team" type="text" name="team" value="{{ employee.team }}">
+    <label for="e-gaps">Skill gaps</label>
+    <textarea id="e-gaps" name="skill_gaps" rows="3">{{ employee.skill_gaps }}</textarea>
+    <span class="hint flush">Free text. Gap search reads this field.</span>
+    <div class="actions">
+      <button class="button-accent" type="submit">{{ "Add employee" if is_new else "Save changes" }}</button>
+      <a class="button-outline link-button" href="{{ '/employees' if is_new else '/employees/' ~ employee.id }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

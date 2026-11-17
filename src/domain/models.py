@@ -8,6 +8,9 @@ class EmbeddingUnavailable(Exception):
     """Raised by an embedder when the embedding model does not answer (D-27)."""
 
 
+CAREER_LEVELS = ["Junior", "Mid", "Senior", "Staff", "Principal"]
+
+
 @dataclass
 class Employee:
     """An IC design team member (spec section 2, D-25)."""

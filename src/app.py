@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from src.web import request_log
-from src.web.routes import search, skill_tree
+from src.web.routes import employees, search, skill_tree
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
@@ -33,5 +33,6 @@ def create_app(store, embedder, options: AppOptions) -> FastAPI:
     app.middleware("http")(request_log.log_request)
     app.mount("/static", StaticFiles(directory=WEB_DIR / "static"), name="static")
     app.include_router(search.create_router(templates))
+    app.include_router(employees.create_router(templates))
     app.include_router(skill_tree.create_router(templates))
     return app

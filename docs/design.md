@@ -126,7 +126,7 @@ The text of an assignment vector has these lines, in this order: the leaf name, 
 | Name | Interface |
 |------|-----------|
 | `create_app(store, embedder, options)` in `src/app.py` | Returns the FastAPI app. `options` is an `AppOptions` data class of `src/app.py` with `search_result_limit`, `page_size` and `load_seed`. When `load_seed` is true and `store` has no employee, the app loads the seed data. `main.py` sets `load_seed` to true. |
-| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. For the table `nodes` it has `list_nodes()`, `add_node(node)`, `update_node(node_id, name, description)` and `delete_node(node_id)`. |
+| `LanceStore(data_dir)` in `src/adapters/store.py` | Opens or creates the tables in the folder `data_dir`. For the table `nodes` it has `list_nodes()`, `add_node(node)`, `update_node(node_id, name, description)` and `delete_node(node_id)`. For the table `employees` it has `list_employees()`, `add_employee(employee)`, `update_employee(employee)` (changes every field of the employee with that ID) and `delete_employee(employee_id)`. |
 | The embedder | An object with `embed(texts)`, which takes a list of texts and returns one list of numbers for each text, and with the properties `model_name` and `vector_size`. It raises `EmbeddingUnavailable` (defined in `src/domain/models.py`) when the model does not answer. |
 | `OllamaEmbedder(url, model, timeout_seconds)` in `src/adapters/embedder.py` | Calls `POST <url>/api/embed` with the fields `model` and `input` (a list of texts) and reads the field `embeddings`. |
 
