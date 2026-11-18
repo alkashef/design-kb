@@ -323,6 +323,21 @@ a:hover { color: var(--text); }
   line-height: 1.5;
 }
 
+/* An error message is red text on a red tint (M24, D-43). */
+[role="alert"] {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: #E5A9A2;
+}
+
+/* A destructive button is a red outline, never a fill (M24, D-43). */
+.button-danger {
+  color: var(--danger);
+  border-color: var(--danger-line);
+  background: transparent;
+}
+.actions .button-danger { color: var(--danger); }
+
 /* Employee pages (M4). */
 .page { padding: 32px 48px 56px; display: flex; flex-direction: column; gap: 24px; max-width: 980px; }
 .page h1 { margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600; }

@@ -8,21 +8,8 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M24** Red delete and error | The delete buttons of an employee and of a project are a red outline; an error message is red text on a red tint | sonnet | medium | open |
 
 ## Milestones
-
-### M24 — Red delete and error
-
-- **Refs:** NFR-01, D-43, D-19, D-29 (the marker `role="alert"`). No requirement changes. The rule of D-43: a destructive action and an error are red as an outline or as text, never as a fill. The artboards `Profile`, `EmployeeForm` and `Projects` show a red Delete button, and `EmployeeForm` shows a red error message. Today the Delete buttons have the look of every outline button, and an element with `role="alert"` has the neutral look of `.message`.
-- **Owner:** `src/web/static/app.css`, and the templates `src/web/templates/employee_profile.html` and `src/web/templates/projects.html`.
-- **Tests first:** route, in a new file. The stylesheet tests read the `app.css` that the Search page links and resolve `var(--name)` as the tests of M22 do.
-  - `test_nfr_01_error_message_is_red_text_on_a_red_tint`: a rule whose selector list holds `[role="alert"]` has the `color` `#B42318`, the ground `#FBEAE7` and a border in `#E5A9A2`. It fails today, because no rule names `[role="alert"]`.
-  - `test_nfr_01_delete_buttons_of_employee_and_project_are_marked`: with the seed data, on `GET /employees/E-0001` the submit button of the form that posts to `/employees/E-0001/delete` has the class `button-danger`. On `GET /projects` the submit button of the form whose action ends in `/delete` and starts with `/projects/` has the class `button-danger`. It fails today, because no element has that class.
-  - `test_nfr_01_delete_button_is_a_red_outline`: the plain rule of `.button-danger` has the `color` `#B42318` and a border in `#D9A098`, and its ground is `transparent` or not set.
-  - Manual: NFR-01.
-- **Build:** add the custom properties `--danger`, `--danger-line` and `--danger-bg` of "Visual style" if M22 did not, a rule `.button-danger` after `.button-outline`, and a rule for `[role="alert"]` after `.message`. Give the class `button-danger` to the Delete button of the employee profile and of the selected project. The Delete button of an assignment and the remove button of a flag stay neutral, as on the artboards. The session decides the Delete button of the skill tree, which the artboard shows only when it is disabled. Change no route, no field name and no message text.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M24` pass.
 
 ## Human checks
 

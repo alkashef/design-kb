@@ -41,7 +41,7 @@
     <div class="actions">
       <a class="button-outline link-button" href="/projects/{{ selected.id }}/edit">Edit project</a>
       <form method="post" action="/projects/{{ selected.id }}/delete">
-        <button class="button-outline" type="submit">Delete</button>
+        <button class="button-outline button-danger" type="submit">Delete</button>
       </form>
     </div>
     <div class="mono muted">ASSIGNMENTS · {{ assignment_rows|length }}</div>
