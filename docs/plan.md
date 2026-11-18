@@ -8,18 +8,9 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M16** Pinned sidebar | The left sidebar stays in view while the page scrolls | sonnet | medium | open |
 | **M17** Thresholds table | The Level thresholds on the Settings page are a table, as on the artboard: one row for each of the 5 levels | sonnet | medium | open |
 
 ## Milestones
-
-### M16 — Pinned sidebar
-
-- **Refs:** NFR-01, D-19. No spec row states this behavior: the user asked for it in chat on 2026-11-18 ("the left panel is frozen, it doesn't scroll with the rest of the page"; answer: "Sidebar stays in view"). The sidebar of every page is pinned to the top of the window while the rest of the page scrolls. The look at the top of the page stays the same as the artboards in `docs/ui/`, so no agreed page changes.
-- **Owner:** `src/web/static/app.css` (the rule of `.sidebar`).
-- **Tests first:** route: `test_nfr_01_sidebar_rule_pins_sidebar_to_window` (the client gets the stylesheet that the pages link; the `.sidebar` rule has `position: sticky`, `top: 0`, a height of the window, and `overflow-y: auto` so that a sidebar taller than the window scrolls by itself; it fails while the rule has none of them). Manual: NFR-01.
-- **Build:** add those declarations to the `.sidebar` rule, and `align-self: flex-start` so that the flex row does not stretch it to the page height. Change no template, no artboard and no other rule.
-- **Gate:** the tests and the checks in `CLAUDE.md` pass.
 
 ### M17 — Thresholds table
 
