@@ -37,11 +37,13 @@
         <button class="button-outline" type="submit" formaction="/skill-tree/nodes/{{ selected.id }}/delete">Delete</button>
       </div>
     </form>
-    <form class="inline-form" method="post" action="/skill-tree/nodes">
-      <input type="hidden" name="parent_id" value="{{ selected.id }}">
-      <input type="text" name="name" aria-label="Name of the new child" placeholder="New child skill" required>
-      <button class="button-outline" type="submit">Add child</button>
-    </form>
+    <div class="panel">
+      <form class="inline-form" method="post" action="/skill-tree/nodes">
+        <input type="hidden" name="parent_id" value="{{ selected.id }}">
+        <input type="text" name="name" aria-label="Name of the new child" placeholder="New child skill" required>
+        <button class="button-outline" type="submit">Add child</button>
+      </form>
+    </div>
     <h3>Employees with a level in {{ selected.name }}</h3>
     {% if people %}
     <div class="panel">

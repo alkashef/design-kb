@@ -8,19 +8,10 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M19** Add child card | The Add child text box and button sit in a card like the Name and Description card | haiku | low | open |
 | **M20** Foldable skill tree | Each node with children folds. On load, the selected node and its ancestors are open and the other branches are folded | sonnet | medium | open |
 | **M21** Skip tests for docs-only commits | The pre-commit check skips pytest when every staged file is under `docs/` | sonnet | low | open |
 
 ## Milestones
-
-### M19 — Add child card
-
-- **Refs:** NFR-01, FR-30, D-19.
-- **Owner:** `src/web/templates/skill_tree.html`.
-- **Tests first:** route: `test_nfr_01_add_child_form_is_in_a_card`: on the Skill tree page of a selected node (`/skill-tree/{id}`), the text box for the name of the new child and the Add child button are both inside an element with the class `panel`, the class of the Name and Description card. It fails today, because the add-child form sits outside any `.panel`.
-- **Build:** put the add-child form in its own card with the class `panel`, below the Name and Description card, so it looks like that card.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M19` pass.
 
 ### M20 — Foldable skill tree
 
