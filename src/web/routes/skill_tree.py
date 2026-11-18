@@ -30,7 +30,8 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
                 raise HTTPException(status_code=404, detail="Unknown skill")
         context = {
             "active_page": "skill_tree",
-            "rows": service.outline(),
+            "children": service.children_by_parent(),
+            "open_ids": service.open_ids(selected_id) if selected else set(),
             "selected": selected,
             "selected_path": service.path(selected_id) if selected else "",
             "selected_is_leaf": service.is_leaf(selected_id) if selected else False,

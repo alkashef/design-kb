@@ -13,12 +13,26 @@
     </form>
     <p class="hint">Levels and assignments attach to leaves: the nodes with no children.</p>
     <div class="outline-rows">
-      {% for node, depth, leaf in rows %}
+      {% macro row(node, depth, leaf) %}
       <a class="outline-row{% if selected and selected.id == node.id %} selected{% endif %}" href="/skill-tree/{{ node.id }}" style="padding-left: {{ 28 + depth * 22 }}px" data-node-id="{{ node.id }}"{% if leaf %} data-leaf="true"{% endif %}>
+        {% if leaf %}<span class="caret" aria-hidden="true"></span>{% endif %}
         <span class="outline-name">{{ node.name }}</span>
         {% if leaf %}<span class="tag">LEAF</span>{% endif %}
       </a>
+      {% endmacro %}
+      {% macro branch(parent_id, depth) %}
+      {% for node, leaf in children.get(parent_id, []) %}
+      {% if leaf %}
+      {{ row(node, depth, leaf) }}
+      {% else %}
+      <details class="outline-branch"{% if node.id in open_ids %} open{% endif %}>
+        <summary><span class="caret caret-toggle" style="left: {{ 8 + depth * 22 }}px" aria-label="Fold or unfold"></span>{{ row(node, depth, leaf) }}</summary>
+        {{ branch(node.id, depth + 1) }}
+      </details>
+      {% endif %}
       {% endfor %}
+      {% endmacro %}
+      {{ branch("", 0) }}
     </div>
   </section>
   <section class="node-detail" aria-label="Node detail">

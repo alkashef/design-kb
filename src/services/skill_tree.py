@@ -3,7 +3,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 from src.domain import entry_rules, levels, skill_tree
 from src.domain.models import Node
@@ -38,10 +38,18 @@ class SkillTreeService:
         self._store = store
         self._indexing = indexing
 
-    def outline(self) -> List[Tuple[Node, int, bool]]:
-        """Return every node with its depth and its leaf flag, in outline order."""
+    def children_by_parent(self) -> Dict[str, List[Tuple[Node, bool]]]:
+        """Return the children of each parent ID ('' for top level), each with its leaf flag, in tree order."""
         nodes = self._store.list_nodes()
-        return [(n, depth, skill_tree.is_leaf(nodes, n.id)) for n, depth in skill_tree.outline(nodes)]
+        parent_ids = {n.parent_id for n in nodes}
+        return {
+            parent_id: [(child, child.id not in parent_ids) for child in skill_tree.children_of(nodes, parent_id)]
+            for parent_id in parent_ids
+        }
+
+    def open_ids(self, selected_id: str) -> Set[str]:
+        """Return the IDs of the nodes shown open: the selected node and its ancestors (FR-30)."""
+        return skill_tree.open_ids(self._store.list_nodes(), selected_id)
 
     def get(self, node_id: str) -> Node:
         """Return the node, or raise UnknownNode."""

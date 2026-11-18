@@ -1,6 +1,6 @@
 """The tree rules: leaves, leaves under a node, paths and the outline order (spec 2.2, D-06)."""
 
-from typing import List, Tuple
+from typing import List, Set, Tuple
 
 from src.domain.models import Node
 
@@ -37,6 +37,17 @@ def path(nodes: List[Node], node_id: str) -> str:
         names.append(current.name)
         current = by_id.get(current.parent_id)
     return PATH_SEPARATOR.join(reversed(names))
+
+
+def open_ids(nodes: List[Node], selected_id: str) -> Set[str]:
+    """Return the IDs of the selected node and its ancestors; empty when nothing is selected."""
+    by_id = {n.id: n for n in nodes}
+    ids: Set[str] = set()
+    current = by_id.get(selected_id)
+    while current is not None:
+        ids.add(current.id)
+        current = by_id.get(current.parent_id)
+    return ids
 
 
 def outline(nodes: List[Node]) -> List[Tuple[Node, int]]:

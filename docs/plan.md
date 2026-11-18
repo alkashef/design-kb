@@ -8,21 +8,9 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M20** Foldable skill tree | Each node with children folds. On load, the selected node and its ancestors are open and the other branches are folded | sonnet | medium | open |
 | **M21** Skip tests for docs-only commits | The pre-commit check skips pytest when every staged file is under `docs/` | sonnet | low | open |
 
 ## Milestones
-
-### M20 — Foldable skill tree
-
-- **Refs:** NFR-01, FR-30, D-19.
-- **Owner:** `src/domain/skill_tree.py` (which nodes are open: the selected node and its ancestors), `src/services/skill_tree.py`, `src/web/templates/skill_tree.html`, `src/web/static/app.css`.
-- **Tests first:** route, with the seed data:
-  - `test_fr_30_outline_folds_each_parent_node`: on `/skill-tree`, each node with children is a `<details>` element whose `<summary>` holds the row of that node, and the rows of its children are inside that `<details>`. A leaf is not a `<details>`.
-  - `test_fr_30_outline_opens_path_to_selected_node`: on `/skill-tree/{id}` of a leaf at depth 2 or more, the `<details>` of each ancestor of the leaf has the `open` attribute, and the `<details>` of a top-level node that is not an ancestor does not.
-  - `test_fr_30_outline_folded_without_selection`: on `/skill-tree`, no `<details>` has the `open` attribute, and the row of every top-level node is in the page.
-- **Build:** render the outline as nested `<details>`/`<summary>` (native folding, no JavaScript). The backend gives the template the set of open nodes: the selected node and its ancestors. The caret toggles the fold and the name still opens the node. Keep the existing row links and their data attributes. Style the carets as on the artboard: ▾ open, ▸ folded, · leaf.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M20` pass.
 
 ### M21 — Skip tests for docs-only commits
 
