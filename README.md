@@ -4,7 +4,7 @@
 
 `design-kb` is a knowledge base for an integrated circuit (IC) design team. It records who has experience in which skills. Users search it to find the right experience.
 
-It is a proof of concept (PoC). The app is built in milestones (`docs/plan.md`). Now it starts and shows the Search page in the Graphite style, with the sidebar and no login. The repository also holds the requirements, the design decisions, and the tools of the workflow.
+It is a proof of concept (PoC). The app is built in milestones (`docs/plan.md`). Now it starts and shows the Search page in the light style (D-43), with the sidebar and no login. The repository also holds the requirements, the design decisions, and the tools of the workflow.
 
 | Document | Content |
 | --- | --- |

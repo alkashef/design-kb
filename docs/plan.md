@@ -8,35 +8,10 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M22** Light theme colors | The app shows the colors of D-43: grey surfaces, a dark sidebar, beige cards and fields, the orange accent on fills and edges | sonnet | high | open |
 | **M23** Console type | Navigation, buttons, filter controls, crumbs and paths are in JetBrains Mono; names, headings, body text and form values stay in Inter | sonnet | low | open |
 | **M24** Red delete and error | The delete buttons of an employee and of a project are a red outline; an error message is red text on a red tint | sonnet | medium | open |
 
 ## Milestones
-
-### M22 — Light theme colors
-
-- **Refs:** NFR-01, D-43, D-19, D-31. No requirement changes. The user chose the light style on the canvas on 2026-11-18 ("switch the whole design to the new theme"). The 8 artboards in `docs/ui/` show it, and `docs/design.md`, section "Visual style", gives each color, its use and the rules. Today `src/web/static/app.css` holds the dark colors of D-17 as 13 custom properties in `:root`.
-- **Owner:** `src/web/static/app.css`.
-- **Tests first:** route, in a new file. Each test reads the `app.css` that the Search page (`/`) links, as `tests/route/test_split_bodies.py` does. Before a value is compared, each `var(--name)` in it is replaced by the value that `:root` gives `--name`, and a color is compared without regard to case. The ground of a selector is the `background` or the `background-color` of its plain rule.
-  - `test_nfr_01_stylesheet_has_none_of_the_dark_colors`: the stylesheet holds none of `#0C0D10`, `#14161B`, `#181B21`, `#101216`, `#1E2128`, `#23262E`, `#2A2E38`, `#ECEEF2`, `#D5D8DF`, `#9AA1AD`, `#6EE7B7`, `#04130D`, `#12221D`. It fails today, because `:root` defines all 13.
-  - `test_nfr_01_page_ground_is_grey_with_dark_text`: the ground of `body` is `#EDEDED` and its `color` is `#1F1F21`.
-  - `test_nfr_01_sidebar_is_graphite_with_light_text`: the ground of `.sidebar` is `#2C2D30` and its `color` is `#F4F4F4`. The ground of `.nav a.active` is `#45464A`.
-  - `test_nfr_01_primary_button_is_orange_with_dark_text`: the ground of `.button-accent` is `#F04A0E` and its `color` is `#141416`.
-  - `test_nfr_01_cards_are_beige_and_their_fields_white`: the ground of `.panel` is `#FAF6EC`. The ground of the rule whose selector list holds `.panel input` is `#FFFFFF`.
-  - `test_nfr_01_accent_is_a_fill_and_never_a_text_color`: one or more declarations other than `color` resolve to `#F04A0E`, and no `color` declaration of any rule resolves to `#F04A0E`. It fails today, because the stylesheet has no `#F04A0E`.
-  - Manual: NFR-01.
-- **Build:** in `app.css`, replace the 13 colors of `:root` by the custom properties of section "Visual style", and give each rule the property of its use, as the artboard of its page shows. The uses that the tests do not fix:
-  - The sidebar: links that are not active in `--sidebar-muted`; the active link in `#FFFFFF` with an inset left edge of 3px in `--accent`; the Add employee button with the border `--sidebar-line` and the text `--sidebar-text`.
-  - The split pages: the list columns (`.results`, `.outline`) on `--bg-list`, the detail columns (`.preview`, `.node-detail`) on `--bg-detail`, and the form panel of Projects (`.assignment-panel`) on `--bg`.
-  - Cards and tables (`.panel`, `.table`, `.assignment`, `.level-card`, `.preview-projects`) on `--panel` with the border `--line-card` and inner dividers in `--line-soft`. A field on a grey ground (`.query`, the fields of `.filters`, the text box of `.inline-form` in the outline) on `--panel`; a field inside a card on `--field`.
-  - A selected row (`.result.selected`, `.outline-row.selected`) on `--panel` with the edge in `--accent`; the text of a selected outline row in `--accent-text`.
-  - Level bars: off `--meter-off`, on `--accent`. A level name (`.level-label`) in `--accent-text`. A Lead tag (`.role-tag.lead`) with the border `--accent`, the ground `--accent-bg` and the text `--accent-text`. The rank of a result in `--graphite`. An avatar on `--track` with the text `--graphite`.
-  - Links in the page: `--text-muted`, and `--text` on hover.
-  - The header comment of the file cites D-43 in place of D-17.
-
-  Change no layout, no font, no template and no artboard. The property names of "Visual style" are a proposal: a different name is a decision of the session (`docs/workflow.md`, Rules).
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M22` pass.
 
 ### M23 — Console type
 
