@@ -1,6 +1,6 @@
 # Plan
 
-Next milestone number: 21
+Next milestone number: 22
 
 The milestones that are left, in build order. `docs/workflow.md` gives the loop and the templates. The libraries of D-23 are installed in the conda environment `design-kb` and pinned in the requirements files.
 
@@ -8,19 +8,11 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M18** Sidebar on split pages | The sidebar stays in view on Search, Skill tree and Projects, because the split bodies grow with their content | haiku | low | open |
 | **M19** Add child card | The Add child text box and button sit in a card like the Name and Description card | haiku | low | open |
 | **M20** Foldable skill tree | Each node with children folds. On load, the selected node and its ancestors are open and the other branches are folded | sonnet | medium | open |
+| **M21** Skip tests for docs-only commits | The pre-commit check skips pytest when every staged file is under `docs/` | sonnet | low | open |
 
 ## Milestones
-
-### M18 — Sidebar on split pages
-
-- **Refs:** NFR-01.
-- **Owner:** `src/web/static/app.css`.
-- **Tests first:** route: `test_nfr_01_split_view_bodies_grow_with_content`: it reads the app.css that the Search page (`/`) links. The plain `.search-body` rule and the plain `.tree-body` rule each have no `min-height: 0`, and their `flex` value has no basis of 0 (`flex: 1 1 0` fails, `flex: 1 0 auto` passes). It fails today, because both rules use `flex: 1 1 0; min-height: 0`. With that, the split body shrinks to zero height and its rows overflow `.shell`. `.shell` then stays one window tall, so the sticky sidebar of M16 has no room and scrolls away.
-- **Build:** in `src/web/static/app.css`, set `.search-body` and `.tree-body` to `flex: 1 0 auto`, and remove their `min-height: 0`.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M18` pass.
 
 ### M19 — Add child card
 
@@ -40,6 +32,17 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
   - `test_fr_30_outline_folded_without_selection`: on `/skill-tree`, no `<details>` has the `open` attribute, and the row of every top-level node is in the page.
 - **Build:** render the outline as nested `<details>`/`<summary>` (native folding, no JavaScript). The backend gives the template the set of open nodes: the selected node and its ancestors. The caret toggles the fold and the name still opens the node. Keep the existing row links and their data attributes. Style the carets as on the artboard: ▾ open, ▸ folded, · leaf.
 - **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M20` pass.
+
+### M21 — Skip tests for docs-only commits
+
+- **Refs:** D-30.
+- **Owner:** `scripts/check.py`.
+- **Tests first:** unit, against a new pure function `needs_tests(staged_paths)` in `scripts/check.py` that returns whether the tests must run:
+  - `test_check_skips_tests_when_only_docs_staged`: `["docs/plan.md", "docs/specs.md"]` gives False.
+  - `test_check_runs_tests_when_code_staged`: `["docs/plan.md", "src/app.py"]` gives True.
+  - `test_check_runs_tests_when_nothing_staged`: `[]` gives True, so a run by hand and the checks of a milestone still run the tests.
+- **Build:** `main()` reads the staged paths with `git diff --cached --name-only --no-renames` and runs pytest only when `needs_tests` returns True. When it skips, it logs one line that says so. `--no-renames` lists both the old and the new path of a moved file, so a move from `src/` into `docs/` still runs the tests.
+- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M21` pass. `docs/design.md`, Test policy, says that a commit whose staged files are all under `docs/` skips the tests.
 
 ## Human checks
 

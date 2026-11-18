@@ -167,10 +167,9 @@ a:hover { color: var(--accent); }
 }
 
 .search-body {
-  flex: 1 1 0;
+  flex: 1 0 auto;
   display: flex;
   flex-wrap: wrap;
-  min-height: 0;
 }
 
 .results {
@@ -192,7 +191,7 @@ a:hover { color: var(--accent); }
   gap: 28px;
 }
 
-.tree-body { flex: 1 1 0; display: flex; flex-wrap: wrap; min-height: 0; }
+.tree-body { flex: 1 0 auto; display: flex; flex-wrap: wrap; }
 
 .outline {
   flex: 0 1 420px;
