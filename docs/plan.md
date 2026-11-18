@@ -8,23 +8,11 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M21** Skip tests for docs-only commits | The pre-commit check skips pytest when every staged file is under `docs/` | sonnet | low | open |
 | **M22** Light theme colors | The app shows the colors of D-43: grey surfaces, a dark sidebar, beige cards and fields, the orange accent on fills and edges | sonnet | high | open |
 | **M23** Console type | Navigation, buttons, filter controls, crumbs and paths are in JetBrains Mono; names, headings, body text and form values stay in Inter | sonnet | low | open |
 | **M24** Red delete and error | The delete buttons of an employee and of a project are a red outline; an error message is red text on a red tint | sonnet | medium | open |
 
 ## Milestones
-
-### M21 — Skip tests for docs-only commits
-
-- **Refs:** D-30.
-- **Owner:** `scripts/check.py`.
-- **Tests first:** unit, against a new pure function `needs_tests(staged_paths)` in `scripts/check.py` that returns whether the tests must run:
-  - `test_check_skips_tests_when_only_docs_staged`: `["docs/plan.md", "docs/specs.md"]` gives False.
-  - `test_check_runs_tests_when_code_staged`: `["docs/plan.md", "src/app.py"]` gives True.
-  - `test_check_runs_tests_when_nothing_staged`: `[]` gives True, so a run by hand and the checks of a milestone still run the tests.
-- **Build:** `main()` reads the staged paths with `git diff --cached --name-only --no-renames` and runs pytest only when `needs_tests` returns True. When it skips, it logs one line that says so. `--no-renames` lists both the old and the new path of a moved file, so a move from `src/` into `docs/` still runs the tests.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M21` pass. `docs/design.md`, Test policy, says that a commit whose staged files are all under `docs/` skips the tests.
 
 ### M22 — Light theme colors
 

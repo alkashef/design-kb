@@ -18,11 +18,26 @@ logger = logging.getLogger("check")
 ROOT = Path(__file__).resolve().parent.parent
 TESTS_DIR = "tests"
 TEST_FILE_PATTERN = "test_*.py"
+DOCS_PREFIX = "docs/"
 
 
 def has_tests(root: Path) -> bool:
     """Tell whether at least one test file exists under the tests folder."""
     return any((root / TESTS_DIR).rglob(TEST_FILE_PATTERN))
+
+
+def needs_tests(staged_paths: list[str]) -> bool:
+    """Tell whether the tests must run: always, unless every staged path is under docs/."""
+    if not staged_paths:
+        return True
+    return not all(path.startswith(DOCS_PREFIX) for path in staged_paths)
+
+
+def staged_files(root: Path) -> list[str]:
+    """Return the staged paths; a moved file lists both its old and its new path."""
+    command = ["git", "diff", "--cached", "--name-only", "--no-renames"]
+    result = subprocess.run(command, cwd=root, check=False, capture_output=True, text=True)
+    return result.stdout.splitlines() if result.returncode == 0 else []
 
 
 def run_tests(root: Path) -> int:
@@ -36,6 +51,9 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
     if not has_tests(ROOT):
         logger.info("No test file in %s/ yet: nothing to check.", TESTS_DIR)
+        return 0
+    if not needs_tests(staged_files(ROOT)):
+        logger.info("Only files under %s are staged: tests skipped.", DOCS_PREFIX)
         return 0
     exit_code = run_tests(ROOT)
     if exit_code != 0:

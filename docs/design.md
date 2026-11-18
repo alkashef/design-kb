@@ -258,7 +258,7 @@ A test finds content by these markers, not by the layout.
 
 ## Test policy
 
-- The test tool is pytest. `python scripts/check.py` runs it over `tests/`.
+- The test tool is pytest. `python scripts/check.py` runs it over `tests/`. When the staged files are all under `docs/`, the script skips the tests (`needs_tests` in `scripts/check.py`); with nothing staged it runs them.
 - A unit test (`tests/unit/`) calls the public functions of one module of `src/domain`.
 - A route test (`tests/route/`) calls the routes through the FastAPI test client. `tests/conftest.py` gives the fixtures `store` (a `LanceStore` in a temporary folder), `embedder` (a `FakeEmbedder`), `client` (the test client of `create_app(store, embedder, options)` with `load_seed` false and an empty store) and `seeded_client` (the same with `load_seed` true).
 - `tests/fakes.py` holds `FakeEmbedder`. Its `vector_size` is 64. For each word of a text, in lower case, it adds 1 at the position `zlib.crc32(word) % 64`. It scales the vector to length 1. Thus two texts with the same words are near, and the result is the same on each run. It keeps the texts of each call in the list `calls`, so a test can examine what was embedded (D-13). `FakeEmbedder(available=False)` raises `EmbeddingUnavailable` on each call.
