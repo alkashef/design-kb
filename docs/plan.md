@@ -8,20 +8,9 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M23** Console type | Navigation, buttons, filter controls, crumbs and paths are in JetBrains Mono; names, headings, body text and form values stay in Inter | sonnet | low | open |
 | **M24** Red delete and error | The delete buttons of an employee and of a project are a red outline; an error message is red text on a red tint | sonnet | medium | open |
 
 ## Milestones
-
-### M23 — Console type
-
-- **Refs:** NFR-01, D-43, D-19. No requirement changes. D-43 sets the navigation, the buttons, the filter controls, the metadata lines and the paths in JetBrains Mono, and the names, headings, body text and form values in Inter. Today `app.css` sets the navigation, the buttons, the query, the filters and the crumbs in `--font-sans`.
-- **Owner:** `src/web/static/app.css`, and `src/web/templates/partials/search_body.html` for one class.
-- **Tests first:** route, in a new file. Each test reads the `app.css` that the Search page (`/`) links, and resolves `var(--name)` through `:root` as the tests of M22 do. The font family of a rule is the family in its `font-family`, or in its `font` shorthand.
-  - `test_nfr_01_console_font_on_controls_and_inter_on_text`: one test of the font roles of D-43. The font family starts with `"JetBrains Mono"` in the plain rule of each of `.nav`, `.button-outline`, `.button-accent`, `.query input` and `.crumbs`. A rule whose selector list holds `.filters input` sets a font family that starts with `"JetBrains Mono"`, and so does one whose selector list holds `.filters select`. The font family of `body` starts with `"Inter"`, and so does the font family of the rule whose selector list holds `.panel input`. No rule for `.result-name`, `.result-reason`, `.preview-name` or `.assignment-text` has a font family that starts with `"JetBrains Mono"`. It fails today, because the first 7 rules use Inter or set no family.
-  - Manual: NFR-01.
-- **Build:** in `app.css`, set `var(--font-mono)` on `.nav`, `.button-outline` (and `.actions .button-outline`, which sets its own font), `.button-accent`, `.query input`, `.crumbs`, the fields of `.filters`, the role and team line of a result and of a person row, and the skill path of a level card (`.path-text`), with the sizes of the artboards (13px for a button and a link of the navigation, 15px for the query, 12px for a chip, a metadata line and a path). The rule `.filters input, .filters select, .panel select` is shared: split it, so that a `select` inside a card keeps Inter. The role and team line of a result has only the class `muted`: give it a class of its own in `src/web/templates/partials/search_body.html`. Change no color, no layout and no other template.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M23` pass.
 
 ### M24 — Red delete and error
 
