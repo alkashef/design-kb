@@ -2,6 +2,7 @@
 
 import json
 import logging
+import urllib.error
 import urllib.request
 from typing import List, Optional
 
@@ -57,6 +58,11 @@ class OllamaEmbedder:
         try:
             with urllib.request.urlopen(request, timeout=self._timeout_seconds) as response:
                 return json.load(response)
+        except urllib.error.HTTPError as error:
+            logger.warning(
+                "Ollama answered with HTTP status %s; the model may not be pulled.", error.code
+            )
+            raise EmbeddingUnavailable("The embedding model does not answer.") from error
         except (OSError, ValueError) as error:
             logger.warning("Ollama did not answer: %s", type(error).__name__)
             raise EmbeddingUnavailable("The embedding model does not answer.") from error

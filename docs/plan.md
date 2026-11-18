@@ -8,19 +8,10 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M15** Embedder HTTP error log | When Ollama answers with an HTTP error, the log names the status and hints that the model may be missing; a connection failure keeps its message | sonnet | medium | open |
 | **M16** Pinned sidebar | The left sidebar stays in view while the page scrolls | sonnet | medium | open |
 | **M17** Thresholds table | The Level thresholds on the Settings page are a table, as on the artboard: one row for each of the 5 levels | sonnet | medium | open |
 
 ## Milestones
-
-### M15 — Embedder HTTP error log
-
-- **Refs:** D-16, D-27. No spec ID: no requirement changes. A fix: `OllamaEmbedder` logs "Ollama did not answer: HTTPError" when Ollama did answer with an error status (for example 404 for a model that is not pulled), because `urllib.error.HTTPError` is an `OSError` and is caught with the connection errors.
-- **Owner:** `src/adapters/embedder.py` (`OllamaEmbedder`).
-- **Tests first:** a test of `OllamaEmbedder` against a fake HTTP server that the test starts on 127.0.0.1 (no call to Ollama; `docs/workflow.md`, Rules): `test_embedder_http_error_log_names_status_and_model_hint` (the server answers 404; the log record has the status 404 and a hint that the model may not be pulled; it fails while the fault is there), `test_embedder_http_error_raises_embedding_unavailable` (the same answer; `EmbeddingUnavailable` is raised), `test_embedder_connection_error_keeps_did_not_answer_log` (nothing listens on the address; the log still says "Ollama did not answer"). The session decides where the file goes and records a `D-NN` for a test level of the adapters, because the test policy of `docs/design.md` has none.
-- **Build:** in `OllamaEmbedder._post`, catch `urllib.error.HTTPError` before the other `OSError` errors. Log its status and the hint, without the request body or any user data. Raise `EmbeddingUnavailable` as before.
-- **Gate:** the tests and the checks in `CLAUDE.md` pass. The log text and the message of the 503 page do not change for a connection failure.
 
 ### M16 — Pinned sidebar
 
