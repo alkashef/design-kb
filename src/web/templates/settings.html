@@ -6,20 +6,40 @@
 <form class="panel" method="post" action="/settings/thresholds">
   <h2>Level thresholds</h2>
   <p class="muted">Set how many projects an employee needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the employee. Leave "to" empty for no upper limit. Saving recomputes every level.</p>
-  <div class="mono muted">LEVEL · NAME · LEAD PROJECTS (FROM · TO) · MEMBER PROJECTS (FROM · TO)</div>
-  {% for n in levels %}
-  <div class="threshold-row">
-    <span class="mono">{{ n }}</span>
-    <span>{{ level_names[n] }}</span>
-    {% for kind in ("lead", "member") %}
-    <span>
-      <input type="text" name="level{{ n }}_{{ kind }}_from" value="{{ values.get('level' ~ n ~ '_' ~ kind ~ '_from', '') }}" aria-label="{{ level_names[n] }} {{ kind }} from">
-      to
-      <input type="text" name="level{{ n }}_{{ kind }}_to" value="{{ values.get('level' ~ n ~ '_' ~ kind ~ '_to', '') }}" aria-label="{{ level_names[n] }} {{ kind }} to">
-    </span>
-    {% endfor %}
+  <div class="table threshold-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>Name</th>
+          <th>Source</th>
+          <th>Lead projects (from · to)</th>
+          <th>Member projects (from · to)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in level_names %}
+        <tr>
+          <td class="mono">{{ n }}</td>
+          <td>{{ level_names[n] }}</td>
+          {% if n in levels %}
+          <td>Computed</td>
+          {% for kind in ("lead", "member") %}
+          <td>
+            <input type="text" name="level{{ n }}_{{ kind }}_from" value="{{ values.get('level' ~ n ~ '_' ~ kind ~ '_from', '') }}" aria-label="{{ level_names[n] }} {{ kind }} from">
+            to
+            <input type="text" name="level{{ n }}_{{ kind }}_to" value="{{ values.get('level' ~ n ~ '_' ~ kind ~ '_to', '') }}" aria-label="{{ level_names[n] }} {{ kind }} to">
+          </td>
+          {% endfor %}
+          {% else %}
+          <td>Manual flag</td>
+          <td class="muted" colspan="2">{{ manual_notes[n] }}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  {% endfor %}
   <div class="actions">
     <button class="button-accent" type="submit">Save thresholds</button>
     <button class="button-outline" type="submit" formaction="/settings/thresholds/reset" formnovalidate>Reset to defaults</button>

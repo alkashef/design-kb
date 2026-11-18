@@ -11,6 +11,10 @@ from src.services.thresholds import THRESHOLD_LEVELS, ThresholdError, ThresholdS
 
 logger = logging.getLogger(__name__)
 
+MANUAL_NOTES = {
+    1: "Set on the employee. Allowed only where the employee has no project on the skill.",
+    5: "Set on the employee, on any skill. Overrides the computed level.",
+}
 FIELD_NAMES = ("lead_from", "lead_to", "member_from", "member_to")
 
 
@@ -24,6 +28,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "active_page": "settings",
             "levels": THRESHOLD_LEVELS,
             "level_names": LEVEL_NAMES,
+            "manual_notes": MANUAL_NOTES,
             "values": values,
             "message": message,
         }

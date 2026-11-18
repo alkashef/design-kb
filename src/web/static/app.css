@@ -322,8 +322,11 @@ a:hover { color: var(--accent); }
 .assignment-panel { flex: 0 1 340px; min-width: 300px; box-sizing: border-box; padding: 28px; border-left: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 20px; }
 .assignment-panel h2 { margin: 0; font-size: 18px; font-weight: 600; }
 .panel input[readonly] { color: var(--text-muted); }
-.threshold-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
-.panel .threshold-row input { width: 64px; text-align: center; }
+.threshold-table table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 14px; }
+.threshold-table th { text-align: left; font: 400 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.threshold-table th, .threshold-table td { padding: 14px 24px; }
+.threshold-table tbody tr { border-top: 1px solid var(--line); }
+.panel .threshold-table input { width: 64px; text-align: center; }
 .assignment-row { grid-template-columns: 140px 70px 1fr 90px 1.5fr; }
 .assignments { display: flex; flex-direction: column; gap: 14px; }
 
