@@ -1,6 +1,6 @@
 # Software Requirements Specification: design-kb
 
-Version 0.4 · 2026-11-20 · Status: Approved
+Version 0.5 · 2026-11-21 · Status: Approved
 
 ## 1. Introduction
 
@@ -27,6 +27,7 @@ This is a proof of concept (PoC). It proves the idea. It is not a full product. 
 | Level | The experience of one engineer in one leaf, on a scale of 1 to 5 (section 2.5). |
 | Member | Participation value. The engineer worked on a leaf in a project but did not lead it. |
 | Node | One item in the skill tree, such as "Circuit design", "PLL" or "VCO". |
+| Panel | A vertical column of a page, to the right of the sidebar, with its own title. Search has 2 panels (results, preview). Engineers has 1, or 2 when a detail panel is open. Skill tree has 2 (outline, node detail). Projects has 3 (projects, project, assignment form). A page with one column has one panel. The sidebar is not a panel. |
 | PoC | Proof of concept. A demo that proves an idea. It is not a full product. |
 | Process technology | The chip manufacturing process of a project, such as "TSMC 7nm". |
 | Seed data | The fake data that the demo loads at the start. |
@@ -109,7 +110,7 @@ The system has two search modes. Experience search looks for people with the exp
 ### 3.2 Views
 | ID | Type | Requirement |
 |----|------|-------------|
-| FR-10 | E | When the user opens an engineer, the system shall show a profile page for that engineer. |
+| FR-10 | E | When the user selects an engineer in the Engineers list, the system shall show the details of that engineer in a panel to the right of the list, and shall narrow the list to make room. The panel shows the engineer selected last. |
 | FR-11 | U | The profile page shall give a 360 view: all engineer attributes, the level for every leaf, and each project with its assignment details. |
 | FR-12 | E | When the user selects a leaf, the system shall list all engineers with a level in that leaf, sorted by level, highest first. |
 | FR-13 | E | When the user selects a node, the system shall list all engineers with a level in any leaf under that node, with their level in each leaf. |
@@ -142,6 +143,21 @@ The system has two search modes. Experience search looks for people with the exp
 | FR-35 | X | If the user enters a threshold that is not a whole number of 0 or more, or a "from" value that is greater than its "to" value, then the system shall reject the change and show a message. |
 | FR-36 | E | When the user resets the thresholds, the system shall restore the default thresholds in section 2.5. |
 
+### 3.5 Panels
+A page is made of panels (section 1.3). Requirements FR-53 to FR-58 hold for every page. FR-55 to FR-58 need a page with 2 or more panels.
+
+| ID | Type | Requirement |
+|----|------|-------------|
+| FR-50 | U | The detail panel shall show the engineer's name, job title, career level, team, ID and skill gaps, the level in every leaf in which the engineer has a level, and each project with its assignment details. |
+| FR-51 | E | When the user chooses to open the full profile in the detail panel, the system shall show the profile page of that engineer (FR-11). |
+| FR-52 | E | When the user closes the detail panel, the system shall hide it and show the list at its full width. |
+| FR-53 | S | While the content of a panel is taller than the panel, the system shall let the user scroll that panel vertically without moving any other panel. |
+| FR-54 | U | The system shall keep the title of a panel, and the search and filter controls in it, at the top of the panel while the rest of the panel scrolls. |
+| FR-55 | E | When the user drags the border between two panels, the system shall change the widths of those two panels to follow the drag. |
+| FR-56 | X | If the user drags a border so that a panel would be narrower than the minimum panel width, then the system shall keep that panel at the minimum width. `design.md` gives the value. |
+| FR-57 | E | When the user opens a page, the system shall show its panels at the widths that the user last set for that page, or at the default widths when none were set. |
+| FR-58 | E | When the user resets the panel widths of a page, the system shall show the default widths of that page and forget the widths set before. |
+
 ## 4. Non-Functional Requirements
 | ID | Type | Requirement |
 |----|------|-------------|
@@ -160,8 +176,17 @@ The system has two search modes. Experience search looks for people with the exp
 | ID | Type | Criterion |
 |----|------|-----------|
 | AC-01 | E | When the demo runs the 3 example searches below, the system shall show the expected person in the top 5 results of each search. |
+| AC-02 | E | When the user does the action of each case below, the system shall give the expected result. |
 
-The PoC passes when AC-01 is met.
+The PoC passes when AC-01 is met. AC-02 gives the cases of the Engineers detail panel and the panel widths.
+
+### Example cases for AC-02
+| # | Situation | Action | Expected |
+|---|-----------|--------|----------|
+| 1 | The Engineers page shows no panel. It lists the engineers "Cy Invented" (E-0001, Design Engineer, Mixed-signal, Senior) and 2 others. | Select the row "Cy Invented". | A panel shows Cy Invented, Design Engineer, Mixed-signal, Senior and E-0001. The list is narrower than before (FR-10, FR-50). |
+| 2 | The panel shows Cy Invented. | Select another engineer. | One panel shows the other engineer (FR-10). |
+| 3 | The detail panel is open. | Close it. | No panel shows. The list has the width it had before the first selection (FR-52). |
+| 4 | The Projects page. The user widens the project panel, opens Search, then opens Projects again. | Open Projects. | The project panel has the widened width. Search has its default widths (FR-55, FR-57). |
 
 ### Example searches for AC-01
 | # | Query | Expected person |
@@ -193,6 +218,7 @@ Source: **Owner** means the product owner stated it. **Inferred** means Claude d
 | A-08 | An engineer has at most one assignment for each project and leaf. So the number of assignments equals the number of projects in the level rules. | Inferred |
 | A-09 | The data is small (about 40 engineers). The PoC has no performance target. | Inferred |
 | A-10 | The system keeps no change history or audit trail. | Inferred |
+| A-11 | The widths that the user sets belong to that browser. Another browser starts with the default widths. | Inferred |
 
 ## 9. Open Items
 | ID | Item | Proposed default |
