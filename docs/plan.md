@@ -8,7 +8,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | blocked |
+| **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | approved |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
@@ -42,6 +42,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
   - Nothing else was changed (the new test file stays as the test session wrote it). To continue, approve one of these:
     1. The test session fixes the test: `row_order` reads the panes and handles in the order of the page, below the row (the descendants of the row, so that the slot may sit between), and the slot holds the handle and the pane as D-47 says. Then run the milestone again.
     2. Change D-47 to a flat row: the handle and the detail pane are siblings of the list pane, `engineer-detail-slot` is an empty marker, and the swap uses out-of-band deletes of the old handle and pane. The build session then follows the tests as they are.
+- **Approval:** Option 1, approved by the user on 2026-11-21: the test session fixes `row_order` (and `find_parent`) in `tests/route/test_engineer_detail_pane.py` so that it reads the panes and handles in the order of the page, as the descendants of the row of panes, and the slot `engineer-detail-slot` may sit between the list pane and the handle. D-47 stays as it is: the slot holds the handle and the pane, so one HTMX swap replaces both. The test session changes no other test, and the tests keep their assertions: the order `engineers`, one handle, `engineer-detail`, and which pane has `data-pane-flex`. The build session still may not edit `tests/`.
 
 ### M30 — Skill tree arrow
 
