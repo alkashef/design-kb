@@ -5,6 +5,7 @@
   <title>{% block title %}design-kb{% endblock %}</title>
   <link rel="stylesheet" href="/static/app.css">
   <script src="/static/vendor/htmx.min.js" defer></script>
+  <script src="/static/panes.js" defer></script>
 </head>
 <body data-page="{{ active_page }}">
   <div class="shell">
@@ -23,6 +24,7 @@
         {% endfor %}
       </nav>
       <div class="sidebar-footer">
+        <button type="button" class="button-outline reset-widths" data-pane-reset hidden>Reset widths</button>
         <a class="button-outline" href="/engineers/new">Add engineer</a>
       </div>
     </aside>

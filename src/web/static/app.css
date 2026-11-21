@@ -124,7 +124,7 @@ a:hover { color: var(--text); }
   font-weight: 500;
 }
 
-.sidebar-footer { margin-top: auto; }
+.sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 
 .button-outline {
   box-sizing: border-box;
@@ -227,6 +227,34 @@ a:hover { color: var(--text); }
 
 [data-pane-flex] { flex: 1 1 0; }
 
+/* Panel handles (M28, D-46): the fixed panes take --pane-width, which panes.js sets in pixels. */
+[data-pane="results"] { flex: 0 0 var(--pane-width, 460px); }
+[data-pane="outline"] { flex: 0 0 var(--pane-width, 420px); }
+[data-pane="projects"] { flex: 0 0 var(--pane-width, 420px); }
+[data-pane="assignment"] { flex: 0 0 var(--pane-width, 340px); }
+
+/* A handle is a strip 8px wide with a 2px line in the middle. */
+[data-pane-handle] {
+  flex: 0 0 8px;
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+[data-pane-handle]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: var(--line-strong);
+}
+[data-pane-handle]:hover::after, [data-pane-handle].dragging::after { background: var(--accent); }
+
+/* The reset button of the sidebar footer looks like "Add engineer", but quieter. */
+.reset-widths { color: var(--sidebar-muted); font-weight: 400; cursor: pointer; }
+.reset-widths[hidden] { display: none; }
+
 /* A page with one pane keeps its content width inside the pane. */
 .pane-page > [data-pane-head], .pane-page > [data-pane-body] {
   width: 100%;
@@ -242,7 +270,6 @@ a:hover { color: var(--text); }
 .pane-page h1 { margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600; }
 
 .results {
-  flex: 0 0 var(--pane-width, 460px);
   border-right: 1px solid var(--line);
   background: var(--bg-list);
 }
@@ -252,7 +279,6 @@ a:hover { color: var(--text); }
 .preview > [data-pane-body] { padding: 0 40px 48px; }
 
 .outline {
-  flex: 0 0 var(--pane-width, 420px);
   border-right: 1px solid var(--line);
   background: var(--bg-list);
 }
@@ -392,7 +418,7 @@ a:hover { color: var(--text); }
 .role-tag.lead { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
 .spacer { flex-grow: 1; }
 .small { height: 30px; padding: 0 12px; font-size: 12px; width: auto; }
-.assignment-panel { flex: 0 0 var(--pane-width, 340px); border-left: 1px solid var(--line-soft); background: var(--bg); }
+.assignment-panel { border-left: 1px solid var(--line-soft); background: var(--bg); }
 .assignment-panel > [data-pane-head] { padding: 28px 28px 20px; }
 .assignment-panel > [data-pane-body] { padding: 0 28px 28px; }
 .assignment-panel h2 { margin: 0; font-size: 18px; font-weight: 600; }

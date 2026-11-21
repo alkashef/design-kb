@@ -8,36 +8,11 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | approved |
 | **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | open |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
 ## Milestones
-
-### M28 — Panel handles
-
-- **Refs:** FR-55, FR-57, FR-58, NFR-01, D-46, D-45. Assumption A-11 (the widths belong to the browser). The drag, the minimum width and the kept widths need a browser (D-23), so the route tests check the markers, the stylesheet and the script file only.
-- **Owner:** `src/web/static/panes.js` (new), `src/web/static/app.css`, `src/web/templates/base.html`, and the Search body, Projects and Skill tree templates.
-- **Tests first:** route, in a new file `tests/route/test_pane_handles.py`. Handles are elements with `data-pane-handle` and `role="separator"`. The test session changes an existing test only where its requirement changed, and names each one in its report.
-  - `test_fr_55_search_page_has_one_handle_between_results_and_preview`: on `GET /` the siblings in the row of the pane `results` are, in this order, `results`, one handle with `aria-orientation="vertical"`, and `preview`. A `GET /search?q=pll` with the header `HX-Request` (the swapped part) has the same order.
-  - `test_fr_55_projects_page_has_a_handle_between_each_two_panes`: with a project selected the order is `projects`, handle, `project`, handle, `assignment`. With no project in the store it is `projects`, handle, `project`.
-  - `test_fr_55_skill_tree_page_has_one_handle_between_outline_and_node`: `outline`, handle, `node`.
-  - `test_fr_55_pages_with_one_pane_have_no_handle`: the Engineers list, an engineer profile, the Edit engineer form and Settings have no `data-pane-handle`.
-  - `test_fr_58_every_page_has_the_reset_button_in_the_sidebar`: each page has exactly one element with `data-pane-reset` inside the sidebar, with the text "Reset widths", before the link "Add engineer".
-  - `test_fr_57_every_page_links_panes_js_and_the_script_is_served`: each page has `<script src="/static/panes.js">`, and `GET /static/panes.js` answers 200 with a JavaScript media type.
-  - `test_fr_55_fixed_panes_take_their_width_from_the_pane_width_property`: the plain rule of `[data-pane="results"]` has `flex` `0 0 var(--pane-width, 460px)`, and likewise `outline` 420px, `projects` 420px and `assignment` 340px; the rule `[data-pane-handle]` has a width of 8px (as `width: 8px` or `flex: 0 0 8px`) and `cursor: col-resize`.
-  - `test_d_46_every_function_of_panes_js_has_a_one_line_jsdoc`: each `function` declaration or function expression in `/static/panes.js` has a one-line `/** ... */` comment directly before it (`CLAUDE.md`, Code quality). It fails today, because the file does not exist.
-  - Manual: FR-55, FR-56, FR-57, FR-58.
-- **Build:** write `panes.js` as D-46 says. It uses event delegation on `document` and pointer events, so that a handle that HTMX swaps in works. A drag changes `--pane-width` (in pixels, on the pane) of the nearest pane without `data-pane-flex`: the pane on the left of the handle, or the one on the right when the left one is the flexible pane. It stops where either neighbour would get narrower than `--pane-min` (read with `getComputedStyle` from `:root`). It keeps `{pane id: pixels}` in `localStorage` under `design-kb.panes.<page>` (`<page>` is `data-page` of `<body>`), inside `try/catch`, because a blocked storage must not break the page; it applies the kept widths at load and after `htmx:afterSwap`. The button `data-pane-reset` deletes the key and the `--pane-width` values; it is rendered `hidden` and shown by the script only when the page has a handle. Every function has a one-line JSDoc. In `base.html`, link `/static/panes.js` and put the button in the sidebar footer above "Add engineer", with the look of "Panels". Add the handles to the Search body partial, to Projects and to Skill tree. In `app.css`, write the rule of the handle (8px, no fill, a 2px line in `--line-strong`, `--accent` on hover and while dragging) and give the fixed panes `flex: 0 0 var(--pane-width, <default>)`. No new library and no new setting.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M28` pass.
-- **Blocked:** The test `test_fr_58_every_page_has_the_reset_button_in_the_sidebar` cannot pass with any build, and a build session may not change a file in `tests/`.
-  - `tests/route/test_pane_handles.py`, lines 169-174: `outside` lists the elements of a second `parse(response.text)` that have `data-pane-reset` and are `not in parts`, where `parts` comes from the first parse (`sidebar_of`). `Element` in `tests/builders.py` has no `__eq__`, so the comparison is by object identity, and the elements of two parses are never the same object. Thus `outside` always holds the reset button, and `assert outside == []` fails, while the same test needs exactly one such button (line 164).
-  - I built the rest (`src/web/static/panes.js`, the rules and markers of `app.css`, `base.html`, and the Search, Projects and Skill tree templates). 161 tests passed, and the other 2 failures were the test above and a fault of mine in `panes.js` (an anonymous callback with no JSDoc; easy to fix). I undid all of it, so that only `plan.md` changes.
-  - Nothing else was changed. To continue, approve one of these:
-    1. The test session fixes the test: compare against the first parse, for example `outside = [e for e in sidebar_descendants_of_second_parse...]` or count `data-pane-reset` in the whole page (`len(...) == 1`, and it is inside `sidebar`), or give `Element` an `__eq__`. Then run the milestone again.
-    2. Allow the build session to edit `tests/route/test_pane_handles.py` for this one assertion only.
-- **Approval:** Option 1, approved by the user on 2026-11-21: the test session fixes `test_fr_58_every_page_has_the_reset_button_in_the_sidebar` so that it no longer compares the elements of two parses by identity, for example by counting the elements with `data-pane-reset` in the whole page of one parse (exactly one, and inside the sidebar). It changes no other test and does not weaken the test: the button must stay exactly once on each page, in the sidebar, with the text "Reset widths", before "Add engineer". The build session still may not edit `tests/`.
 
 ### M29 — Engineer detail pane
 

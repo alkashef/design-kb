@@ -18,6 +18,7 @@
     <div class="table-foot"><span>{{ projects|length }} PROJECTS</span></div>
     </div>
   </section>
+  <div data-pane-handle role="separator" aria-orientation="vertical"></div>
   <section class="node-detail" data-pane="project" data-pane-flex aria-label="Project detail">
     <div data-pane-head>
     {% if mode != "view" %}
@@ -76,6 +77,7 @@
     </div>
   </section>
   {% if mode == "view" and selected %}
+  <div data-pane-handle role="separator" aria-orientation="vertical"></div>
   <section class="assignment-panel" data-pane="assignment" aria-label="{{ 'Edit assignment' if editing_id else 'Add assignment' }}">
     <div data-pane-head>
       <h2>{{ "Edit assignment" if editing_id else "Add assignment" }}</h2>
