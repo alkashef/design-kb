@@ -1,29 +1,29 @@
 {% extends "base.html" %}
-{% block title %}{{ employee.name }} · design-kb{% endblock %}
+{% block title %}{{ engineer.name }} · design-kb{% endblock %}
 {% block main %}
 <div class="page">
-  <div class="crumbs"><a href="/employees">Employees</a> / <span>{{ employee.name }}</span></div>
+  <div class="crumbs"><a href="/engineers">Engineers</a> / <span>{{ engineer.name }}</span></div>
   <div class="page-head">
     <div>
-      <h1>{{ employee.name }}</h1>
-      <div class="hint flush">{{ employee.job_title }} · {{ employee.team }}</div>
+      <h1>{{ engineer.name }}</h1>
+      <div class="hint flush">{{ engineer.job_title }} · {{ engineer.team }}</div>
     </div>
-    <form class="actions" method="post" action="/employees/{{ employee.id }}/delete">
-      <a class="button-outline link-button" href="/employees/{{ employee.id }}/edit">Edit</a>
+    <form class="actions" method="post" action="/engineers/{{ engineer.id }}/delete">
+      <a class="button-outline link-button" href="/engineers/{{ engineer.id }}/edit">Edit</a>
       <button class="button-outline button-danger link-button" type="submit">Delete</button>
     </form>
   </div>
   <section class="panel">
     <div class="mono muted">DETAILS</div>
     <dl class="details">
-      <dt>Employee ID</dt><dd class="mono">{{ employee.id }}</dd>
-      <dt>Career level</dt><dd>{{ employee.career_level }}</dd>
-      <dt>Team</dt><dd>{{ employee.team }}</dd>
+      <dt>Engineer ID</dt><dd class="mono">{{ engineer.id }}</dd>
+      <dt>Career level</dt><dd>{{ engineer.career_level }}</dd>
+      <dt>Team</dt><dd>{{ engineer.team }}</dd>
     </dl>
   </section>
   <section class="panel">
     <div class="mono muted">SKILL GAPS</div>
-    <p>{{ employee.skill_gaps or "No skill gaps entered." }}</p>
+    <p>{{ engineer.skill_gaps or "No skill gaps entered." }}</p>
   </section>
   <section class="assignments">
     <div class="mono muted">SKILL LEVELS · ALL SKILLS</div>

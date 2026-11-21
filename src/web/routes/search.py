@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from src.domain.levels import LEVEL_NAMES
 from src.domain.models import CAREER_LEVELS, EmbeddingUnavailable
 from src.services.assignments import AssignmentService
-from src.services.employees import EmployeeService, UnknownEmployee
+from src.services.engineers import EngineerService, UnknownEngineer
 from src.services.search import SearchFilters, SearchService
 from src.web.errors import search_failure
 
@@ -24,24 +24,24 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     """Return the routes of the Search page, rendered with templates."""
     router = APIRouter()
 
-    def employees_of(request: Request) -> EmployeeService:
-        """Return the employee service of the app."""
+    def engineers_of(request: Request) -> EngineerService:
+        """Return the engineer service of the app."""
         state = request.app.state
-        return EmployeeService(state.store, state.options.page_size, state.indexing)
+        return EngineerService(state.store, state.options.page_size, state.indexing)
 
-    def preview_of(request: Request, employee_id: str) -> dict:
-        """Return the template values of the preview of one employee, or answer 404."""
-        employees = employees_of(request)
+    def preview_of(request: Request, engineer_id: str) -> dict:
+        """Return the template values of the preview of one engineer, or answer 404."""
+        engineers = engineers_of(request)
         try:
-            employee = employees.get(employee_id)
-        except UnknownEmployee:
-            raise HTTPException(status_code=404, detail="Unknown employee")
+            engineer = engineers.get(engineer_id)
+        except UnknownEngineer:
+            raise HTTPException(status_code=404, detail="Unknown engineer")
         state = request.app.state
         return {
-            "employee": employee,
-            "skill_groups": employees.skill_groups(employee_id),
-            "assignment_rows": AssignmentService(state.store, state.indexing).for_employee(
-                employee_id
+            "engineer": engineer,
+            "skill_groups": engineers.skill_groups(engineer_id),
+            "assignment_rows": AssignmentService(state.store, state.indexing).for_engineer(
+                engineer_id
             ),
             "level_names": LEVEL_NAMES,
         }
@@ -49,9 +49,9 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     def render_search(request: Request, query: str, filters: SearchFilters, mode: str = EXPERIENCE_MODE):
         """Render the Search page, or only its results and preview for an HTMX request."""
         state = request.app.state
-        employees = employees_of(request)
+        engineers = engineers_of(request)
         search = SearchService(
-            state.store, state.embedder, employees, state.options.search_result_limit
+            state.store, state.embedder, engineers, state.options.search_result_limit
         )
         message, status, results = "", 200, []
         try:
@@ -64,13 +64,13 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "q": query,
             "mode": mode,
             "filters": filters,
-            "teams": employees.teams(),
+            "teams": engineers.teams(),
             "career_levels": CAREER_LEVELS,
-            "leaf_options": employees.leaf_options(),
+            "leaf_options": engineers.leaf_options(),
             "results": results,
             "level_names": LEVEL_NAMES,
             "message": message,
-            "preview": preview_of(request, results[0].employee.id) if results else None,
+            "preview": preview_of(request, results[0].engineer.id) if results else None,
         }
         template = BODY_PART if request.headers.get("HX-Request") else SEARCH_PAGE
         return templates.TemplateResponse(request, template, context, status_code=status)
@@ -96,11 +96,11 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         mode = GAPS_MODE if mode == GAPS_MODE else EXPERIENCE_MODE
         return render_search(request, q, filters, mode)
 
-    @router.get("/search/preview/{employee_id}", response_class=HTMLResponse)
-    def search_preview(request: Request, employee_id: str):
-        """Show the preview part for one employee."""
+    @router.get("/search/preview/{engineer_id}", response_class=HTMLResponse)
+    def search_preview(request: Request, engineer_id: str):
+        """Show the preview part for one engineer."""
         return templates.TemplateResponse(
-            request, PREVIEW_PART, {"preview": preview_of(request, employee_id)}
+            request, PREVIEW_PART, {"preview": preview_of(request, engineer_id)}
         )
 
     return router

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 from src.domain import entry_rules, skill_tree
-from src.domain.models import Assignment, Employee, Node
+from src.domain.models import Assignment, Engineer, Node
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class AssignmentRow:
     """An assignment with the names that a page shows."""
 
     assignment: Assignment
-    employee_name: str
+    engineer_name: str
     project_name: str
     project_year: int
     process_technology: str
@@ -40,13 +40,13 @@ class AssignmentService:
         self._indexing = indexing
 
     def for_project(self, project_id: str) -> List[AssignmentRow]:
-        """Return the rows of one project, ordered by employee name and leaf path."""
+        """Return the rows of one project, ordered by engineer name and leaf path."""
         rows = self._rows(lambda a: a.project_id == project_id)
-        return sorted(rows, key=lambda r: (r.employee_name.lower(), r.leaf_path.lower()))
+        return sorted(rows, key=lambda r: (r.engineer_name.lower(), r.leaf_path.lower()))
 
-    def for_employee(self, employee_id: str) -> List[AssignmentRow]:
-        """Return the rows of one employee, ordered by project year (newest first) and name."""
-        rows = self._rows(lambda a: a.employee_id == employee_id)
+    def for_engineer(self, engineer_id: str) -> List[AssignmentRow]:
+        """Return the rows of one engineer, ordered by project year (newest first) and name."""
+        rows = self._rows(lambda a: a.engineer_id == engineer_id)
         return sorted(rows, key=lambda r: (-r.project_year, r.project_name.lower(), r.leaf_path))
 
     def get(self, assignment_id: str) -> Assignment:
@@ -65,18 +65,18 @@ class AssignmentService:
             if skill_tree.is_leaf(nodes, node.id)
         ]
 
-    def employee_options(self) -> List[Employee]:
-        """Return all employees, ordered by name."""
-        return sorted(self._store.list_employees(), key=lambda e: (e.name.lower(), e.id))
+    def engineer_options(self) -> List[Engineer]:
+        """Return all engineers, ordered by name."""
+        return sorted(self._store.list_engineers(), key=lambda e: (e.name.lower(), e.id))
 
     def add(
-        self, project_id: str, employee_id: str, leaf_id: str, participation: str, description: str
+        self, project_id: str, engineer_id: str, leaf_id: str, participation: str, description: str
     ) -> str:
         """Add an assignment with a new random ID and return the ID."""
-        if not any(e.id == employee_id for e in self._store.list_employees()):
-            raise AssignmentError("Choose an employee from the list.")
+        if not any(e.id == engineer_id for e in self._store.list_engineers()):
+            raise AssignmentError("Choose an engineer from the list.")
         assignment = Assignment(
-            uuid.uuid4().hex, employee_id, project_id, leaf_id, participation, description.strip()
+            uuid.uuid4().hex, engineer_id, project_id, leaf_id, participation, description.strip()
         )
         self._check(assignment)
         vectors = self._indexing.embed_assignments([assignment])
@@ -89,7 +89,7 @@ class AssignmentService:
         """Change the leaf, the participation and the description of an assignment."""
         old = self.get(assignment_id)
         assignment = Assignment(
-            old.id, old.employee_id, old.project_id, leaf_id, participation, description.strip()
+            old.id, old.engineer_id, old.project_id, leaf_id, participation, description.strip()
         )
         self._check(assignment)
         vectors = self._indexing.embed_assignments([assignment])
@@ -116,17 +116,17 @@ class AssignmentService:
     def _rows(self, wanted) -> List[AssignmentRow]:
         """Return the rows of the assignments for which wanted(assignment) is true."""
         nodes = self._store.list_nodes()
-        employees = {e.id: e for e in self._store.list_employees()}
+        engineers = {e.id: e for e in self._store.list_engineers()}
         projects = {p.id: p for p in self._store.list_projects()}
         return [
             AssignmentRow(
                 a,
-                employees[a.employee_id].name,
+                engineers[a.engineer_id].name,
                 projects[a.project_id].name,
                 projects[a.project_id].year,
                 projects[a.project_id].process_technology,
                 skill_tree.path(nodes, a.leaf_id),
             )
             for a in self._store.list_assignments()
-            if wanted(a) and a.employee_id in employees and a.project_id in projects
+            if wanted(a) and a.engineer_id in engineers and a.project_id in projects
         ]

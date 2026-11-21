@@ -1,14 +1,14 @@
 """The seed data: fixed records with invented names for the demo (NFR-04, NFR-05, NFR-06, D-26).
 
 The records hold the persons that the 3 example searches of AC-01 expect: a lead of a PLL design on
-a 7nm project, a member of a CDR leaf, and a senior employee of the team Analog in a low-noise
+a 7nm project, a member of a CDR leaf, and a senior engineer of the team Analog in a low-noise
 amplifier leaf. No level is stored: each level comes from the assignments and the flags (NFR-05).
 """
 
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from src.domain.models import Assignment, Employee, Flag, Node, Project
+from src.domain.models import Assignment, Engineer, Flag, Node, Project
 
 LEAD = "lead"
 MEMBER = "member"
@@ -103,7 +103,7 @@ TREE: List[TreeItem] = [
     ),
 ]
 
-# The employees by team: the team, the job title, and the name and career level of each member.
+# The engineers by team: the team, the job title, and the name and career level of each member.
 TEAMS = [
     (
         "Analog",
@@ -177,7 +177,7 @@ TEAMS = [
     ),
 ]
 
-# The skill gaps of some employees, by employee number (the position in TEAMS, from 1).
+# The skill gaps of some engineers, by engineer number (the position in TEAMS, from 1).
 SKILL_GAPS: Dict[int, str] = {
     4: "Wants to learn PLL design and phase noise analysis.",
     8: "Has never worked on a data converter; wants a SAR ADC project.",
@@ -215,7 +215,7 @@ PROJECTS = [
     ("Vesper", "Test chip for a compiler of SRAM macros.", 2017, "22nm FD-SOI"),
 ]
 
-# (employee number, project number, leaf name, participation, description) of the assignments.
+# (engineer number, project number, leaf name, participation, description) of the assignments.
 ASSIGNMENTS = [
     # Analog team
     (1, 3, "LNA", LEAD, "Led the low-noise amplifier of the receiver front end for a 2 dB noise figure."),
@@ -320,7 +320,7 @@ ASSIGNMENTS = [
     (40, 15, "Post-silicon validation", MEMBER, "Measured the SRAM test chip."),
 ]
 
-# (employee number, leaf name, flag) of the flags. An aware flag has no assignment on its leaf.
+# (engineer number, leaf name, flag) of the flags. An aware flag has no assignment on its leaf.
 FLAGS = [
     (2, "Op-amp", "expert"),
     (10, "DLL", "expert"),
@@ -339,15 +339,15 @@ FLAGS = [
 class SeedData:
     """The records of the seed data, ready to be written to the store."""
 
-    employees: List[Employee]
+    engineers: List[Engineer]
     projects: List[Project]
     nodes: List[Node]
     assignments: List[Assignment]
     flags: List[Flag]
 
 
-def _employee_id(number: int) -> str:
-    """Return the ID of the employee with the number, such as E-0007."""
+def _engineer_id(number: int) -> str:
+    """Return the ID of the engineer with the number, such as E-0007."""
     return f"E-{number:04d}"
 
 
@@ -371,17 +371,17 @@ def _build_nodes() -> List[Node]:
     return nodes
 
 
-def _build_employees() -> List[Employee]:
-    """Return the employees of TEAMS, with IDs E-0001, E-0002, ... and the skill gaps."""
-    employees: List[Employee] = []
+def _build_engineers() -> List[Engineer]:
+    """Return the engineers of TEAMS, with IDs E-0001, E-0002, ... and the skill gaps."""
+    engineers: List[Engineer] = []
     for team, job_title, members in TEAMS:
         for name, career_level in members:
-            number = len(employees) + 1
+            number = len(engineers) + 1
             gaps = SKILL_GAPS.get(number, "")
-            employees.append(
-                Employee(_employee_id(number), name, job_title, career_level, team, gaps)
+            engineers.append(
+                Engineer(_engineer_id(number), name, job_title, career_level, team, gaps)
             )
-    return employees
+    return engineers
 
 
 def _build_projects() -> List[Project]:
@@ -397,13 +397,13 @@ def _build_assignments(leaf_ids: Dict[str, str]) -> List[Assignment]:
     return [
         Assignment(
             f"A-{number:03d}",
-            _employee_id(employee),
+            _engineer_id(engineer),
             _project_id(project),
             leaf_ids[leaf],
             participation,
             description,
         )
-        for number, (employee, project, leaf, participation, description) in enumerate(
+        for number, (engineer, project, leaf, participation, description) in enumerate(
             ASSIGNMENTS, start=1
         )
     ]
@@ -411,7 +411,7 @@ def _build_assignments(leaf_ids: Dict[str, str]) -> List[Assignment]:
 
 def _build_flags(leaf_ids: Dict[str, str]) -> List[Flag]:
     """Return the flags of FLAGS."""
-    return [Flag(_employee_id(employee), leaf_ids[leaf], flag) for employee, leaf, flag in FLAGS]
+    return [Flag(_engineer_id(engineer), leaf_ids[leaf], flag) for engineer, leaf, flag in FLAGS]
 
 
 def build() -> SeedData:
@@ -419,7 +419,7 @@ def build() -> SeedData:
     nodes = _build_nodes()
     leaf_ids = {node.name: node.id for node in nodes}
     return SeedData(
-        employees=_build_employees(),
+        engineers=_build_engineers(),
         projects=_build_projects(),
         nodes=nodes,
         assignments=_build_assignments(leaf_ids),

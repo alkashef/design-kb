@@ -4,7 +4,7 @@ The fake embedder matches by shared words, so the skill gaps share words with th
 """
 
 from builders import (
-    add_employee,
+    add_engineer,
     reason_of,
     result_ids,
     row_of,
@@ -22,9 +22,9 @@ def search_gaps(client, **params):
     return response.text
 
 
-def test_fr_06_gap_query_ranks_the_employee_with_the_matching_skill_gap_first(client):
-    other = add_employee(client, "Ben Invented", skill_gaps=OTHER_GAP_TEXT)
-    match = add_employee(client, "Ada Invented", skill_gaps=GAP_TEXT)
+def test_fr_06_gap_query_ranks_the_engineer_with_the_matching_skill_gap_first(client):
+    other = add_engineer(client, "Ben Invented", skill_gaps=OTHER_GAP_TEXT)
+    match = add_engineer(client, "Ada Invented", skill_gaps=GAP_TEXT)
 
     ids = result_ids(search_gaps(client, q=GAP_QUERY))
 
@@ -33,8 +33,8 @@ def test_fr_06_gap_query_ranks_the_employee_with_the_matching_skill_gap_first(cl
 
 
 def test_fr_06_gap_result_shows_the_skill_gap_text_as_reason(client):
-    match = add_employee(client, "Ada Invented", skill_gaps=GAP_TEXT)
-    add_employee(client, "Ben Invented", skill_gaps=OTHER_GAP_TEXT)
+    match = add_engineer(client, "Ada Invented", skill_gaps=GAP_TEXT)
+    add_engineer(client, "Ben Invented", skill_gaps=OTHER_GAP_TEXT)
 
     row = row_of(search_gaps(client, q=GAP_QUERY), match)
 
@@ -42,9 +42,9 @@ def test_fr_06_gap_result_shows_the_skill_gap_text_as_reason(client):
     assert OTHER_GAP_TEXT not in reason_of(row)
 
 
-def test_fr_06_employee_with_empty_skill_gaps_is_not_in_the_gap_results(client):
-    no_gaps = add_employee(client, "Cy Invented", skill_gaps="")
-    match = add_employee(client, "Ada Invented", skill_gaps=GAP_TEXT)
+def test_fr_06_engineer_with_empty_skill_gaps_is_not_in_the_gap_results(client):
+    no_gaps = add_engineer(client, "Cy Invented", skill_gaps="")
+    match = add_engineer(client, "Ada Invented", skill_gaps=GAP_TEXT)
 
     ids = result_ids(search_gaps(client, q=GAP_QUERY))
 
@@ -53,8 +53,8 @@ def test_fr_06_employee_with_empty_skill_gaps_is_not_in_the_gap_results(client):
 
 
 def test_fr_03_filters_apply_in_gap_search(client):
-    clocking = add_employee(client, "Ada Invented", team="Clocking", skill_gaps=GAP_TEXT)
-    memory = add_employee(client, "Ben Invented", team="Memory", skill_gaps=GAP_TEXT)
+    clocking = add_engineer(client, "Ada Invented", team="Clocking", skill_gaps=GAP_TEXT)
+    memory = add_engineer(client, "Ben Invented", team="Memory", skill_gaps=GAP_TEXT)
     assert set(result_ids(search_gaps(client, q=GAP_QUERY))) == {clocking, memory}
 
     ids = result_ids(search_gaps(client, q=GAP_QUERY, team="Clocking"))

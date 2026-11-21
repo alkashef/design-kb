@@ -12,7 +12,7 @@ from src.domain.models import (
     Assignment,
     AssignmentVector,
     EmbeddingUnavailable,
-    Employee,
+    Engineer,
     Node,
     ProfileVector,
     Project,
@@ -63,25 +63,25 @@ class IndexingService:
         """Delete the vectors of deleted assignments."""
         self._store.delete_assignment_vectors(assignment_ids)
 
-    def embed_profile(self, employee: Employee) -> Optional[ProfileVector]:
+    def embed_profile(self, engineer: Engineer) -> Optional[ProfileVector]:
         """Embed the skill gaps when they are not empty and differ from the stored text (D-27)."""
-        text = vector_text.profile_text(employee)
-        stored = {v.employee_id: v.text for v in self._store.list_profile_vectors()}
-        if not text or stored.get(employee.id) == text:
+        text = vector_text.profile_text(engineer)
+        stored = {v.engineer_id: v.text for v in self._store.list_profile_vectors()}
+        if not text or stored.get(engineer.id) == text:
             return None
-        return ProfileVector(employee.id, text, self._embedder.embed([text])[0])
+        return ProfileVector(engineer.id, text, self._embedder.embed([text])[0])
 
-    def save_profile(self, employee: Employee, vector: Optional[ProfileVector]) -> None:
+    def save_profile(self, engineer: Engineer, vector: Optional[ProfileVector]) -> None:
         """Write the vector that embed_profile returned; empty skill gaps remove the vector."""
         if vector is not None:
             self._store.save_profile_vector(vector)
-        elif not vector_text.profile_text(employee):
-            self._store.delete_profile_vector(employee.id)
+        elif not vector_text.profile_text(engineer):
+            self._store.delete_profile_vector(engineer.id)
 
-    def delete_employee_vectors(self, employee_id: str) -> None:
-        """Delete the assignment vectors and the profile vector of a deleted employee."""
-        self._store.delete_assignment_vectors_of_employee(employee_id)
-        self._store.delete_profile_vector(employee_id)
+    def delete_engineer_vectors(self, engineer_id: str) -> None:
+        """Delete the assignment vectors and the profile vector of a deleted engineer."""
+        self._store.delete_assignment_vectors_of_engineer(engineer_id)
+        self._store.delete_profile_vector(engineer_id)
 
     def sync_model(self) -> None:
         """Embed all vectors again when the model or the vector size in meta differs (D-27).
@@ -111,14 +111,14 @@ class IndexingService:
         assignment_vectors = self._embed_assignment_texts(pending)
         profiles = [
             (e.id, vector_text.profile_text(e))
-            for e in self._store.list_employees()
+            for e in self._store.list_engineers()
             if vector_text.profile_text(e)
         ]
         profile_vectors = self._embed([text for _id, text in profiles])
         self._store.drop_vectors()
         self._store.save_assignment_vectors(assignment_vectors)
-        for (employee_id, text), vector in zip(profiles, profile_vectors):
-            self._store.save_profile_vector(ProfileVector(employee_id, text, vector))
+        for (engineer_id, text), vector in zip(profiles, profile_vectors):
+            self._store.save_profile_vector(ProfileVector(engineer_id, text, vector))
 
     def _assignment_texts(
         self, assignments: List[Assignment], projects: Dict[str, Project], nodes: List[Node]
@@ -143,7 +143,7 @@ class IndexingService:
         """Embed the texts in one call and return one AssignmentVector for each assignment."""
         vectors = self._embed([text for _assignment, text in pending])
         return [
-            AssignmentVector(assignment.id, assignment.employee_id, text, vector)
+            AssignmentVector(assignment.id, assignment.engineer_id, text, vector)
             for (assignment, text), vector in zip(pending, vectors)
         ]
 

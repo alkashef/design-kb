@@ -1,6 +1,6 @@
 """Builds the texts that are embedded: an assignment vector (D-08) and a profile vector (D-09)."""
 
-from src.domain.models import Assignment, Employee, Node, Project
+from src.domain.models import Assignment, Engineer, Node, Project
 
 LINE_SEPARATOR = "\n"
 
@@ -18,6 +18,6 @@ def assignment_text(assignment: Assignment, project: Project, leaf: Node, leaf_p
     return LINE_SEPARATOR.join(lines)
 
 
-def profile_text(employee: Employee) -> str:
+def profile_text(engineer: Engineer) -> str:
     """Return the text of a profile vector: the skill gaps, or an empty text when there are none."""
-    return employee.skill_gaps.strip()
+    return engineer.skill_gaps.strip()

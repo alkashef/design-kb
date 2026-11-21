@@ -1,4 +1,4 @@
-"""The level rules: the level of an employee in a leaf (spec section 2.5, FR-25, FR-27, FR-32)."""
+"""The level rules: the level of an engineer in a leaf (spec section 2.5, FR-25, FR-27, FR-32)."""
 
 from typing import List, Optional
 
@@ -35,7 +35,7 @@ def computed_level(lead_count: int, member_count: int, thresholds: List[Threshol
 def effective_level(
     lead_count: int, member_count: int, flag: Optional[str], thresholds: List[Threshold]
 ) -> Optional[int]:
-    """Return the level of an employee in a leaf: expert, computed, aware, or None (FR-27)."""
+    """Return the level of an engineer in a leaf: expert, computed, aware, or None (FR-27)."""
     if flag == "expert":
         return 5
     if lead_count + member_count > 0:

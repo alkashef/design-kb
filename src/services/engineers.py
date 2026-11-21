@@ -1,11 +1,11 @@
-"""The employee service: lists, shows, creates, edits and deletes employees (FR-10, FR-20, FR-28)."""
+"""The engineer service: lists, shows, creates, edits and deletes engineers (FR-10, FR-20, FR-28)."""
 
 import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
 from src.domain import levels, skill_tree
-from src.domain.models import CAREER_LEVELS, Employee
+from src.domain.models import CAREER_LEVELS, Engineer
 from src.services.thresholds import ThresholdService
 
 logger = logging.getLogger(__name__)
@@ -15,19 +15,19 @@ TOP_SKILL_COUNT = 2
 TOP_LEVEL_GROUP = "Top level"
 
 
-class EmployeeError(Exception):
+class EngineerError(Exception):
     """Raised when an entry is rejected; the message is shown to the user."""
 
 
-class UnknownEmployee(Exception):
-    """Raised when an employee ID is not in the store."""
+class UnknownEngineer(Exception):
+    """Raised when an engineer ID is not in the store."""
 
 
 @dataclass
-class EmployeePage:
-    """One page of the Employees list."""
+class EngineerPage:
+    """One page of the Engineers list."""
 
-    rows: List[Employee]
+    rows: List[Engineer]
     page: int
     page_count: int
     total: int
@@ -35,7 +35,7 @@ class EmployeePage:
 
 @dataclass
 class SkillLevel:
-    """The level of an employee in one leaf and where it comes from (FR-11)."""
+    """The level of an engineer in one leaf and where it comes from (FR-11)."""
 
     leaf_id: str
     name: str
@@ -45,7 +45,7 @@ class SkillLevel:
 
 @dataclass
 class SkillGroup:
-    """The leaves under one parent path, with the level of the employee in each."""
+    """The leaves under one parent path, with the level of the engineer in each."""
 
     path: str
     leaves: List[SkillLevel]
@@ -72,8 +72,8 @@ def _level_source(lead_count: int, member_count: int, flag: str, level: int) -> 
     return "No projects, no flag"
 
 
-class EmployeeService:
-    """Reads and changes employees through the store."""
+class EngineerService:
+    """Reads and changes engineers through the store."""
 
     def __init__(self, store, page_size: int, indexing):
         """Use store (a LanceStore or a fake), the rows on one page and indexing for the vectors."""
@@ -83,16 +83,16 @@ class EmployeeService:
 
     def teams(self) -> List[str]:
         """Return the distinct team names, sorted."""
-        return sorted({e.team for e in self._store.list_employees() if e.team})
+        return sorted({e.team for e in self._store.list_engineers() if e.team})
 
     def list(
         self, text: str = "", team: str = "", career_level: str = "", page: int = 1
-    ) -> EmployeePage:
-        """Return one page of the employees that match the filters, ordered by ID."""
+    ) -> EngineerPage:
+        """Return one page of the engineers that match the filters, ordered by ID."""
         needle = text.strip().lower()
         matches = [
             e
-            for e in sorted(self._store.list_employees(), key=lambda e: e.id)
+            for e in sorted(self._store.list_engineers(), key=lambda e: e.id)
             if (not needle or needle in e.name.lower() or needle in e.id.lower())
             and (not team or e.team == team)
             and (not career_level or e.career_level == career_level)
@@ -101,54 +101,54 @@ class EmployeeService:
         page = min(max(page, 1), page_count)
         start = (page - 1) * self._page_size
         rows = matches[start : start + self._page_size]
-        return EmployeePage(rows, page, page_count, len(matches))
+        return EngineerPage(rows, page, page_count, len(matches))
 
-    def get(self, employee_id: str) -> Employee:
-        """Return the employee, or raise UnknownEmployee."""
-        for employee in self._store.list_employees():
-            if employee.id == employee_id:
-                return employee
-        raise UnknownEmployee(employee_id)
+    def get(self, engineer_id: str) -> Engineer:
+        """Return the engineer, or raise UnknownEngineer."""
+        for engineer in self._store.list_engineers():
+            if engineer.id == engineer_id:
+                return engineer
+        raise UnknownEngineer(engineer_id)
 
     def add(self, name: str, job_title: str, career_level: str, team: str, skill_gaps: str) -> str:
-        """Add an employee with the next free ID and return the ID."""
-        employee = self._build(self._next_id(), name, job_title, career_level, team, skill_gaps)
-        vector = self._indexing.embed_profile(employee)
-        self._store.add_employee(employee)
-        self._indexing.save_profile(employee, vector)
-        logger.info("Added an employee.")
-        return employee.id
+        """Add an engineer with the next free ID and return the ID."""
+        engineer = self._build(self._next_id(), name, job_title, career_level, team, skill_gaps)
+        vector = self._indexing.embed_profile(engineer)
+        self._store.add_engineer(engineer)
+        self._indexing.save_profile(engineer, vector)
+        logger.info("Added an engineer.")
+        return engineer.id
 
     def save(
         self,
-        employee_id: str,
+        engineer_id: str,
         name: str,
         job_title: str,
         career_level: str,
         team: str,
         skill_gaps: str,
     ) -> None:
-        """Change the fields of an employee."""
-        self.get(employee_id)
-        employee = self._build(employee_id, name, job_title, career_level, team, skill_gaps)
-        vector = self._indexing.embed_profile(employee)
-        self._store.update_employee(employee)
-        self._indexing.save_profile(employee, vector)
+        """Change the fields of an engineer."""
+        self.get(engineer_id)
+        engineer = self._build(engineer_id, name, job_title, career_level, team, skill_gaps)
+        vector = self._indexing.embed_profile(engineer)
+        self._store.update_engineer(engineer)
+        self._indexing.save_profile(engineer, vector)
 
-    def delete(self, employee_id: str) -> None:
-        """Delete an employee."""
-        self.get(employee_id)
-        self._store.delete_assignments_of_employee(employee_id)
-        self._store.delete_flags_of_employee(employee_id)
-        self._store.delete_employee(employee_id)
-        self._indexing.delete_employee_vectors(employee_id)
-        logger.info("Deleted an employee.")
+    def delete(self, engineer_id: str) -> None:
+        """Delete an engineer."""
+        self.get(engineer_id)
+        self._store.delete_assignments_of_engineer(engineer_id)
+        self._store.delete_flags_of_engineer(engineer_id)
+        self._store.delete_engineer(engineer_id)
+        self._indexing.delete_engineer_vectors(engineer_id)
+        logger.info("Deleted an engineer.")
 
-    def skill_groups(self, employee_id: str) -> List[SkillGroup]:
-        """Return the levels of the employee, grouped by parent path, in tree order (FR-11)."""
+    def skill_groups(self, engineer_id: str) -> List[SkillGroup]:
+        """Return the levels of the engineer, grouped by parent path, in tree order (FR-11)."""
         nodes = self._store.list_nodes()
         assignments = self._store.list_assignments()
-        levels_by_leaf = self._levels_of(employee_id, nodes, assignments, self._store.list_flags())
+        levels_by_leaf = self._levels_of(engineer_id, nodes, assignments, self._store.list_flags())
         groups: Dict[str, SkillGroup] = {}
         for node, _depth in skill_tree.outline(nodes):
             if node.id not in levels_by_leaf:
@@ -158,26 +158,26 @@ class EmployeeService:
             group.leaves.append(levels_by_leaf[node.id])
         return list(groups.values())
 
-    def top_skills(self, employee_ids: List[str]) -> Dict[str, List[SkillLevel]]:
-        """Return the highest levels (at most TOP_SKILL_COUNT) of each employee, highest first."""
+    def top_skills(self, engineer_ids: List[str]) -> Dict[str, List[SkillLevel]]:
+        """Return the highest levels (at most TOP_SKILL_COUNT) of each engineer, highest first."""
         nodes = self._store.list_nodes()
         assignments = self._store.list_assignments()
         flags = self._store.list_flags()
         result = {}
-        for employee_id in employee_ids:
+        for engineer_id in engineer_ids:
             reached = [
                 s
-                for s in self._levels_of(employee_id, nodes, assignments, flags).values()
+                for s in self._levels_of(engineer_id, nodes, assignments, flags).values()
                 if s.level > 0
             ]
             reached.sort(key=lambda s: -s.level)
-            result[employee_id] = reached[:TOP_SKILL_COUNT]
+            result[engineer_id] = reached[:TOP_SKILL_COUNT]
         return result
 
-    def levels_in(self, employee_id: str, leaf_ids: List[str]) -> List[SkillLevel]:
-        """Return the level of the employee in each of the given leaves, in the order of leaf_ids."""
+    def levels_in(self, engineer_id: str, leaf_ids: List[str]) -> List[SkillLevel]:
+        """Return the level of the engineer in each of the given leaves, in the order of leaf_ids."""
         by_leaf = self._levels_of(
-            employee_id,
+            engineer_id,
             self._store.list_nodes(),
             self._store.list_assignments(),
             self._store.list_flags(),
@@ -195,31 +195,31 @@ class EmployeeService:
 
     def matching(
         self, team: str = "", career_level: str = "", leaf_id: str = "", min_level: int = 1
-    ) -> List[Employee]:
-        """Return the employees that meet every set filter, sorted by name (D-04, step 1).
+    ) -> List[Engineer]:
+        """Return the engineers that meet every set filter, sorted by name (D-04, step 1).
 
-        A leaf filter keeps the employees whose level in that leaf is at least min_level.
+        A leaf filter keeps the engineers whose level in that leaf is at least min_level.
         """
         nodes = self._store.list_nodes()
         assignments = self._store.list_assignments()
         flags = self._store.list_flags()
         matches = []
-        for employee in self._store.list_employees():
-            if (team and employee.team != team) or (
-                career_level and employee.career_level != career_level
+        for engineer in self._store.list_engineers():
+            if (team and engineer.team != team) or (
+                career_level and engineer.career_level != career_level
             ):
                 continue
             if leaf_id:
-                by_leaf = self._levels_of(employee.id, nodes, assignments, flags)
+                by_leaf = self._levels_of(engineer.id, nodes, assignments, flags)
                 if leaf_id not in by_leaf or by_leaf[leaf_id].level < max(min_level, 1):
                     continue
-            matches.append(employee)
+            matches.append(engineer)
         return sorted(matches, key=lambda e: (e.name.lower(), e.id))
 
-    def _levels_of(self, employee_id, nodes, assignments, flags) -> Dict[str, SkillLevel]:
-        """Return the SkillLevel of the employee in each leaf, in tree order."""
-        flag_of = {f.leaf_id: f.flag for f in flags if f.employee_id == employee_id}
-        mine = [a for a in assignments if a.employee_id == employee_id]
+    def _levels_of(self, engineer_id, nodes, assignments, flags) -> Dict[str, SkillLevel]:
+        """Return the SkillLevel of the engineer in each leaf, in tree order."""
+        flag_of = {f.leaf_id: f.flag for f in flags if f.engineer_id == engineer_id}
+        mine = [a for a in assignments if a.engineer_id == engineer_id]
         thresholds = ThresholdService(self._store).current()
         result = {}
         for node, _depth in skill_tree.outline(nodes):
@@ -237,22 +237,22 @@ class EmployeeService:
         """Return the ID after the highest one in use, such as E-0003."""
         numbers = [
             int(e.id[len(ID_PREFIX) :])
-            for e in self._store.list_employees()
+            for e in self._store.list_engineers()
             if e.id.startswith(ID_PREFIX) and e.id[len(ID_PREFIX) :].isdigit()
         ]
         return f"{ID_PREFIX}{max(numbers, default=0) + 1:04d}"
 
     @staticmethod
     def _build(
-        employee_id: str, name: str, job_title: str, career_level: str, team: str, skill_gaps: str
-    ) -> Employee:
-        """Return the checked Employee, or raise EmployeeError."""
+        engineer_id: str, name: str, job_title: str, career_level: str, team: str, skill_gaps: str
+    ) -> Engineer:
+        """Return the checked Engineer, or raise EngineerError."""
         if not name.strip():
-            raise EmployeeError("The name is required.")
+            raise EngineerError("The name is required.")
         if career_level not in CAREER_LEVELS:
-            raise EmployeeError("Choose a career level from the list.")
-        return Employee(
-            employee_id,
+            raise EngineerError("Choose a career level from the list.")
+        return Engineer(
+            engineer_id,
             name.strip(),
             job_title.strip(),
             career_level,

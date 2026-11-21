@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Employees · design-kb{% endblock %}
+{% block title %}Engineers · design-kb{% endblock %}
 {% block main %}
 <div class="page">
   <div class="page-head">
-    <h1>Employees</h1>
-    <a class="button-accent link-button" href="/employees/new">Add employee</a>
+    <h1>Engineers</h1>
+    <a class="button-accent link-button" href="/engineers/new">Add engineer</a>
   </div>
-  <form class="filters" method="get" action="/employees">
+  <form class="filters" method="get" action="/engineers">
     <input type="text" name="filter" value="{{ filter }}" aria-label="Filter by name or ID" placeholder="Filter by name or ID">
     <select name="team" aria-label="Team">
       <option value="">Team: any</option>
@@ -19,18 +19,18 @@
     <button class="button-outline fit" type="submit">Filter</button>
   </form>
   <div class="table">
-    <div class="table-row employee-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span></div>
+    <div class="table-row engineer-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span></div>
     {% for e in result.rows %}
-    <a class="table-row employee-row" href="/employees/{{ e.id }}" data-employee-id="{{ e.id }}">
+    <a class="table-row engineer-row" href="/engineers/{{ e.id }}" data-engineer-id="{{ e.id }}">
       <span class="mono">{{ e.id }}</span><span>{{ e.name }}</span><span>{{ e.job_title }}</span><span>{{ e.team }}</span><span>{{ e.career_level }}</span>
       <span class="top-skills">{% for s in top_skills[e.id] %}<span class="role-tag">{{ s.name }} · {{ level_names[s.level] }}</span>{% endfor %}</span>
     </a>
     {% endfor %}
     <div class="table-foot">
-      <span>PAGE {{ result.page }} OF {{ result.page_count }} · {{ result.total }} EMPLOYEES</span>
+      <span>PAGE {{ result.page }} OF {{ result.page_count }} · {{ result.total }} ENGINEERS</span>
       <span class="pager">
-        {% if result.page > 1 %}<a href="/employees?{{ query }}&amp;page={{ result.page - 1 }}">Previous</a>{% endif %}
-        {% if result.page < result.page_count %}<a href="/employees?{{ query }}&amp;page={{ result.page + 1 }}">Next</a>{% endif %}
+        {% if result.page > 1 %}<a href="/engineers?{{ query }}&amp;page={{ result.page - 1 }}">Previous</a>{% endif %}
+        {% if result.page < result.page_count %}<a href="/engineers?{{ query }}&amp;page={{ result.page + 1 }}">Next</a>{% endif %}
       </span>
     </div>
   </div>

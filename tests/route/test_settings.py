@@ -75,10 +75,10 @@ def add_node(client, name):
     return response.headers["location"].rsplit("/", 1)[1]
 
 
-def add_employee(client):
-    """Post a new employee and return its ID."""
+def add_engineer(client):
+    """Post a new engineer and return its ID."""
     response = client.post(
-        "/employees",
+        "/engineers",
         data={
             "name": "Ada Invented",
             "job_title": "Design Engineer",
@@ -92,8 +92,8 @@ def add_employee(client):
     return response.headers["location"].rsplit("/", 1)[1]
 
 
-def add_lead_assignments(client, employee_id, leaf_id, count):
-    """Give the employee `count` lead assignments in the leaf, each on its own project."""
+def add_lead_assignments(client, engineer_id, leaf_id, count):
+    """Give the engineer `count` lead assignments in the leaf, each on its own project."""
     for number in range(count):
         project = client.post(
             "/projects",
@@ -110,7 +110,7 @@ def add_lead_assignments(client, employee_id, leaf_id, count):
         response = client.post(
             f"/projects/{project_id}/assignments",
             data={
-                "employee_id": employee_id,
+                "engineer_id": engineer_id,
                 "leaf_id": leaf_id,
                 "participation": "lead",
                 "description": "Led it",
@@ -120,9 +120,9 @@ def add_lead_assignments(client, employee_id, leaf_id, count):
         assert response.status_code == 303
 
 
-def level_on_profile(client, employee_id, leaf_id) -> int:
+def level_on_profile(client, engineer_id, leaf_id) -> int:
     """Return the level that the profile page shows for the leaf."""
-    response = client.get(f"/employees/{employee_id}")
+    response = client.get(f"/engineers/{engineer_id}")
     assert response.status_code == 200
     return read_page(response).levels[leaf_id]
 
@@ -133,22 +133,22 @@ def test_fr_32_settings_page_shows_the_default_ranges(client):
 
 def test_fr_31_saved_ranges_change_the_level_on_a_profile(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client)
-    add_lead_assignments(client, employee_id, leaf_id, 1)
-    assert level_on_profile(client, employee_id, leaf_id) == 3
+    engineer_id = add_engineer(client)
+    add_lead_assignments(client, engineer_id, leaf_id, 1)
+    assert level_on_profile(client, engineer_id, leaf_id) == 3
 
     response = post_thresholds(client, level3_lead_from="2", level3_lead_to="4")
 
     assert response.status_code == 303
     assert response.headers["location"] == "/settings"
     assert settings_values(client)["level3_lead_from"] == "2"
-    assert level_on_profile(client, employee_id, leaf_id) == 0
+    assert level_on_profile(client, engineer_id, leaf_id) == 0
 
 
 def test_fr_31_empty_to_value_means_no_upper_limit(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client)
-    add_lead_assignments(client, employee_id, leaf_id, 5)
+    engineer_id = add_engineer(client)
+    add_lead_assignments(client, engineer_id, leaf_id, 5)
     # Level 4 needs 50 or more lead projects. Level 3 has no upper limit, so 5 leads give level 3.
     response = post_thresholds(
         client, level3_lead_from="1", level3_lead_to="", level4_lead_from="50"
@@ -156,7 +156,7 @@ def test_fr_31_empty_to_value_means_no_upper_limit(client):
 
     assert response.status_code == 303
     assert settings_values(client)["level3_lead_to"] == ""
-    assert level_on_profile(client, employee_id, leaf_id) == 3
+    assert level_on_profile(client, engineer_id, leaf_id) == 3
 
 
 def test_fr_35_value_that_is_not_a_whole_number_is_rejected_with_a_message(client):

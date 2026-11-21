@@ -9,7 +9,7 @@ import pyarrow as pa
 from src.domain.models import (
     Assignment,
     AssignmentVector,
-    Employee,
+    Engineer,
     Flag,
     Node,
     ProfileMatch,
@@ -33,8 +33,8 @@ NODES_SCHEMA = pa.schema(
 )
 
 
-EMPLOYEES_TABLE = "employees"
-EMPLOYEES_SCHEMA = pa.schema(
+ENGINEERS_TABLE = "engineers"
+ENGINEERS_SCHEMA = pa.schema(
     [
         ("id", pa.string()),
         ("name", pa.string()),
@@ -62,7 +62,7 @@ ASSIGNMENTS_TABLE = "assignments"
 ASSIGNMENTS_SCHEMA = pa.schema(
     [
         ("id", pa.string()),
-        ("employee_id", pa.string()),
+        ("engineer_id", pa.string()),
         ("project_id", pa.string()),
         ("leaf_id", pa.string()),
         ("participation", pa.string()),
@@ -74,7 +74,7 @@ ASSIGNMENTS_SCHEMA = pa.schema(
 FLAGS_TABLE = "flags"
 FLAGS_SCHEMA = pa.schema(
     [
-        ("employee_id", pa.string()),
+        ("engineer_id", pa.string()),
         ("leaf_id", pa.string()),
         ("flag", pa.string()),
     ]
@@ -105,7 +105,7 @@ def _assignment_vectors_schema(vector_size: int) -> pa.Schema:
     return pa.schema(
         [
             ("assignment_id", pa.string()),
-            ("employee_id", pa.string()),
+            ("engineer_id", pa.string()),
             ("text", pa.string()),
             ("vector", pa.list_(pa.float32(), vector_size)),
         ]
@@ -116,7 +116,7 @@ def _profile_vectors_schema(vector_size: int) -> pa.Schema:
     """Return the schema of the table profile_vectors for vectors of vector_size numbers."""
     return pa.schema(
         [
-            ("employee_id", pa.string()),
+            ("engineer_id", pa.string()),
             ("text", pa.string()),
             ("vector", pa.list_(pa.float32(), vector_size)),
         ]
@@ -140,8 +140,8 @@ class LanceStore:
         """Open or create the LanceDB folder data_dir and its tables."""
         self._db = lancedb.connect(data_dir)
         self._nodes = self._db.create_table(NODES_TABLE, schema=NODES_SCHEMA, exist_ok=True)
-        self._employees = self._db.create_table(
-            EMPLOYEES_TABLE, schema=EMPLOYEES_SCHEMA, exist_ok=True
+        self._engineers = self._db.create_table(
+            ENGINEERS_TABLE, schema=ENGINEERS_SCHEMA, exist_ok=True
         )
         self._projects = self._db.create_table(
             PROJECTS_TABLE, schema=PROJECTS_SCHEMA, exist_ok=True
@@ -174,22 +174,22 @@ class LanceStore:
         """Delete one node."""
         self._nodes.delete(f"id = {_quote(node_id)}")
 
-    def list_employees(self) -> List[Employee]:
-        """Return all employees."""
-        return [Employee(**row) for row in self._employees.to_arrow().to_pylist()]
+    def list_engineers(self) -> List[Engineer]:
+        """Return all engineers."""
+        return [Engineer(**row) for row in self._engineers.to_arrow().to_pylist()]
 
-    def add_employee(self, employee: Employee) -> None:
-        """Write a new employee."""
-        self._employees.add([vars(employee)], mode="append")
+    def add_engineer(self, engineer: Engineer) -> None:
+        """Write a new engineer."""
+        self._engineers.add([vars(engineer)], mode="append")
 
-    def update_employee(self, employee: Employee) -> None:
-        """Change every field of the employee with the same ID."""
-        values = {key: value for key, value in vars(employee).items() if key != "id"}
-        self._employees.update(where=f"id = {_quote(employee.id)}", values=values)
+    def update_engineer(self, engineer: Engineer) -> None:
+        """Change every field of the engineer with the same ID."""
+        values = {key: value for key, value in vars(engineer).items() if key != "id"}
+        self._engineers.update(where=f"id = {_quote(engineer.id)}", values=values)
 
-    def delete_employee(self, employee_id: str) -> None:
-        """Delete one employee."""
-        self._employees.delete(f"id = {_quote(employee_id)}")
+    def delete_engineer(self, engineer_id: str) -> None:
+        """Delete one engineer."""
+        self._engineers.delete(f"id = {_quote(engineer_id)}")
 
     def list_projects(self) -> List[Project]:
         """Return all projects."""
@@ -225,9 +225,9 @@ class LanceStore:
         """Delete one assignment."""
         self._assignments.delete(f"id = {_quote(assignment_id)}")
 
-    def delete_assignments_of_employee(self, employee_id: str) -> None:
-        """Delete the assignments of one employee."""
-        self._assignments.delete(f"employee_id = {_quote(employee_id)}")
+    def delete_assignments_of_engineer(self, engineer_id: str) -> None:
+        """Delete the assignments of one engineer."""
+        self._assignments.delete(f"engineer_id = {_quote(engineer_id)}")
 
     def delete_assignments_of_project(self, project_id: str) -> None:
         """Delete the assignments of one project."""
@@ -238,17 +238,17 @@ class LanceStore:
         return [Flag(**row) for row in self._flags.to_arrow().to_pylist()]
 
     def set_flag(self, flag: Flag) -> None:
-        """Write the flag, and replace the one of the same employee and leaf."""
-        self.delete_flag(flag.employee_id, flag.leaf_id)
+        """Write the flag, and replace the one of the same engineer and leaf."""
+        self.delete_flag(flag.engineer_id, flag.leaf_id)
         self._flags.add([vars(flag)], mode="append")
 
-    def delete_flag(self, employee_id: str, leaf_id: str) -> None:
-        """Delete the flag of one employee on one leaf."""
-        self._flags.delete(f"employee_id = {_quote(employee_id)} AND leaf_id = {_quote(leaf_id)}")
+    def delete_flag(self, engineer_id: str, leaf_id: str) -> None:
+        """Delete the flag of one engineer on one leaf."""
+        self._flags.delete(f"engineer_id = {_quote(engineer_id)} AND leaf_id = {_quote(leaf_id)}")
 
-    def delete_flags_of_employee(self, employee_id: str) -> None:
-        """Delete the flags of one employee."""
-        self._flags.delete(f"employee_id = {_quote(employee_id)}")
+    def delete_flags_of_engineer(self, engineer_id: str) -> None:
+        """Delete the flags of one engineer."""
+        self._flags.delete(f"engineer_id = {_quote(engineer_id)}")
 
     def list_thresholds(self) -> List[Threshold]:
         """Return the saved thresholds; an empty list means the defaults apply (FR-32)."""
@@ -294,36 +294,36 @@ class LanceStore:
             where = f"assignment_id IN {_id_list(assignment_ids)}"
             self._delete_vectors(ASSIGNMENT_VECTORS_TABLE, where)
 
-    def delete_assignment_vectors_of_employee(self, employee_id: str) -> None:
-        """Delete the assignment vectors of one employee."""
-        self._delete_vectors(ASSIGNMENT_VECTORS_TABLE, f"employee_id = {_quote(employee_id)}")
+    def delete_assignment_vectors_of_engineer(self, engineer_id: str) -> None:
+        """Delete the assignment vectors of one engineer."""
+        self._delete_vectors(ASSIGNMENT_VECTORS_TABLE, f"engineer_id = {_quote(engineer_id)}")
 
     def save_profile_vector(self, vector: ProfileVector) -> None:
-        """Write the profile vector, and replace the one of the same employee."""
-        self.delete_profile_vector(vector.employee_id)
+        """Write the profile vector, and replace the one of the same engineer."""
+        self.delete_profile_vector(vector.engineer_id)
         schema = _profile_vectors_schema(len(vector.vector))
         self._add_vectors(PROFILE_VECTORS_TABLE, schema, [vars(vector)])
 
-    def delete_profile_vector(self, employee_id: str) -> None:
-        """Delete the profile vector of one employee."""
-        self._delete_vectors(PROFILE_VECTORS_TABLE, f"employee_id = {_quote(employee_id)}")
+    def delete_profile_vector(self, engineer_id: str) -> None:
+        """Delete the profile vector of one engineer."""
+        self._delete_vectors(PROFILE_VECTORS_TABLE, f"engineer_id = {_quote(engineer_id)}")
 
     def search_assignment_vectors(
-        self, query_vector: List[float], employee_ids: Optional[List[str]] = None
+        self, query_vector: List[float], engineer_ids: Optional[List[str]] = None
     ) -> List[VectorMatch]:
-        """Return every assignment vector of the given employees (all when None), nearest first.
+        """Return every assignment vector of the given engineers (all when None), nearest first.
 
         The search is exact and uses the cosine distance, and it looks only at the vectors of the
-        given employees (D-04, D-27, D-40).
+        given engineers (D-04, D-27, D-40).
         """
-        if not self._has_table(ASSIGNMENT_VECTORS_TABLE) or employee_ids == []:
+        if not self._has_table(ASSIGNMENT_VECTORS_TABLE) or engineer_ids == []:
             return []
         table = self._db.open_table(ASSIGNMENT_VECTORS_TABLE)
         query = table.search(query_vector).metric("cosine")
-        if employee_ids is not None:
-            query = query.where(f"employee_id IN {_id_list(employee_ids)}", prefilter=True)
+        if engineer_ids is not None:
+            query = query.where(f"engineer_id IN {_id_list(engineer_ids)}", prefilter=True)
         rows = query.limit(table.count_rows()).to_list()
-        return [VectorMatch(r["assignment_id"], r["employee_id"], r["_distance"]) for r in rows]
+        return [VectorMatch(r["assignment_id"], r["engineer_id"], r["_distance"]) for r in rows]
 
     def search_profile_vectors(self, query_vector: List[float]) -> List[ProfileMatch]:
         """Return every profile vector, nearest first, by the exact cosine distance (D-10, D-41)."""
@@ -331,7 +331,7 @@ class LanceStore:
             return []
         table = self._db.open_table(PROFILE_VECTORS_TABLE)
         rows = table.search(query_vector).metric("cosine").limit(table.count_rows()).to_list()
-        return [ProfileMatch(r["employee_id"], r["_distance"]) for r in rows]
+        return [ProfileMatch(r["engineer_id"], r["_distance"]) for r in rows]
 
     def drop_vectors(self) -> None:
         """Delete both vector tables; the next write creates them with its vector size (D-27)."""

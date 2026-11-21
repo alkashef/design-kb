@@ -1,31 +1,31 @@
 {% extends "base.html" %}
-{% block title %}{{ "Add employee" if is_new else "Edit employee" }} · design-kb{% endblock %}
+{% block title %}{{ "Add engineer" if is_new else "Edit engineer" }} · design-kb{% endblock %}
 {% block main %}
 <div class="page">
-  <div class="crumbs"><a href="/employees">Employees</a> / <span>{{ "New" if is_new else "Edit" }}</span></div>
-  <h1>{{ "Add employee" if is_new else "Edit employee" }}</h1>
+  <div class="crumbs"><a href="/engineers">Engineers</a> / <span>{{ "New" if is_new else "Edit" }}</span></div>
+  <h1>{{ "Add engineer" if is_new else "Edit engineer" }}</h1>
   {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
-  <form class="panel" method="post" action="{{ '/employees' if is_new else '/employees/' ~ employee.id }}">
+  <form class="panel" method="post" action="{{ '/engineers' if is_new else '/engineers/' ~ engineer.id }}">
     {% if not is_new %}
-    <label for="e-id">Employee ID</label>
-    <input id="e-id" type="text" value="{{ employee.id }}" readonly>
+    <label for="e-id">Engineer ID</label>
+    <input id="e-id" type="text" value="{{ engineer.id }}" readonly>
     {% endif %}
-    <label for="e-name">Employee name</label>
-    <input id="e-name" type="text" name="name" value="{{ employee.name }}" required>
+    <label for="e-name">Engineer name</label>
+    <input id="e-name" type="text" name="name" value="{{ engineer.name }}" required>
     <label for="e-title">Job title</label>
-    <input id="e-title" type="text" name="job_title" value="{{ employee.job_title }}">
+    <input id="e-title" type="text" name="job_title" value="{{ engineer.job_title }}">
     <label for="e-career">Career level</label>
     <select id="e-career" name="career_level">
-      {% for c in career_levels %}<option value="{{ c }}"{% if c == employee.career_level %} selected{% endif %}>{{ c }}</option>{% endfor %}
+      {% for c in career_levels %}<option value="{{ c }}"{% if c == engineer.career_level %} selected{% endif %}>{{ c }}</option>{% endfor %}
     </select>
     <label for="e-team">Team / group</label>
-    <input id="e-team" type="text" name="team" value="{{ employee.team }}">
+    <input id="e-team" type="text" name="team" value="{{ engineer.team }}">
     <label for="e-gaps">Skill gaps</label>
-    <textarea id="e-gaps" name="skill_gaps" rows="3">{{ employee.skill_gaps }}</textarea>
+    <textarea id="e-gaps" name="skill_gaps" rows="3">{{ engineer.skill_gaps }}</textarea>
     <span class="hint flush">Free text. Gap search reads this field.</span>
     <div class="actions">
-      <button class="button-accent" type="submit">{{ "Add employee" if is_new else "Save changes" }}</button>
-      <a class="button-outline link-button" href="{{ '/employees' if is_new else '/employees/' ~ employee.id }}">Cancel</a>
+      <button class="button-accent" type="submit">{{ "Add engineer" if is_new else "Save changes" }}</button>
+      <a class="button-outline link-button" href="{{ '/engineers' if is_new else '/engineers/' ~ engineer.id }}">Cancel</a>
     </div>
   </form>
   {% if not is_new %}
@@ -37,7 +37,7 @@
       <div class="flag-row" data-leaf-id="{{ f.leaf_id }}" data-flag="{{ f.flag }}">
         <span class="flag-leaf">{{ leaf_path }}</span>
         <span class="role-tag{% if f.flag == 'expert' %} lead{% endif %}">{{ f.flag|capitalize }}</span>
-        <form method="post" action="/employees/{{ employee.id }}/flags/{{ f.leaf_id }}/delete">
+        <form method="post" action="/engineers/{{ engineer.id }}/flags/{{ f.leaf_id }}/delete">
           <button class="button-outline small" type="submit" aria-label="Remove flag">Remove</button>
         </form>
       </div>
@@ -45,7 +45,7 @@
       <div class="flag-row"><span class="muted">No flags yet.</span></div>
       {% endfor %}
     </div>
-    <form class="flag-form" method="post" action="/employees/{{ employee.id }}/flags">
+    <form class="flag-form" method="post" action="/engineers/{{ engineer.id }}/flags">
       <div class="field">
         <label for="f-leaf">Skill</label>
         <select id="f-leaf" name="leaf_id">

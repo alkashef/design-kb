@@ -12,7 +12,7 @@ CAREER_LEVELS = ["Junior", "Mid", "Senior", "Staff", "Principal"]
 
 
 @dataclass
-class Employee:
+class Engineer:
     """An IC design team member (spec section 2, D-25)."""
 
     id: str
@@ -25,7 +25,7 @@ class Employee:
 
 @dataclass
 class Project:
-    """A project that employees worked on."""
+    """A project that engineers worked on."""
 
     id: str
     name: str
@@ -47,10 +47,10 @@ class Node:
 
 @dataclass
 class Assignment:
-    """The work of one employee in one project on one leaf; participation is lead or member."""
+    """The work of one engineer in one project on one leaf; participation is lead or member."""
 
     id: str
-    employee_id: str
+    engineer_id: str
     project_id: str
     leaf_id: str
     participation: str
@@ -59,9 +59,9 @@ class Assignment:
 
 @dataclass
 class Flag:
-    """The aware or expert flag of one employee on one leaf."""
+    """The aware or expert flag of one engineer on one leaf."""
 
-    employee_id: str
+    engineer_id: str
     leaf_id: str
     flag: str
 
@@ -82,16 +82,16 @@ class AssignmentVector:
     """The embedded text of one assignment (D-08, D-35)."""
 
     assignment_id: str
-    employee_id: str
+    engineer_id: str
     text: str
     vector: List[float]
 
 
 @dataclass
 class ProfileVector:
-    """The embedded skill gaps of one employee (D-09, D-35)."""
+    """The embedded skill gaps of one engineer (D-09, D-35)."""
 
-    employee_id: str
+    engineer_id: str
     text: str
     vector: List[float]
 
@@ -101,7 +101,7 @@ class VectorMatch:
     """One assignment vector found by a vector search, with its cosine distance (D-40)."""
 
     assignment_id: str
-    employee_id: str
+    engineer_id: str
     distance: float
 
 
@@ -109,5 +109,5 @@ class VectorMatch:
 class ProfileMatch:
     """One profile vector found by a vector search, with its cosine distance (D-41)."""
 
-    employee_id: str
+    engineer_id: str
     distance: float

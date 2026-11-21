@@ -48,7 +48,7 @@
     {% for r in assignment_rows %}
     <div class="assignment" data-assignment-id="{{ r.assignment.id }}">
       <div class="assignment-head">
-        <span class="assignment-who">{{ r.employee_name }}</span>
+        <span class="assignment-who">{{ r.engineer_name }}</span>
         <span class="mono">{{ r.leaf_path }}</span>
         <span class="role-tag{% if r.assignment.participation == 'lead' %} lead{% endif %}">{{ r.assignment.participation }}</span>
         <span class="spacer"></span>
@@ -72,13 +72,13 @@
     <form class="panel" method="post" action="{{ '/assignments/' ~ editing_id if editing_id else '/projects/' ~ selected.id ~ '/assignments' }}">
       <label for="a-project">Project</label>
       <input id="a-project" type="text" value="{{ selected.name }}" readonly>
-      <label for="a-emp">Employee</label>
+      <label for="a-emp">Engineer</label>
       {% if editing_id %}
-      <input id="a-emp" type="text" value="{% for e in employees if e.id == assignment_form.employee_id %}{{ e.name }}{% endfor %}" readonly>
+      <input id="a-emp" type="text" value="{% for e in engineers if e.id == assignment_form.engineer_id %}{{ e.name }}{% endfor %}" readonly>
       {% else %}
-      <select id="a-emp" name="employee_id" required>
-        <option value="">Choose an employee</option>
-        {% for e in employees %}<option value="{{ e.id }}"{% if e.id == assignment_form.employee_id %} selected{% endif %}>{{ e.name }}</option>{% endfor %}
+      <select id="a-emp" name="engineer_id" required>
+        <option value="">Choose an engineer</option>
+        {% for e in engineers %}<option value="{{ e.id }}"{% if e.id == assignment_form.engineer_id %} selected{% endif %}>{{ e.name }}</option>{% endfor %}
       </select>
       {% endif %}
       <label for="a-leaf">Skill</label>

@@ -58,12 +58,12 @@
         <button class="button-outline" type="submit">Add child</button>
       </form>
     </div>
-    <h3>Employees with a level in {{ selected.name }}</h3>
+    <h3>Engineers with a level in {{ selected.name }}</h3>
     {% if people %}
     <div class="panel">
       {% for person in people %}
-      <div class="person-row" data-employee-id="{{ person.employee_id }}">
-        <a href="/employees/{{ person.employee_id }}">{{ person.name }}</a>
+      <div class="person-row" data-engineer-id="{{ person.engineer_id }}">
+        <a href="/engineers/{{ person.engineer_id }}">{{ person.name }}</a>
         <span class="hint">{{ person.team }}</span>
         {% for leaf in leaves %}
         <span class="level-cell" data-leaf-id="{{ leaf.id }}" data-level="{{ person.levels.get(leaf.id, 0) }}">{{ leaf.name }}: {{ person.levels.get(leaf.id, 0) or "-" }}</span>
@@ -72,7 +72,7 @@
       {% endfor %}
     </div>
     {% else %}
-    <p class="hint">No employee has a level here yet.</p>
+    <p class="hint">No engineer has a level here yet.</p>
     {% endif %}
     {% else %}
     <p class="hint">Select a skill in the outline to edit it.</p>

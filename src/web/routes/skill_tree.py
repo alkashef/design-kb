@@ -37,7 +37,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "selected_is_leaf": service.is_leaf(selected_id) if selected else False,
             "message": message,
             "leaves": service.leaves_under(selected_id) if selected else [],
-            "people": service.employees_with_levels(selected_id) if selected else [],
+            "people": service.engineers_with_levels(selected_id) if selected else [],
         }
         return templates.TemplateResponse(request, "skill_tree.html", context, status_code=status)
 

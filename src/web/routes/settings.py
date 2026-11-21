@@ -12,8 +12,8 @@ from src.services.thresholds import THRESHOLD_LEVELS, ThresholdError, ThresholdS
 logger = logging.getLogger(__name__)
 
 MANUAL_NOTES = {
-    1: "Set on the employee. Allowed only where the employee has no project on the skill.",
-    5: "Set on the employee, on any skill. Overrides the computed level.",
+    1: "Set on the engineer. Allowed only where the engineer has no project on the skill.",
+    5: "Set on the engineer, on any skill. Overrides the computed level.",
 }
 FIELD_NAMES = ("lead_from", "lead_to", "member_from", "member_to")
 

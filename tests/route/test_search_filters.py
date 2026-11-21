@@ -20,9 +20,9 @@ LEAVES = {"PLL": "Phase-locked loop", "SRAM": "Static memory"}
 
 
 def add_person(client, name, team="Analog", career_level="Senior") -> str:
-    """Post a new employee with the given team and career level and return its ID."""
+    """Post a new engineer with the given team and career level and return its ID."""
     response = client.post(
-        "/employees",
+        "/engineers",
         data={
             "name": name,
             "job_title": "Design Engineer",
@@ -35,10 +35,10 @@ def add_person(client, name, team="Analog", career_level="Senior") -> str:
     return created_id(response)
 
 
-def add_flag(client, employee_id, leaf_id, flag):
+def add_flag(client, engineer_id, leaf_id, flag):
     """Post a flag and check that it is accepted."""
     response = client.post(
-        f"/employees/{employee_id}/flags",
+        f"/engineers/{engineer_id}/flags",
         data={"leaf_id": leaf_id, "flag": flag},
         follow_redirects=False,
     )
@@ -52,11 +52,11 @@ def search(client, **params):
     return response.text
 
 
-def lead_pll(client, employee_id, leaf_id, times=1):
-    """Give an employee `times` lead assignments on a leaf, each on its own project."""
+def lead_pll(client, engineer_id, leaf_id, times=1):
+    """Give an engineer `times` lead assignments on a leaf, each on its own project."""
     for number in range(times):
-        project_id = add_project(client, name=f"Invented Chip {employee_id} {number}")
-        add_assignment(client, project_id, employee_id, leaf_id, TEXT, participation="lead")
+        project_id = add_project(client, name=f"Invented Chip {engineer_id} {number}")
+        add_assignment(client, project_id, engineer_id, leaf_id, TEXT, participation="lead")
 
 
 def test_fr_03_search_page_offers_team_career_level_and_leaf_with_minimum_level(client):
@@ -80,7 +80,7 @@ def test_fr_03_search_page_offers_team_career_level_and_leaf_with_minimum_level(
     assert options == set(leaves.values())
 
 
-def test_fr_04_team_filter_ranks_only_employees_of_that_team(client):
+def test_fr_04_team_filter_ranks_only_engineers_of_that_team(client):
     leaves = add_leaves(client, LEAVES)
     ada = add_person(client, "Ada Invented", team="Clocking")
     ben = add_person(client, "Ben Invented", team="Memory")
@@ -94,7 +94,7 @@ def test_fr_04_team_filter_ranks_only_employees_of_that_team(client):
     assert result_count(html) == "1"
 
 
-def test_fr_04_leaf_filter_keeps_only_employees_at_the_minimum_level_or_higher(client):
+def test_fr_04_leaf_filter_keeps_only_engineers_at_the_minimum_level_or_higher(client):
     leaves = add_leaves(client, LEAVES)
     lead = add_person(client, "Ada Invented")
     senior_lead = add_person(client, "Dan Invented")
@@ -130,15 +130,15 @@ def test_fr_03_aware_and_expert_flags_count_as_levels_1_and_5_in_the_filter(clie
     assert listed("5") == {expert}
 
 
-def test_fr_04_employee_must_meet_all_set_filters(client):
+def test_fr_04_engineer_must_meet_all_set_filters(client):
     leaves = add_leaves(client, LEAVES)
     leaf = leaves["PLL"]
     match = add_person(client, "Ada Invented", team="Clocking", career_level="Senior")
     wrong_level = add_person(client, "Ben Invented", team="Clocking", career_level="Junior")
     wrong_team = add_person(client, "Cy Invented", team="Memory", career_level="Senior")
     low_skill = add_person(client, "Dee Invented", team="Clocking", career_level="Senior")
-    for employee_id in (match, wrong_level, wrong_team):
-        lead_pll(client, employee_id, leaf)
+    for engineer_id in (match, wrong_level, wrong_team):
+        lead_pll(client, engineer_id, leaf)
     project_id = add_project(client, name="Invented Member Chip")
     add_assignment(client, project_id, low_skill, leaf, TEXT, participation="member")
 
@@ -154,7 +154,7 @@ def test_fr_04_employee_must_meet_all_set_filters(client):
     assert result_ids(html) == [match]
 
 
-def test_fr_07_filters_with_no_query_list_all_matching_employees_by_name(client):
+def test_fr_07_filters_with_no_query_list_all_matching_engineers_by_name(client):
     add_leaves(client, LEAVES)
     zed = add_person(client, "Zed Invented", team="Clocking")
     amy = add_person(client, "Amy Invented", team="Clocking")

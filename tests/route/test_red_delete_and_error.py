@@ -61,13 +61,13 @@ def test_nfr_01_error_message_is_red_text_on_a_red_tint(sheet):
     assert any(has_color(value, "#e5a9a2") for value in border_values(sheet, declarations))
 
 
-def test_nfr_01_delete_buttons_of_employee_and_project_are_marked(seeded_client):
+def test_nfr_01_delete_buttons_of_engineer_and_project_are_marked(seeded_client):
     """The submit button of each Delete form has the class button-danger."""
-    profile = forms_of(seeded_client.get("/employees/E-0001").text)
-    employee = [f for f in profile if f["action"].rstrip("/") == "/employees/E-0001/delete"]
-    assert employee, "no form posts to /employees/E-0001/delete"
-    assert employee[0]["buttons"]
-    assert all("button-danger" in (b.get("class") or "").split() for b in employee[0]["buttons"])
+    profile = forms_of(seeded_client.get("/engineers/E-0001").text)
+    engineer = [f for f in profile if f["action"].rstrip("/") == "/engineers/E-0001/delete"]
+    assert engineer, "no form posts to /engineers/E-0001/delete"
+    assert engineer[0]["buttons"]
+    assert all("button-danger" in (b.get("class") or "").split() for b in engineer[0]["buttons"])
 
     projects = forms_of(seeded_client.get("/projects").text)
     project = [

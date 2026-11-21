@@ -87,8 +87,8 @@ def add_node(client, name, parent_id=""):
     return response.headers["location"].rsplit("/", 1)[1]
 
 
-def add_employee(client, name="Ada Invented"):
-    """Post a new employee and return its ID."""
+def add_engineer(client, name="Ada Invented"):
+    """Post a new engineer and return its ID."""
     fields = {
         "name": name,
         "job_title": "Design Engineer",
@@ -96,7 +96,7 @@ def add_employee(client, name="Ada Invented"):
         "team": "Analog",
         "skill_gaps": "",
     }
-    response = client.post("/employees", data=fields, follow_redirects=False)
+    response = client.post("/engineers", data=fields, follow_redirects=False)
     assert response.status_code == 303
     return response.headers["location"].rsplit("/", 1)[1]
 
@@ -114,10 +114,10 @@ def add_project(client, name="Invented SerDes"):
     return response.headers["location"].rsplit("/", 1)[1]
 
 
-def assignment_form(employee_id, leaf_id, participation="lead", description="Designed it"):
+def assignment_form(engineer_id, leaf_id, participation="lead", description="Designed it"):
     """Return the form fields of a new assignment."""
     return {
-        "employee_id": employee_id,
+        "engineer_id": engineer_id,
         "leaf_id": leaf_id,
         "participation": participation,
         "description": description,
@@ -151,37 +151,37 @@ def project_rows(client, project_id) -> AssignmentPage:
     return read_page(response)
 
 
-def profile_rows(client, employee_id) -> AssignmentPage:
-    """Return the parsed profile page of an employee."""
-    response = client.get(f"/employees/{employee_id}")
+def profile_rows(client, engineer_id) -> AssignmentPage:
+    """Return the parsed profile page of an engineer."""
+    response = client.get(f"/engineers/{engineer_id}")
     assert response.status_code == 200
     return read_page(response)
 
 
 def test_fr_22_create_assignment_shows_on_the_project_and_on_the_profile(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client, "Ada Invented")
+    engineer_id = add_engineer(client, "Ada Invented")
     project_id = add_project(client, "Invented SerDes")
 
     assignment_id = add_assignment(
-        client, project_id, employee_id=employee_id, leaf_id=leaf_id,
+        client, project_id, engineer_id=engineer_id, leaf_id=leaf_id,
         participation="lead", description="Designed the invented loop filter",
     )
 
     on_project = project_rows(client, project_id).row_text(assignment_id)
     for text in ("ada invented", "pll", "lead", "designed the invented loop filter"):
         assert text in on_project
-    on_profile = profile_rows(client, employee_id).row_text(assignment_id)
+    on_profile = profile_rows(client, engineer_id).row_text(assignment_id)
     for text in ("invented serdes", "pll", "lead", "designed the invented loop filter"):
         assert text in on_profile
 
 
 def test_fr_22_edit_assignment_saves_participation_and_description(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
     assignment_id = add_assignment(
-        client, project_id, employee_id=employee_id, leaf_id=leaf_id,
+        client, project_id, engineer_id=engineer_id, leaf_id=leaf_id,
         participation="lead", description="Designed the invented loop filter",
     )
 
@@ -199,7 +199,7 @@ def test_fr_22_edit_assignment_saves_participation_and_description(client):
     assert response.headers["location"] == f"/projects/{project_id}"
     for text in (
         project_rows(client, project_id).row_text(assignment_id),
-        profile_rows(client, employee_id).row_text(assignment_id),
+        profile_rows(client, engineer_id).row_text(assignment_id),
     ):
         assert "member" in text
         assert "lead" not in text
@@ -210,28 +210,28 @@ def test_fr_22_edit_assignment_saves_participation_and_description(client):
 def test_fr_28_delete_assignment_removes_it(client):
     leaf_id = add_node(client, "PLL")
     other_leaf_id = add_node(client, "CDR")
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
-    gone = add_assignment(client, project_id, employee_id=employee_id, leaf_id=leaf_id)
-    keep = add_assignment(client, project_id, employee_id=employee_id, leaf_id=other_leaf_id)
+    gone = add_assignment(client, project_id, engineer_id=engineer_id, leaf_id=leaf_id)
+    keep = add_assignment(client, project_id, engineer_id=engineer_id, leaf_id=other_leaf_id)
 
     response = client.post(f"/assignments/{gone}/delete", follow_redirects=False)
 
     assert response.status_code == 303
     assert response.headers["location"] == f"/projects/{project_id}"
     assert list(project_rows(client, project_id).rows) == [keep]
-    assert list(profile_rows(client, employee_id).rows) == [keep]
+    assert list(profile_rows(client, engineer_id).rows) == [keep]
 
 
-def test_fr_29_delete_employee_deletes_its_assignments(client):
+def test_fr_29_delete_engineer_deletes_its_assignments(client):
     leaf_id = add_node(client, "PLL")
-    gone_employee = add_employee(client, "Gone Invented")
-    keep_employee = add_employee(client, "Keep Invented")
+    gone_engineer = add_engineer(client, "Gone Invented")
+    keep_engineer = add_engineer(client, "Keep Invented")
     project_id = add_project(client)
-    gone = add_assignment(client, project_id, employee_id=gone_employee, leaf_id=leaf_id)
-    keep = add_assignment(client, project_id, employee_id=keep_employee, leaf_id=leaf_id)
+    gone = add_assignment(client, project_id, engineer_id=gone_engineer, leaf_id=leaf_id)
+    keep = add_assignment(client, project_id, engineer_id=keep_engineer, leaf_id=leaf_id)
 
-    response = client.post(f"/employees/{gone_employee}/delete", follow_redirects=False)
+    response = client.post(f"/engineers/{gone_engineer}/delete", follow_redirects=False)
 
     assert response.status_code == 303
     assert gone not in project_rows(client, project_id).rows
@@ -241,17 +241,17 @@ def test_fr_29_delete_employee_deletes_its_assignments(client):
 
 def test_fr_29_delete_project_deletes_its_assignments(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     gone_project = add_project(client, "Gone Invented")
     keep_project = add_project(client, "Keep Invented")
-    gone = add_assignment(client, gone_project, employee_id=employee_id, leaf_id=leaf_id)
-    keep = add_assignment(client, keep_project, employee_id=employee_id, leaf_id=leaf_id)
+    gone = add_assignment(client, gone_project, engineer_id=engineer_id, leaf_id=leaf_id)
+    keep = add_assignment(client, keep_project, engineer_id=engineer_id, leaf_id=leaf_id)
 
     response = client.post(f"/projects/{gone_project}/delete", follow_redirects=False)
 
     assert response.status_code == 303
-    assert gone not in profile_rows(client, employee_id).rows
-    assert list(profile_rows(client, employee_id).rows) == [keep]
+    assert gone not in profile_rows(client, engineer_id).rows
+    assert list(profile_rows(client, engineer_id).rows) == [keep]
     assert client.post(f"/assignments/{gone}/delete", follow_redirects=False).status_code == 404
 
 
@@ -271,25 +271,25 @@ def test_fr_40_assignment_form_lists_only_leaves(client):
 def test_fr_41_assignment_on_a_node_with_children_is_rejected_with_a_message(client):
     parent_id = add_node(client, "Clocking")
     add_node(client, "PLL", parent_id=parent_id)
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
 
-    response = post_assignment(client, project_id, employee_id=employee_id, leaf_id=parent_id)
+    response = post_assignment(client, project_id, engineer_id=engineer_id, leaf_id=parent_id)
 
     assert response.status_code == 422
     assert read_page(response).alerts >= 1
     assert project_rows(client, project_id).rows == {}
-    assert profile_rows(client, employee_id).rows == {}
+    assert profile_rows(client, engineer_id).rows == {}
 
 
-def test_fr_42_second_assignment_for_the_same_employee_project_and_leaf_is_rejected(client):
+def test_fr_42_second_assignment_for_the_same_engineer_project_and_leaf_is_rejected(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
-    first = add_assignment(client, project_id, employee_id=employee_id, leaf_id=leaf_id)
+    first = add_assignment(client, project_id, engineer_id=engineer_id, leaf_id=leaf_id)
 
     response = post_assignment(
-        client, project_id, employee_id=employee_id, leaf_id=leaf_id,
+        client, project_id, engineer_id=engineer_id, leaf_id=leaf_id,
         participation="member", description="A second try",
     )
 
@@ -298,18 +298,18 @@ def test_fr_42_second_assignment_for_the_same_employee_project_and_leaf_is_rejec
     assert list(project_rows(client, project_id).rows) == [first]
 
 
-def test_fr_42_same_leaf_for_another_employee_or_another_project_is_accepted(client):
+def test_fr_42_same_leaf_for_another_engineer_or_another_project_is_accepted(client):
     leaf_id = add_node(client, "PLL")
-    ada = add_employee(client, "Ada Invented")
-    bo = add_employee(client, "Bo Invented")
+    ada = add_engineer(client, "Ada Invented")
+    bo = add_engineer(client, "Bo Invented")
     first_project = add_project(client, "First Invented")
     second_project = add_project(client, "Second Invented")
-    add_assignment(client, first_project, employee_id=ada, leaf_id=leaf_id)
+    add_assignment(client, first_project, engineer_id=ada, leaf_id=leaf_id)
 
-    other_employee = post_assignment(client, first_project, employee_id=bo, leaf_id=leaf_id)
-    other_project = post_assignment(client, second_project, employee_id=ada, leaf_id=leaf_id)
+    other_engineer = post_assignment(client, first_project, engineer_id=bo, leaf_id=leaf_id)
+    other_project = post_assignment(client, second_project, engineer_id=ada, leaf_id=leaf_id)
 
-    assert other_employee.status_code == 303
+    assert other_engineer.status_code == 303
     assert other_project.status_code == 303
     assert len(project_rows(client, first_project).rows) == 2
     assert len(project_rows(client, second_project).rows) == 1

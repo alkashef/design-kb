@@ -22,10 +22,10 @@ def _fields(name, description, year, process_technology) -> dict:
     }
 
 
-def _assignment_fields(employee_id, leaf_id, participation, description) -> dict:
+def _assignment_fields(engineer_id, leaf_id, participation, description) -> dict:
     """Return the assignment form values as a dict for the template."""
     return {
-        "employee_id": employee_id,
+        "engineer_id": engineer_id,
         "leaf_id": leaf_id,
         "participation": participation,
         "description": description,
@@ -62,7 +62,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "form": form or {},
             "message": message,
             "assignment_rows": assignments.for_project(selected.id) if selected else [],
-            "employees": assignments.employee_options(),
+            "engineers": assignments.engineer_options(),
             "leaves": assignments.leaf_options(),
             "participations": PARTICIPATIONS,
             "assignment_form": assignment_form or _assignment_fields("", "", "member", ""),
@@ -121,7 +121,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         if assignment.project_id != project_id:
             raise HTTPException(status_code=404, detail="Unknown assignment")
         form = _assignment_fields(
-            assignment.employee_id, assignment.leaf_id, assignment.participation,
+            assignment.engineer_id, assignment.leaf_id, assignment.participation,
             assignment.description,
         )
         return render(request, project, assignment_form=form, editing_id=assignment.id)
@@ -163,7 +163,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     def create_assignment(
         request: Request,
         project_id: str,
-        employee_id: str = Form(""),
+        engineer_id: str = Form(""),
         leaf_id: str = Form(""),
         participation: str = Form(""),
         description: str = Form(""),
@@ -171,10 +171,10 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         """Create an assignment and go back to the project."""
         project = find(request, project_id)
         try:
-            assignments_of(request).add(project_id, employee_id, leaf_id, participation, description)
+            assignments_of(request).add(project_id, engineer_id, leaf_id, participation, description)
         except (AssignmentError, EmbeddingUnavailable) as error:
             message, status = failure_of(error)
-            form = _assignment_fields(employee_id, leaf_id, participation, description)
+            form = _assignment_fields(engineer_id, leaf_id, participation, description)
             return render(request, project, message=message, status=status, assignment_form=form)
         return RedirectResponse(f"/projects/{project_id}", status_code=303)
 
@@ -193,7 +193,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         except (AssignmentError, EmbeddingUnavailable) as error:
             message, status = failure_of(error)
             project = find(request, assignment.project_id)
-            form = _assignment_fields(assignment.employee_id, leaf_id, participation, description)
+            form = _assignment_fields(assignment.engineer_id, leaf_id, participation, description)
             return render(
                 request, project, message=message, status=status, assignment_form=form,
                 editing_id=assignment_id,

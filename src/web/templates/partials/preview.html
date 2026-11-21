@@ -1,12 +1,12 @@
-{% set employee = preview.employee %}
-<div class="preview-card" data-employee-id="{{ employee.id }}">
+{% set engineer = preview.engineer %}
+<div class="preview-card" data-engineer-id="{{ engineer.id }}">
   <div class="preview-head">
-    <div class="avatar mono">{{ (employee.name.split()[:2] | map("first") | join) | upper }}</div>
+    <div class="avatar mono">{{ (engineer.name.split()[:2] | map("first") | join) | upper }}</div>
     <div class="preview-who">
-      <div class="preview-name">{{ employee.name }}</div>
-      <div class="muted">{{ employee.job_title }} · {{ employee.career_level }} · {{ employee.team }} · ID {{ employee.id }}</div>
+      <div class="preview-name">{{ engineer.name }}</div>
+      <div class="muted">{{ engineer.job_title }} · {{ engineer.career_level }} · {{ engineer.team }} · ID {{ engineer.id }}</div>
     </div>
-    <a class="button-outline link-button" href="/employees/{{ employee.id }}">Open full profile</a>
+    <a class="button-outline link-button" href="/engineers/{{ engineer.id }}">Open full profile</a>
   </div>
   <div class="preview-section">
     <div class="mono muted">SKILL LEVELS</div>
@@ -37,6 +37,6 @@
   </div>
   <div class="preview-section">
     <div class="mono muted">SKILL GAPS</div>
-    <div class="result-reason">{{ employee.skill_gaps or "No skill gaps entered." }}</div>
+    <div class="result-reason">{{ engineer.skill_gaps or "No skill gaps entered." }}</div>
   </div>
 </div>

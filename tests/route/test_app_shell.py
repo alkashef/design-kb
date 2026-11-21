@@ -4,7 +4,7 @@ from html.parser import HTMLParser
 
 SIDEBAR_LINKS = {
     "Search": {"/", "/search"},
-    "Employees": {"/employees"},
+    "Engineers": {"/engineers"},
     "Skill tree": {"/skill-tree"},
     "Projects": {"/projects"},
     "Settings": {"/settings"},

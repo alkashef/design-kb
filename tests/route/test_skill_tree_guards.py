@@ -4,35 +4,35 @@ from html.parser import HTMLParser
 
 
 class TreePage(HTMLParser):
-    """Collects the alerts, the outline rows, and the levels of each employee row of a page."""
+    """Collects the alerts, the outline rows, and the levels of each engineer row of a page."""
 
     def __init__(self):
         """Start with nothing collected."""
         super().__init__()
         self.alerts = 0
         self.node_rows: list[tuple[str, bool]] = []
-        self.employee_ids: list[str] = []
+        self.engineer_ids: list[str] = []
         self.levels: dict[str, dict[str, int]] = {}
-        self._current_employee = None
+        self._current_engineer = None
 
     def handle_starttag(self, tag, attrs):
-        """Keep each alert, outline row, employee row, and level marker that follows an employee row."""
+        """Keep each alert, outline row, engineer row, and level marker that follows an engineer row."""
         attributes = dict(attrs)
         if attributes.get("role") == "alert":
             self.alerts += 1
         if "data-node-id" in attributes:
             self.node_rows.append((attributes["data-node-id"], attributes.get("data-leaf") == "true"))
-        if "data-employee-id" in attributes:
-            self._current_employee = attributes["data-employee-id"]
-            if self._current_employee not in self.employee_ids:
-                self.employee_ids.append(self._current_employee)
-            self.levels.setdefault(self._current_employee, {})
+        if "data-engineer-id" in attributes:
+            self._current_engineer = attributes["data-engineer-id"]
+            if self._current_engineer not in self.engineer_ids:
+                self.engineer_ids.append(self._current_engineer)
+            self.levels.setdefault(self._current_engineer, {})
         if (
-            self._current_employee
+            self._current_engineer
             and "data-leaf-id" in attributes
             and "data-level" in attributes
         ):
-            self.levels[self._current_employee][attributes["data-leaf-id"]] = int(
+            self.levels[self._current_engineer][attributes["data-leaf-id"]] = int(
                 attributes["data-level"]
             )
 
@@ -64,10 +64,10 @@ def post_node_under(client, parent_id, name):
     )
 
 
-def add_employee(client, name):
-    """Post a new employee and return its ID."""
+def add_engineer(client, name):
+    """Post a new engineer and return its ID."""
     response = client.post(
-        "/employees",
+        "/engineers",
         data={
             "name": name,
             "job_title": "Design Engineer",
@@ -92,12 +92,12 @@ def add_project(client, name="Invented SerDes"):
     return response.headers["location"].rsplit("/", 1)[1]
 
 
-def add_assignment(client, project_id, employee_id, leaf_id, participation):
+def add_assignment(client, project_id, engineer_id, leaf_id, participation):
     """Post a new assignment and check that it is accepted."""
     response = client.post(
         f"/projects/{project_id}/assignments",
         data={
-            "employee_id": employee_id,
+            "engineer_id": engineer_id,
             "leaf_id": leaf_id,
             "participation": participation,
             "description": "Did it",
@@ -107,10 +107,10 @@ def add_assignment(client, project_id, employee_id, leaf_id, participation):
     assert response.status_code == 303
 
 
-def set_flag(client, employee_id, leaf_id, flag):
+def set_flag(client, engineer_id, leaf_id, flag):
     """Post a flag and check that it is accepted."""
     response = client.post(
-        f"/employees/{employee_id}/flags",
+        f"/engineers/{engineer_id}/flags",
         data={"leaf_id": leaf_id, "flag": flag},
         follow_redirects=False,
     )
@@ -126,8 +126,8 @@ def outline_rows(client):
 
 def test_fr_33_delete_a_leaf_with_an_assignment_is_refused_with_a_message(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client, "Ada Invented")
-    add_assignment(client, add_project(client), employee_id, leaf_id, "lead")
+    engineer_id = add_engineer(client, "Ada Invented")
+    add_assignment(client, add_project(client), engineer_id, leaf_id, "lead")
 
     response = client.post(f"/skill-tree/nodes/{leaf_id}/delete", follow_redirects=False)
 
@@ -138,8 +138,8 @@ def test_fr_33_delete_a_leaf_with_an_assignment_is_refused_with_a_message(client
 
 def test_fr_33_delete_a_leaf_with_a_flag_is_refused_with_a_message(client):
     leaf_id = add_node(client, "CDR")
-    employee_id = add_employee(client, "Bo Invented")
-    set_flag(client, employee_id, leaf_id, "expert")
+    engineer_id = add_engineer(client, "Bo Invented")
+    set_flag(client, engineer_id, leaf_id, "expert")
 
     response = client.post(f"/skill-tree/nodes/{leaf_id}/delete", follow_redirects=False)
 
@@ -150,8 +150,8 @@ def test_fr_33_delete_a_leaf_with_a_flag_is_refused_with_a_message(client):
 
 def test_fr_34_add_child_to_a_leaf_with_an_assignment_is_refused_with_a_message(client):
     leaf_id = add_node(client, "PLL")
-    employee_id = add_employee(client, "Ada Invented")
-    add_assignment(client, add_project(client), employee_id, leaf_id, "member")
+    engineer_id = add_engineer(client, "Ada Invented")
+    add_assignment(client, add_project(client), engineer_id, leaf_id, "member")
 
     response = post_node_under(client, leaf_id, "Charge pump")
 
@@ -162,8 +162,8 @@ def test_fr_34_add_child_to_a_leaf_with_an_assignment_is_refused_with_a_message(
 
 def test_fr_34_add_child_to_a_leaf_with_a_flag_is_refused_with_a_message(client):
     leaf_id = add_node(client, "CDR")
-    employee_id = add_employee(client, "Bo Invented")
-    set_flag(client, employee_id, leaf_id, "aware")
+    engineer_id = add_engineer(client, "Bo Invented")
+    set_flag(client, engineer_id, leaf_id, "aware")
 
     response = post_node_under(client, leaf_id, "Phase detector")
 
@@ -172,15 +172,15 @@ def test_fr_34_add_child_to_a_leaf_with_a_flag_is_refused_with_a_message(client)
     assert outline_rows(client) == [(leaf_id, True)]
 
 
-def test_fr_12_leaf_lists_its_employees_highest_level_first(client):
+def test_fr_12_leaf_lists_its_engineers_highest_level_first(client):
     leaf_id = add_node(client, "PLL")
     other_leaf_id = add_node(client, "VCO")
     project_id = add_project(client)
-    member = add_employee(client, "Member Invented")
-    lead = add_employee(client, "Lead Invented")
-    expert = add_employee(client, "Expert Invented")
-    aware = add_employee(client, "Aware Invented")
-    unrelated = add_employee(client, "Unrelated Invented")
+    member = add_engineer(client, "Member Invented")
+    lead = add_engineer(client, "Lead Invented")
+    expert = add_engineer(client, "Expert Invented")
+    aware = add_engineer(client, "Aware Invented")
+    unrelated = add_engineer(client, "Unrelated Invented")
     add_assignment(client, project_id, member, leaf_id, "member")
     add_assignment(client, project_id, lead, leaf_id, "lead")
     set_flag(client, expert, leaf_id, "expert")
@@ -191,19 +191,19 @@ def test_fr_12_leaf_lists_its_employees_highest_level_first(client):
     page = read_page(response)
 
     assert response.status_code == 200
-    assert page.employee_ids == [expert, lead, member, aware]
-    assert [page.levels[e][leaf_id] for e in page.employee_ids] == [5, 3, 2, 1]
+    assert page.engineer_ids == [expert, lead, member, aware]
+    assert [page.levels[e][leaf_id] for e in page.engineer_ids] == [5, 3, 2, 1]
 
 
-def test_fr_13_node_lists_employees_with_their_level_in_each_leaf_below(client):
+def test_fr_13_node_lists_engineers_with_their_level_in_each_leaf_below(client):
     node_id = add_node(client, "Clocking")
     pll_id = add_node(client, "PLL", parent_id=node_id)
     vco_id = add_node(client, "VCO", parent_id=node_id)
     outside_id = add_node(client, "Verification")
     project_id = add_project(client)
-    both = add_employee(client, "Both Invented")
-    expert = add_employee(client, "Expert Invented")
-    outside = add_employee(client, "Outside Invented")
+    both = add_engineer(client, "Both Invented")
+    expert = add_engineer(client, "Expert Invented")
+    outside = add_engineer(client, "Outside Invented")
     add_assignment(client, project_id, both, pll_id, "lead")
     add_assignment(client, project_id, both, vco_id, "member")
     set_flag(client, expert, vco_id, "expert")
@@ -213,7 +213,7 @@ def test_fr_13_node_lists_employees_with_their_level_in_each_leaf_below(client):
     page = read_page(response)
 
     assert response.status_code == 200
-    assert set(page.employee_ids) == {both, expert}
+    assert set(page.engineer_ids) == {both, expert}
     assert page.levels[both][pll_id] == 3
     assert page.levels[both][vco_id] == 2
     assert page.levels[expert][vco_id] == 5

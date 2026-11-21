@@ -1,7 +1,7 @@
 """Unit tests of the vector texts (M10): D-08 and D-09."""
 
 from src.domain import vector_text
-from src.domain.models import Assignment, Employee, Node, Project
+from src.domain.models import Assignment, Engineer, Node, Project
 
 
 def test_d_08_assignment_text_has_its_6_lines_in_order():
@@ -21,7 +21,7 @@ def test_d_08_assignment_text_has_its_6_lines_in_order():
     )
     assignment = Assignment(
         id="a-1",
-        employee_id="E-0001",
+        engineer_id="E-0001",
         project_id="p-1",
         leaf_id="n-pll",
         participation="lead",
@@ -43,7 +43,7 @@ def test_d_08_assignment_text_has_its_6_lines_in_order():
 
 
 def test_d_09_profile_text_is_the_skill_gaps():
-    employee = Employee(
+    engineer = Engineer(
         id="E-0002",
         name="Bruno Invented",
         job_title="Design Engineer",
@@ -52,4 +52,4 @@ def test_d_09_profile_text_is_the_skill_gaps():
         skill_gaps="Needs experience with SerDes equalization",
     )
 
-    assert vector_text.profile_text(employee) == "Needs experience with SerDes equalization"
+    assert vector_text.profile_text(engineer) == "Needs experience with SerDes equalization"

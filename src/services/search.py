@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from typing import List
 
 from src.domain import ranking
-from src.domain.models import Employee
+from src.domain.models import Engineer
 from src.domain.ranking import Hit
-from src.services.employees import SkillLevel
+from src.services.engineers import SkillLevel
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,10 @@ TAG_LIMIT = 3
 
 @dataclass
 class SearchResult:
-    """One employee of a search with the reason for the match and the top leaves (FR-05)."""
+    """One engineer of a search with the reason for the match and the top leaves (FR-05)."""
 
     rank: int
-    employee: Employee
+    engineer: Engineer
     reason: str
     tags: List[SkillLevel]
 
@@ -39,26 +39,26 @@ class SearchFilters:
 
 
 class SearchService:
-    """Finds the employees whose assignments match a query, through the store and the embedder."""
+    """Finds the engineers whose assignments match a query, through the store and the embedder."""
 
-    def __init__(self, store, embedder, employees, result_limit: int):
-        """Use store and embedder (real or fake), employees (an EmployeeService) and the limit."""
+    def __init__(self, store, embedder, engineers, result_limit: int):
+        """Use store and embedder (real or fake), engineers (an EngineerService) and the limit."""
         self._store = store
         self._embedder = embedder
-        self._employees = employees
+        self._engineers = engineers
         self._result_limit = result_limit
 
     def experience(self, query: str, filters: SearchFilters = None) -> List[SearchResult]:
-        """Return the best employees for the query, best first (D-04, D-28).
+        """Return the best engineers for the query, best first (D-04, D-28).
 
-        Step 1 keeps the employees that meet the filters. Step 2 ranks only their vectors.
-        No query with filters lists all matching employees by name (FR-07); no query and no
+        Step 1 keeps the engineers that meet the filters. Step 2 ranks only their vectors.
+        No query with filters lists all matching engineers by name (FR-07); no query and no
         filter gives no results. Raises EmbeddingUnavailable when the embedding model does not answer.
         """
         filters = filters or SearchFilters()
         if not query.strip() and not filters.is_set():
             return []
-        allowed = self._employees.matching(
+        allowed = self._engineers.matching(
             filters.team, filters.career_level, filters.leaf_id, filters.min_level
         )
         if not query.strip():
@@ -68,64 +68,64 @@ class SearchService:
         assignments = {a.id: a for a in self._store.list_assignments()}
         matches = self._store.search_assignment_vectors(query_vector)
         hits = [
-            Hit(m.employee_id, m.assignment_id, assignments[m.assignment_id].leaf_id, m.distance)
+            Hit(m.engineer_id, m.assignment_id, assignments[m.assignment_id].leaf_id, m.distance)
             for m in matches
-            if m.assignment_id in assignments and m.employee_id in allowed_ids
+            if m.assignment_id in assignments and m.engineer_id in allowed_ids
         ]
-        employees = {e.id: e for e in allowed}
+        engineers = {e.id: e for e in allowed}
         results = []
-        for ranked in ranking.rank_employees(hits, self._result_limit):
-            employee = employees.get(ranked.employee_id)
-            if employee is None:
+        for ranked in ranking.rank_engineers(hits, self._result_limit):
+            engineer = engineers.get(ranked.engineer_id)
+            if engineer is None:
                 continue
             results.append(
                 SearchResult(
                     rank=len(results) + 1,
-                    employee=employee,
+                    engineer=engineer,
                     reason=assignments[ranked.best_assignment_id].description,
-                    tags=self._employees.levels_in(employee.id, ranked.leaf_ids),
+                    tags=self._engineers.levels_in(engineer.id, ranked.leaf_ids),
                 )
             )
-        logger.info("Experience search found %d employees.", len(results))
+        logger.info("Experience search found %d engineers.", len(results))
         return results
 
     def gaps(self, query: str, filters: SearchFilters = None) -> List[SearchResult]:
-        """Return the employees whose skill gaps match the query, best first (D-10, D-14).
+        """Return the engineers whose skill gaps match the query, best first (D-10, D-14).
 
-        Only the profile vectors of the employees that meet the filters are ranked. The reason is
+        Only the profile vectors of the engineers that meet the filters are ranked. The reason is
         the skill gap text, and the tags are the strongest skills. No query with filters lists all
-        matching employees by name (FR-07); no query and no filter gives no results.
+        matching engineers by name (FR-07); no query and no filter gives no results.
         """
         filters = filters or SearchFilters()
         if not query.strip() and not filters.is_set():
             return []
-        allowed = self._employees.matching(
+        allowed = self._engineers.matching(
             filters.team, filters.career_level, filters.leaf_id, filters.min_level
         )
         if not query.strip():
             return self._listing(allowed, filters.leaf_id)
-        employees = {e.id: e for e in allowed}
+        engineers = {e.id: e for e in allowed}
         query_vector = self._embedder.embed([query.strip()])[0]
         matches = [
             m
             for m in self._store.search_profile_vectors(query_vector)
-            if m.employee_id in employees
+            if m.engineer_id in engineers
         ][: self._result_limit]
-        top = self._employees.top_skills([m.employee_id for m in matches])
+        top = self._engineers.top_skills([m.engineer_id for m in matches])
         results = [
-            SearchResult(number, employees[m.employee_id], employees[m.employee_id].skill_gaps,
-                         top[m.employee_id][:TAG_LIMIT])
+            SearchResult(number, engineers[m.engineer_id], engineers[m.engineer_id].skill_gaps,
+                         top[m.engineer_id][:TAG_LIMIT])
             for number, m in enumerate(matches, start=1)
         ]
-        logger.info("Gap search found %d employees.", len(results))
+        logger.info("Gap search found %d engineers.", len(results))
         return results
 
-    def _listing(self, employees: List[Employee], leaf_id: str) -> List[SearchResult]:
-        """Return the employees as results in the given order, with no reason (FR-07)."""
-        top = self._employees.top_skills([e.id for e in employees])
+    def _listing(self, engineers: List[Engineer], leaf_id: str) -> List[SearchResult]:
+        """Return the engineers as results in the given order, with no reason (FR-07)."""
+        top = self._engineers.top_skills([e.id for e in engineers])
         results = []
-        for number, employee in enumerate(employees, start=1):
-            tags = self._employees.levels_in(employee.id, [leaf_id]) if leaf_id else top[employee.id]
-            results.append(SearchResult(number, employee, "", tags[:TAG_LIMIT]))
-        logger.info("Filter search found %d employees.", len(results))
+        for number, engineer in enumerate(engineers, start=1):
+            tags = self._engineers.levels_in(engineer.id, [leaf_id]) if leaf_id else top[engineer.id]
+            results.append(SearchResult(number, engineer, "", tags[:TAG_LIMIT]))
+        logger.info("Filter search found %d engineers.", len(results))
         return results

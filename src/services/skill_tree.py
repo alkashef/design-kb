@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class EmployeeLevels:
-    """An employee with the level in each leaf of a node view (FR-12, FR-13)."""
+class EngineerLevels:
+    """An engineer with the level in each leaf of a node view (FR-12, FR-13)."""
 
-    employee_id: str
+    engineer_id: str
     name: str
     team: str
     levels: Dict[str, int]
@@ -115,26 +115,26 @@ class SkillTreeService:
         """Return the leaves below the node in tree order; a leaf gives itself."""
         return skill_tree.leaves_under(self._store.list_nodes(), node_id)
 
-    def employees_with_levels(self, node_id: str) -> List[EmployeeLevels]:
-        """Return the employees with a level in the leaf, or in a leaf below the node, highest first (FR-12, FR-13)."""
+    def engineers_with_levels(self, node_id: str) -> List[EngineerLevels]:
+        """Return the engineers with a level in the leaf, or in a leaf below the node, highest first (FR-12, FR-13)."""
         nodes = self._store.list_nodes()
         leaves = skill_tree.leaves_under(nodes, node_id)
         assignments = self._store.list_assignments()
-        flag_of = {(f.employee_id, f.leaf_id): f.flag for f in self._store.list_flags()}
+        flag_of = {(f.engineer_id, f.leaf_id): f.flag for f in self._store.list_flags()}
         thresholds = ThresholdService(self._store).current()
         rows = []
-        for employee in self._store.list_employees():
+        for engineer in self._store.list_engineers():
             by_leaf = {}
             for leaf in leaves:
-                mine = [a for a in assignments if a.employee_id == employee.id and a.leaf_id == leaf.id]
+                mine = [a for a in assignments if a.engineer_id == engineer.id and a.leaf_id == leaf.id]
                 lead = sum(1 for a in mine if a.participation == "lead")
                 level = levels.effective_level(
-                    lead, len(mine) - lead, flag_of.get((employee.id, leaf.id)), thresholds
+                    lead, len(mine) - lead, flag_of.get((engineer.id, leaf.id)), thresholds
                 )
                 if level:
                     by_leaf[leaf.id] = level
             if by_leaf:
-                rows.append(EmployeeLevels(employee.id, employee.name, employee.team, by_leaf))
+                rows.append(EngineerLevels(engineer.id, engineer.name, engineer.team, by_leaf))
         rows.sort(key=lambda r: (-max(r.levels.values()), r.name))
         return rows
 

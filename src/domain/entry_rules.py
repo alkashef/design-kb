@@ -33,16 +33,16 @@ def leaf_in_use_problem(
     if not leaf_assignments and not leaf_flags:
         return None
     name = next((n.name for n in nodes if n.id == node_id), node_id)
-    employees = {a.employee_id for a in leaf_assignments} | {f.employee_id for f in leaf_flags}
+    engineers = {a.engineer_id for a in leaf_assignments} | {f.engineer_id for f in leaf_flags}
     return (
-        f"{name} has {_plural(len(employees), 'employee')} with a level"
+        f"{name} has {_plural(len(engineers), 'engineer')} with a level"
         f" and {_plural(len(leaf_assignments), 'assignment')}."
         " You cannot add a child or delete this skill until those are removed."
     )
 
 
 def _plural(count: int, word: str) -> str:
-    """Return count and the word, such as '1 employee' or '3 employees'."""
+    """Return count and the word, such as '1 engineer' or '3 engineers'."""
     return f"{count} {word}" if count == 1 else f"{count} {word}s"
 
 
@@ -54,15 +54,15 @@ def participation_problem(participation: str) -> Optional[str]:
 
 
 def duplicate_problem(existing: List[Assignment], candidate: Assignment) -> Optional[str]:
-    """Return a message when another assignment has the employee, the project and the leaf (FR-42)."""
+    """Return a message when another assignment has the engineer, the project and the leaf (FR-42)."""
     for other in existing:
         if (
             other.id != candidate.id
-            and other.employee_id == candidate.employee_id
+            and other.engineer_id == candidate.engineer_id
             and other.project_id == candidate.project_id
             and other.leaf_id == candidate.leaf_id
         ):
-            return "This employee already has an assignment for this skill in this project."
+            return "This engineer already has an assignment for this skill in this project."
     return None
 
 
@@ -74,14 +74,14 @@ def flag_value_problem(flag: str) -> Optional[str]:
 
 
 def aware_problem(
-    nodes: List[Node], assignments: List[Assignment], employee_id: str, leaf_id: str, flag: str
+    nodes: List[Node], assignments: List[Assignment], engineer_id: str, leaf_id: str, flag: str
 ) -> Optional[str]:
-    """Return a message when the Aware flag is set on a leaf where the employee has an assignment (FR-24)."""
+    """Return a message when the Aware flag is set on a leaf where the engineer has an assignment (FR-24)."""
     if flag != "aware":
         return None
-    if any(a.employee_id == employee_id and a.leaf_id == leaf_id for a in assignments):
+    if any(a.engineer_id == engineer_id and a.leaf_id == leaf_id for a in assignments):
         name = next((n.name for n in nodes if n.id == leaf_id), leaf_id)
-        return f"Aware is not allowed on {name}. This employee has an assignment in it."
+        return f"Aware is not allowed on {name}. This engineer has an assignment in it."
     return None
 
 

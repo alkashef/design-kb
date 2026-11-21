@@ -34,8 +34,8 @@ def add_pll_leaf(client) -> str:
     return add_node(client, "PLL", description="Phase-locked loop", parent_id=clocking_id)
 
 
-def employee_form(name="Ada Invented", team="Analog", skill_gaps=""):
-    """Return the form fields of an employee."""
+def engineer_form(name="Ada Invented", team="Analog", skill_gaps=""):
+    """Return the form fields of an engineer."""
     return {
         "name": name,
         "job_title": "Design Engineer",
@@ -45,16 +45,16 @@ def employee_form(name="Ada Invented", team="Analog", skill_gaps=""):
     }
 
 
-def add_employee(client, **fields) -> str:
-    """Post a new employee and return its ID."""
-    response = client.post("/employees", data=employee_form(**fields), follow_redirects=False)
+def add_engineer(client, **fields) -> str:
+    """Post a new engineer and return its ID."""
+    response = client.post("/engineers", data=engineer_form(**fields), follow_redirects=False)
     return created_id(response)
 
 
-def save_employee(client, employee_id, **fields):
-    """Post the changed fields of an employee and check the redirect."""
+def save_engineer(client, engineer_id, **fields):
+    """Post the changed fields of an engineer and check the redirect."""
     response = client.post(
-        f"/employees/{employee_id}", data=employee_form(**fields), follow_redirects=False
+        f"/engineers/{engineer_id}", data=engineer_form(**fields), follow_redirects=False
     )
     assert response.status_code == 303
 
@@ -75,12 +75,12 @@ def add_project(client, **fields) -> str:
     return created_id(response)
 
 
-def post_assignment(client, project_id, employee_id, leaf_id, description, participation="lead"):
+def post_assignment(client, project_id, engineer_id, leaf_id, description, participation="lead"):
     """Post a new assignment of a project and return the response, without following redirects."""
     return client.post(
         f"/projects/{project_id}/assignments",
         data={
-            "employee_id": employee_id,
+            "engineer_id": engineer_id,
             "leaf_id": leaf_id,
             "participation": participation,
             "description": description,
@@ -89,10 +89,10 @@ def post_assignment(client, project_id, employee_id, leaf_id, description, parti
     )
 
 
-def add_assignment(client, store, project_id, employee_id, leaf_id, description, **fields) -> str:
+def add_assignment(client, store, project_id, engineer_id, leaf_id, description, **fields) -> str:
     """Post a new assignment, check the redirect and return the ID of the new assignment."""
     before = {assignment.id for assignment in store.list_assignments()}
-    response = post_assignment(client, project_id, employee_id, leaf_id, description, **fields)
+    response = post_assignment(client, project_id, engineer_id, leaf_id, description, **fields)
     assert response.status_code == 303
     new_ids = {assignment.id for assignment in store.list_assignments()} - before
     assert len(new_ids) == 1
@@ -132,9 +132,9 @@ def assignment_vector_lines(store) -> dict[str, list[list[str]]]:
     return texts
 
 
-def profile_vector_texts(store, employee_id) -> list[str]:
-    """Return the texts of the stored profile vectors of one employee."""
-    return [row.text for row in store.list_profile_vectors() if row.employee_id == employee_id]
+def profile_vector_texts(store, engineer_id) -> list[str]:
+    """Return the texts of the stored profile vectors of one engineer."""
+    return [row.text for row in store.list_profile_vectors() if row.engineer_id == engineer_id]
 
 
 def embedded_texts(embedder, start=0) -> list[str]:
@@ -149,16 +149,16 @@ def embedded_lines(embedder, start=0) -> list[list[str]]:
 
 def test_d_13_new_assignment_embeds_its_text(client, store):
     leaf_id = add_pll_leaf(client)
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
 
     assignment_id = add_assignment(
-        client, store, project_id, employee_id, leaf_id, "Led the fractional-N loop design"
+        client, store, project_id, engineer_id, leaf_id, "Led the fractional-N loop design"
     )
 
     rows = [row for row in store.list_assignment_vectors() if row.assignment_id == assignment_id]
     assert len(rows) == 1
-    assert rows[0].employee_id == employee_id
+    assert rows[0].engineer_id == engineer_id
     assert text_lines(rows[0].text) == expected_lines("Led the fractional-N loop design")
     expected_vector = FakeEmbedder().embed([rows[0].text])[0]
     assert list(rows[0].vector) == pytest.approx(expected_vector, abs=1e-6)
@@ -168,8 +168,8 @@ def test_d_13_changed_process_technology_embeds_the_assignments_of_the_project_a
     client, store, embedder
 ):
     leaf_id = add_pll_leaf(client)
-    lead_id = add_employee(client, name="Ada Invented")
-    member_id = add_employee(client, name="Bruno Invented")
+    lead_id = add_engineer(client, name="Ada Invented")
+    member_id = add_engineer(client, name="Bruno Invented")
     project_id = add_project(client, process_technology="TSMC 7nm")
     first_id = add_assignment(client, store, project_id, lead_id, leaf_id, "Led the loop")
     second_id = add_assignment(
@@ -195,9 +195,9 @@ def test_d_13_changed_process_technology_embeds_the_assignments_of_the_project_a
 
 def test_d_13_changed_leaf_name_embeds_its_assignments_again(client, store, embedder):
     leaf_id = add_pll_leaf(client)
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
-    assignment_id = add_assignment(client, store, project_id, employee_id, leaf_id, "Led the loop")
+    assignment_id = add_assignment(client, store, project_id, engineer_id, leaf_id, "Led the loop")
     start = len(embedder.calls)
 
     response = client.post(
@@ -213,45 +213,45 @@ def test_d_13_changed_leaf_name_embeds_its_assignments_again(client, store, embe
 
 
 def test_d_13_changed_skill_gaps_embed_the_profile_again(client, store, embedder):
-    employee_id = add_employee(client, skill_gaps="Needs SerDes equalization")
+    engineer_id = add_engineer(client, skill_gaps="Needs SerDes equalization")
     start = len(embedder.calls)
 
-    save_employee(client, employee_id, skill_gaps="Needs layout of an LDO")
+    save_engineer(client, engineer_id, skill_gaps="Needs layout of an LDO")
 
-    assert profile_vector_texts(store, employee_id) == ["Needs layout of an LDO"]
+    assert profile_vector_texts(store, engineer_id) == ["Needs layout of an LDO"]
     assert "Needs layout of an LDO" in embedded_texts(embedder, start)
 
 
 def test_d_13_changed_team_embeds_nothing(client, store, embedder):
     leaf_id = add_pll_leaf(client)
-    employee_id = add_employee(client, team="Analog", skill_gaps="Needs SerDes equalization")
+    engineer_id = add_engineer(client, team="Analog", skill_gaps="Needs SerDes equalization")
     project_id = add_project(client)
-    assignment_id = add_assignment(client, store, project_id, employee_id, leaf_id, "Led the loop")
-    assert profile_vector_texts(store, employee_id) == ["Needs SerDes equalization"]
+    assignment_id = add_assignment(client, store, project_id, engineer_id, leaf_id, "Led the loop")
+    assert profile_vector_texts(store, engineer_id) == ["Needs SerDes equalization"]
     assert assignment_id in assignment_vector_lines(store)
     start = len(embedder.calls)
 
-    save_employee(client, employee_id, team="Mixed-signal", skill_gaps="Needs SerDes equalization")
+    save_engineer(client, engineer_id, team="Mixed-signal", skill_gaps="Needs SerDes equalization")
 
     assert embedded_texts(embedder, start) == []
 
 
 def test_d_27_empty_skill_gaps_embed_no_profile(client, store):
-    employee_id = add_employee(client, skill_gaps="Needs SerDes equalization")
-    assert profile_vector_texts(store, employee_id) == ["Needs SerDes equalization"]
+    engineer_id = add_engineer(client, skill_gaps="Needs SerDes equalization")
+    assert profile_vector_texts(store, engineer_id) == ["Needs SerDes equalization"]
 
-    save_employee(client, employee_id, skill_gaps="")
+    save_engineer(client, engineer_id, skill_gaps="")
 
-    assert profile_vector_texts(store, employee_id) == []
+    assert profile_vector_texts(store, engineer_id) == []
 
 
 def test_d_27_model_that_does_not_answer_gives_503_and_saves_nothing(client, store, embedder):
     leaf_id = add_pll_leaf(client)
-    employee_id = add_employee(client)
+    engineer_id = add_engineer(client)
     project_id = add_project(client)
     embedder.available = False
 
-    response = post_assignment(client, project_id, employee_id, leaf_id, "Led the loop")
+    response = post_assignment(client, project_id, engineer_id, leaf_id, "Led the loop")
 
     assert response.status_code == 503
     assert 'role="alert"' in response.text

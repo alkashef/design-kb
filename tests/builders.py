@@ -37,10 +37,10 @@ def add_leaves(client, descriptions: dict[str, str]) -> dict[str, str]:
     }
 
 
-def add_employee(client, name, job_title="Design Engineer", team="Analog", skill_gaps="") -> str:
-    """Post a new employee and return its ID."""
+def add_engineer(client, name, job_title="Design Engineer", team="Analog", skill_gaps="") -> str:
+    """Post a new engineer and return its ID."""
     response = client.post(
-        "/employees",
+        "/engineers",
         data={
             "name": name,
             "job_title": job_title,
@@ -68,12 +68,12 @@ def add_project(client, name="Invented SerDes", process_technology="TSMC 7nm") -
     return created_id(response)
 
 
-def add_assignment(client, project_id, employee_id, leaf_id, description, participation="lead"):
+def add_assignment(client, project_id, engineer_id, leaf_id, description, participation="lead"):
     """Post a new assignment of a project and check the redirect."""
     response = client.post(
         f"/projects/{project_id}/assignments",
         data={
-            "employee_id": employee_id,
+            "engineer_id": engineer_id,
             "leaf_id": leaf_id,
             "participation": participation,
             "description": description,
@@ -151,23 +151,23 @@ def _has_reason(element: Element) -> bool:
 
 
 def result_rows(html: str) -> list[Element]:
-    """Return the search results in page order: the data-employee-id elements with a data-reason."""
+    """Return the search results in page order: the data-engineer-id elements with a data-reason."""
     root = parse(html)
     return [
         element
         for element in root.descendants()
-        if "data-employee-id" in element.attrs and _has_reason(element)
+        if "data-engineer-id" in element.attrs and _has_reason(element)
     ]
 
 
 def result_ids(html: str) -> list[str]:
-    """Return the employee IDs of the search results in page order."""
-    return [row.attrs["data-employee-id"] for row in result_rows(html)]
+    """Return the engineer IDs of the search results in page order."""
+    return [row.attrs["data-engineer-id"] for row in result_rows(html)]
 
 
-def row_of(html: str, employee_id: str) -> Element:
-    """Return the search result of one employee."""
-    rows = [row for row in result_rows(html) if row.attrs["data-employee-id"] == employee_id]
+def row_of(html: str, engineer_id: str) -> Element:
+    """Return the search result of one engineer."""
+    rows = [row for row in result_rows(html) if row.attrs["data-engineer-id"] == engineer_id]
     assert len(rows) == 1
     return rows[0]
 

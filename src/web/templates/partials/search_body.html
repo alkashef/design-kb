@@ -3,18 +3,18 @@
     {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
     <div class="mono muted result-count" data-result-count="{{ results|length }}">{{ results|length }} RESULTS</div>
     {% for r in results %}
-    <div class="result{% if loop.first %} selected{% endif %}" tabindex="0" data-employee-id="{{ r.employee.id }}" hx-get="/search/preview/{{ r.employee.id }}" hx-target="#preview" hx-swap="innerHTML" hx-trigger="click, keyup[key=='Enter']">
+    <div class="result{% if loop.first %} selected{% endif %}" tabindex="0" data-engineer-id="{{ r.engineer.id }}" hx-get="/search/preview/{{ r.engineer.id }}" hx-target="#preview" hx-swap="innerHTML" hx-trigger="click, keyup[key=='Enter']">
       <div class="result-rank mono">{{ "%02d"|format(r.rank) }}</div>
       <div class="result-main">
         <div class="result-title">
-          <span class="result-name">{{ r.employee.name }}</span>
+          <span class="result-name">{{ r.engineer.name }}</span>
           <span class="result-tags">
             {% for t in r.tags %}
             <span class="leaf-tag mono" data-leaf-id="{{ t.leaf_id }}" data-level="{{ t.level }}">{{ t.name }} · {{ level_names[t.level] if t.level else "No level" }}</span>
             {% endfor %}
           </span>
         </div>
-        <div class="muted result-meta">{{ r.employee.job_title }} · {{ r.employee.team }}</div>
+        <div class="muted result-meta">{{ r.engineer.job_title }} · {{ r.engineer.team }}</div>
         <div class="result-reason" data-reason>{{ r.reason }}</div>
       </div>
     </div>
@@ -22,7 +22,7 @@
     {% if not message %}<div class="muted empty">{{ "No matching experience found." if q else "Type a query to search for experience." }}</div>{% endif %}
     {% endfor %}
   </section>
-  <section class="preview" id="preview" aria-label="Employee preview">
+  <section class="preview" id="preview" aria-label="Engineer preview">
     {% if preview %}{% include "partials/preview.html" %}{% endif %}
   </section>
 </div>
