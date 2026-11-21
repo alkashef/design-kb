@@ -6,7 +6,8 @@
       <div class="preview-name">{{ engineer.name }}</div>
       <div class="muted">{{ engineer.job_title }} · {{ engineer.career_level }} · {{ engineer.team }} · ID {{ engineer.id }}</div>
     </div>
-    <a class="button-outline link-button" href="/engineers/{{ engineer.id }}">Open full profile</a>
+    <a class="button-outline link-button" href="/engineers/{{ engineer.id }}" data-open-profile>Open full profile</a>
+    {% if close_href %}<a class="button-outline link-button" href="{{ close_href }}" data-detail-close hx-get="/engineer-panel" hx-target="#engineer-detail-slot" hx-push-url="{{ close_href }}">Close</a>{% endif %}
   </div>
 </div>
 <div data-pane-body>

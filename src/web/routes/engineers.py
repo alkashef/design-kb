@@ -1,6 +1,6 @@
 """The Engineers list, the profile, the engineer form and the flags (FR-10, FR-11, FR-20, FR-23, FR-28)."""
 
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,6 +12,16 @@ from src.services.assignments import AssignmentService
 from src.services.engineers import EngineerError, EngineerService, UnknownEngineer
 from src.services.flags import FlagError, FlagService
 from src.web.errors import failure_of
+from src.web.preview import preview_context
+
+
+LIST_KEYS = ("filter", "team", "career_level", "page")
+PANEL_PART = "partials/engineer_panel.html"
+
+
+def list_query(values: dict) -> str:
+    """Return the query string of the Engineers list: the filters and the page, without empty values."""
+    return urlencode({key: values.get(key, "") for key in LIST_KEYS if values.get(key, "")})
 
 
 def create_router(templates: Jinja2Templates) -> APIRouter:
@@ -48,13 +58,31 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             request, "engineer_form.html", context, status_code=status
         )
 
+    def selection_of(request: Request, engineer_id: str):
+        """Return the card values of the selected engineer, or None for no or an unknown ID."""
+        if not engineer_id:
+            return None
+        try:
+            return preview_context(request, engineer_id)
+        except HTTPException:
+            return None
+
     @router.get("/engineers", response_class=HTMLResponse)
     def engineer_list(
-        request: Request, filter: str = "", team: str = "", career_level: str = "", page: int = 1
+        request: Request,
+        filter: str = "",
+        team: str = "",
+        career_level: str = "",
+        page: int = 1,
+        selected: str = "",
     ):
-        """Show one page of the Engineers list."""
+        """Show one page of the Engineers list, with the detail pane of the selected engineer."""
         service = service_of(request)
         result = service.list(filter, team, career_level, page)
+        preview = selection_of(request, selected)
+        list_values = {"filter": filter, "team": team, "career_level": career_level}
+        if page > 1:
+            list_values["page"] = str(page)
         context = {
             "active_page": "engineers",
             "result": result,
@@ -66,8 +94,28 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "teams": service.teams(),
             "career_levels": CAREER_LEVELS,
             "query": urlencode({"filter": filter, "team": team, "career_level": career_level}),
+            "list_query": list_query(list_values),
+            "preview": preview,
+            "selected_id": selected if preview else "",
+            "close_href": "/engineers?" + list_query(list_values),
         }
         return templates.TemplateResponse(request, "engineers.html", context)
+
+    @router.get("/engineer-panel", response_class=HTMLResponse)
+    def empty_engineer_panel():
+        """Give the empty content of the detail slot."""
+        return HTMLResponse("")
+
+    @router.get("/engineer-panel/{engineer_id}", response_class=HTMLResponse)
+    def engineer_panel(request: Request, engineer_id: str):
+        """Give the handle and the detail pane of one engineer, for the detail slot."""
+        current = parse_qs(urlsplit(request.headers.get("HX-Current-URL", "")).query)
+        values = {key: current.get(key, [""])[0] for key in LIST_KEYS}
+        context = {
+            "preview": preview_context(request, engineer_id),
+            "close_href": "/engineers?" + list_query(values),
+        }
+        return templates.TemplateResponse(request, PANEL_PART, context)
 
     @router.get("/engineers/new", response_class=HTMLResponse)
     def new_engineer_form(request: Request):

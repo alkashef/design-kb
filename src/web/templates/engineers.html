@@ -2,7 +2,7 @@
 {% block title %}Engineers · design-kb{% endblock %}
 {% block main %}
 <div class="pane-row">
-<section class="pane-page" data-pane="engineers" data-pane-flex aria-label="Engineers">
+<section class="pane-page" data-pane="engineers"{% if not preview %} data-pane-flex{% endif %} aria-label="Engineers">
   <div data-pane-head>
   <div class="page-head">
     <h1>Engineers</h1>
@@ -23,11 +23,12 @@
   </div>
   <div data-pane-body>
   <div class="table">
-    <div class="table-row engineer-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span></div>
+    <div class="table-row engineer-row table-head"><span>ID</span><span>NAME</span><span class="col-job">JOB TITLE</span><span>TEAM</span><span class="col-career">CAREER</span><span class="col-skills">TOP SKILLS</span></div>
     {% for e in result.rows %}
-    <a class="table-row engineer-row" href="/engineers/{{ e.id }}" data-engineer-id="{{ e.id }}">
-      <span class="mono">{{ e.id }}</span><span>{{ e.name }}</span><span>{{ e.job_title }}</span><span>{{ e.team }}</span><span>{{ e.career_level }}</span>
-      <span class="top-skills">{% for s in top_skills[e.id] %}<span class="role-tag">{{ s.name }} · {{ level_names[s.level] }}</span>{% endfor %}</span>
+    {% set row_href = "/engineers?" ~ (list_query ~ "&" if list_query else "") ~ "selected=" ~ e.id %}
+    <a class="table-row engineer-row{% if e.id == selected_id %} selected{% endif %}" href="{{ row_href }}" data-engineer-id="{{ e.id }}" hx-get="/engineer-panel/{{ e.id }}" hx-target="#engineer-detail-slot" hx-push-url="{{ row_href }}">
+      <span class="mono">{{ e.id }}</span><span>{{ e.name }}</span><span class="col-job">{{ e.job_title }}</span><span>{{ e.team }}</span><span class="col-career">{{ e.career_level }}</span>
+      <span class="top-skills col-skills">{% for s in top_skills[e.id] %}<span class="role-tag">{{ s.name }} · {{ level_names[s.level] }}</span>{% endfor %}</span>
     </a>
     {% endfor %}
     <div class="table-foot">
@@ -40,5 +41,6 @@
   </div>
   </div>
 </section>
+<div id="engineer-detail-slot">{% if preview %}{% include "partials/engineer_panel.html" %}{% endif %}</div>
 </div>
 {% endblock %}

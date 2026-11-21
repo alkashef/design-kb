@@ -1,15 +1,15 @@
 """The Search page and its preview (FR-01 to FR-07, D-18)."""
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from src.domain.levels import LEVEL_NAMES
 from src.domain.models import CAREER_LEVELS, EmbeddingUnavailable
-from src.services.assignments import AssignmentService
-from src.services.engineers import EngineerService, UnknownEngineer
+from src.services.engineers import EngineerService
 from src.services.search import SearchFilters, SearchService
 from src.web.errors import search_failure
+from src.web.preview import preview_context
 
 DEFAULT_MIN_LEVEL = 1
 GAPS_MODE = "gaps"
@@ -28,23 +28,6 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
         """Return the engineer service of the app."""
         state = request.app.state
         return EngineerService(state.store, state.options.page_size, state.indexing)
-
-    def preview_of(request: Request, engineer_id: str) -> dict:
-        """Return the template values of the preview of one engineer, or answer 404."""
-        engineers = engineers_of(request)
-        try:
-            engineer = engineers.get(engineer_id)
-        except UnknownEngineer:
-            raise HTTPException(status_code=404, detail="Unknown engineer")
-        state = request.app.state
-        return {
-            "engineer": engineer,
-            "skill_groups": engineers.skill_groups(engineer_id),
-            "assignment_rows": AssignmentService(state.store, state.indexing).for_engineer(
-                engineer_id
-            ),
-            "level_names": LEVEL_NAMES,
-        }
 
     def render_search(request: Request, query: str, filters: SearchFilters, mode: str = EXPERIENCE_MODE):
         """Render the Search page, or only its results and preview for an HTMX request."""
@@ -70,7 +53,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
             "results": results,
             "level_names": LEVEL_NAMES,
             "message": message,
-            "preview": preview_of(request, results[0].engineer.id) if results else None,
+            "preview": preview_context(request, results[0].engineer.id) if results else None,
         }
         template = BODY_PART if request.headers.get("HX-Request") else SEARCH_PAGE
         return templates.TemplateResponse(request, template, context, status_code=status)
@@ -100,7 +83,7 @@ def create_router(templates: Jinja2Templates) -> APIRouter:
     def search_preview(request: Request, engineer_id: str):
         """Show the preview part for one engineer."""
         return templates.TemplateResponse(
-            request, PREVIEW_PART, {"preview": preview_of(request, engineer_id)}
+            request, PREVIEW_PART, {"preview": preview_context(request, engineer_id)}
         )
 
     return router

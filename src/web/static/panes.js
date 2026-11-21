@@ -46,9 +46,9 @@ function paneMin() {
   return parseFloat(value) || DEFAULT_PANE_MIN;
 }
 
-/** Put the kept widths on the fixed panes of the page. */
+/** Put the kept widths on the panes of the page; a flexible pane ignores --pane-width. */
 function applyWidths() {
-  document.querySelectorAll("[data-pane]:not([data-pane-flex])").forEach(setKeptWidth);
+  document.querySelectorAll("[data-pane]").forEach(setKeptWidth);
 }
 
 /** Put the kept width on one pane, if the page kept one for it. */
@@ -67,11 +67,25 @@ function updateResetButton() {
   }
 }
 
+/** Return the pane left of a handle; a handle in a slot (display: contents) looks past the slot. */
+function paneLeftOf(handle) {
+  return handle.previousElementSibling || handle.parentElement.previousElementSibling;
+}
+
+/** Return the pane right of a handle. */
+function paneRightOf(handle) {
+  return handle.nextElementSibling || handle.parentElement.nextElementSibling;
+}
+
+/** Return true when the pane takes the free width, as its computed style says. */
+function isFlexible(pane) {
+  return parseFloat(getComputedStyle(pane).flexGrow) > 0;
+}
+
 /** Return the pane that a handle resizes: the left one, or the right one when the left is flexible. */
 function paneToResize(handle) {
-  const left = handle.previousElementSibling;
-  const right = handle.nextElementSibling;
-  return left.hasAttribute("data-pane-flex") ? right : left;
+  const left = paneLeftOf(handle);
+  return isFlexible(left) ? paneRightOf(handle) : left;
 }
 
 /** Start a drag when the pointer goes down on a handle. */
@@ -81,14 +95,15 @@ function onPointerDown(event) {
     return;
   }
   const target = paneToResize(handle);
-  const other = target === handle.previousElementSibling ? handle.nextElementSibling : handle.previousElementSibling;
+  const onLeft = target === paneLeftOf(handle);
+  const other = onLeft ? paneRightOf(handle) : paneLeftOf(handle);
   drag = {
     handle: handle,
     target: target,
     startX: event.clientX,
     startWidth: target.getBoundingClientRect().width,
     otherWidth: other.getBoundingClientRect().width,
-    direction: target === handle.previousElementSibling ? 1 : -1,
+    direction: onLeft ? 1 : -1,
   };
   handle.setPointerCapture(event.pointerId);
   handle.classList.add("dragging");
@@ -136,10 +151,25 @@ function onClick(event) {
   document.querySelectorAll("[data-pane]").forEach(clearPaneWidth);
 }
 
-/** Apply the kept widths and show the reset button, at load and after an HTMX swap. */
+/** Mark one row as selected when it is the row of the given engineer ID. */
+function markRow(row, selectedId) {
+  row.classList.toggle("selected", row.dataset.engineerId === selectedId);
+}
+
+/** Mark the row of the engineer whose detail pane is open, and no other row. */
+function markSelectedRow() {
+  const detail = document.querySelector('[data-pane="engineer-detail"]');
+  const selectedId = detail === null ? null : detail.dataset.engineerId;
+  for (const row of document.querySelectorAll('[data-pane="engineers"] [data-engineer-id]')) {
+    markRow(row, selectedId);
+  }
+}
+
+/** Apply the kept widths, show the reset button and mark the selected row, at load and after an HTMX swap. */
 function refreshPanes() {
   applyWidths();
   updateResetButton();
+  markSelectedRow();
 }
 
 keptWidths = loadWidths();

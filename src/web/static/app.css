@@ -233,6 +233,17 @@ a:hover { color: var(--text); }
 [data-pane="projects"] { flex: 0 0 var(--pane-width, 420px); }
 [data-pane="assignment"] { flex: 0 0 var(--pane-width, 340px); }
 
+/* Engineer detail pane (M29, D-47): the slot adds no box of its own. The list pane is flexible
+   alone and 600px while the detail is open; the rule does not read data-pane-flex, because an
+   HTMX swap leaves that attribute as the page load set it. */
+#engineer-detail-slot { display: contents; }
+[data-pane="engineers"] { flex: 1 1 0; container-type: inline-size; }
+.pane-row:has(#engineer-detail-slot > *) > [data-pane="engineers"] { flex: 0 0 var(--pane-width, 600px); }
+@container (max-width: 720px) {
+  .engineer-row { grid-template-columns: 90px 1.2fr 1fr; }
+  .col-job, .col-career, .col-skills { display: none; }
+}
+
 /* A handle is a strip 8px wide with a 2px line in the middle. */
 [data-pane-handle] {
   flex: 0 0 8px;
@@ -434,6 +445,7 @@ a:hover { color: var(--text); }
 /* Flags and the 360 view (M7). */
 .engineer-row { grid-template-columns: 90px 1.2fr 1.2fr 1fr 110px 1.3fr; }
 .top-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.engineer-row.selected { background: var(--panel-strong); box-shadow: inset 3px 0 0 var(--accent); }
 .flag-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-top: 1px solid var(--line-soft); font-size: 14px; }
 .flag-row:first-child { border-top: 0; }
 .flag-leaf { flex: 1 1 0; min-width: 0; font-weight: 500; }

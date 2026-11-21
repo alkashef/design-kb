@@ -8,41 +8,10 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | approved |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
 ## Milestones
-
-### M29 — Engineer detail pane
-
-- **Refs:** FR-10, FR-50, FR-51, FR-52, AC-02, NFR-01, D-47, D-29, D-18. FR-10 changed in spec 0.5: a click on a row of the Engineers list no longer opens the profile page, it opens the detail pane. The profile page (FR-11) stays at `/engineers/{id}`.
-- **Owner:** `src/web/preview.py` (new), `src/web/routes/engineers.py`, `src/web/routes/search.py`, `src/web/templates/engineers.html`, `src/web/templates/partials/preview.html` and `src/web/static/app.css`.
-- **Tests first:** route, in a new file `tests/route/test_engineer_detail_pane.py`. The data: engineers added with the builders, one of them ("Cy Invented", Design Engineer, Mixed-signal, Senior) with a leaf, a project, an assignment and skill gaps. The pane is the element with `data-pane="engineer-detail"` and carries `data-engineer-id`. The test session changes an existing test only where its requirement changed, and names each one in its report.
-  - `test_fr_10_selected_engineer_shows_the_detail_pane_beside_the_list`: `GET /engineers?selected=<id>` has the element `engineer-detail-slot`, and in the row of panes the order is `engineers`, one handle, `engineer-detail`; the pane has the ID of that engineer; the list pane still holds the rows of all engineers; `engineer-detail` has `data-pane-flex` and `engineers` does not.
-  - `test_fr_10_without_selection_the_list_pane_is_alone_and_flexible`: `GET /engineers` has an empty `engineer-detail-slot`, no handle, and `engineers` has `data-pane-flex`.
-  - `test_fr_10_unknown_selected_engineer_shows_no_pane`: `GET /engineers?selected=E-9999` answers 200 with an empty slot.
-  - `test_fr_10_each_row_links_to_the_selection_and_carries_the_htmx_attributes`: each row with `data-engineer-id="<id>"` is a link whose `href` starts with `/engineers?`, holds `selected=<id>` and keeps a filter that was set (`team=Analog` stays); it has `hx-get="/engineer-panel/<id>"`, `hx-target="#engineer-detail-slot"` and `hx-push-url`.
-  - `test_fr_10_panel_route_gives_the_pane_of_the_chosen_engineer`: `GET /engineer-panel/<id>` gives one handle and one pane with that ID, and for another ID the pane of the other engineer.
-  - `test_fr_10_unknown_engineer_on_the_panel_route_gives_404`: `GET /engineer-panel/E-9999` answers 404.
-  - `test_fr_50_detail_pane_shows_the_attributes_the_levels_the_projects_and_the_skill_gaps`: the pane shows the name, job title, career level, team, ID and skill gaps, an element with `data-leaf-id` and `data-level` for the leaf of the assignment, the project name and the assignment description.
-  - `test_fr_51_open_full_profile_links_to_the_profile_page`: the pane has an element with `data-open-profile` whose `href` is `/engineers/<id>`, and that address answers 200.
-  - `test_fr_52_close_control_links_to_the_list_and_to_the_empty_panel`: the pane has an element with `data-detail-close` whose `href` is `/engineers?` with the filters and no `selected`, with `hx-get="/engineer-panel"` and `hx-push-url`; `GET /engineer-panel` answers 200 with no pane and no handle.
-  - `test_ac_02_case_1_selecting_a_row_shows_the_panel_and_narrows_the_list`: the data of case 1 of AC-02; the panel holds Cy Invented, Design Engineer, Mixed-signal, Senior and E-0001, and the list pane is not the flexible one.
-  - `test_ac_02_case_2_selecting_another_engineer_shows_one_panel_for_it`: `GET /engineer-panel/<other id>` gives exactly one pane, of the other engineer.
-  - `test_ac_02_case_3_closing_the_panel_gives_back_the_list_alone`: the `href` of the Close control gives the page of `test_fr_10_without_selection_...`.
-  - Existing tests: the FR-10 test `test_fr_10_open_engineer_shows_the_profile_page` of `tests/route/test_engineers.py` checks the profile page at `/engineers/{id}`; the test session may rename it after FR-11 or FR-51, because FR-10 changed. `test_fr_05_preview_route_shows_the_chosen_engineer` must still pass.
-  - Manual: NFR-01.
-- **Build:** as D-47 says. Move `preview_of` of `routes/search.py` into `src/web/preview.py` as `preview_context(request, engineer_id)`, which answers 404 for an unknown ID, and call it from both routes. In `partials/preview.html`, give "Open full profile" the marker `data-open-profile`, and show a Close control (`data-detail-close`) only when a `close_href` is given. Add `GET /engineer-panel/{engineer_id}` and `GET /engineer-panel`, the parameter `selected` of `GET /engineers`, and the slot `<div id="engineer-detail-slot">` that holds the handle and the pane `engineer-detail` (head: the engineer header with "Open full profile" and Close). A row of the list is a link with the HTMX attributes of D-47, and the row of the selected engineer is marked as selected. The list pane has the width 600px (`--pane-width` fallback) while the detail is open, and is flexible when alone. Below 720px the list pane hides the columns JOB TITLE, CAREER and TOP SKILLS (a container query on the pane). Change no other route and no message text.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M29` pass.
-- **Blocked:** The tests `test_fr_10_selected_engineer_shows_the_detail_pane_beside_the_list` and `test_ac_02_case_1_...` need a page that D-47 forbids, and a build session may not change a file in `tests/`.
-  - `tests/route/test_engineer_detail_pane.py`, `row_order` and `find_parent` (lines 62-84): the order `[engineers, handle, engineer-detail]` is read from the direct children of the parent of the list pane, so the handle and the detail pane must be direct siblings of the list pane in the row of panes.
-  - D-47 (`docs/design.md`) and the plan block say that the slot `<div id="engineer-detail-slot">` holds the handle and the pane, and the row carries `hx-target="#engineer-detail-slot"` (the default swap is innerHTML). Then the handle and the pane are children of the slot, not of the row, and `row_order` gives `[engineers]` only.
-  - A flat row (the handle and the pane beside the list pane, the slot empty) satisfies the tests, but then an HTMX swap into the slot puts the new handle and pane inside the slot, and a page load puts them beside it, so a second click shows two handles and two panes unless extra out-of-band swaps are added. That is a different design from D-47, and I did not choose it on my own.
-  - Nothing else was changed (the new test file stays as the test session wrote it). To continue, approve one of these:
-    1. The test session fixes the test: `row_order` reads the panes and handles in the order of the page, below the row (the descendants of the row, so that the slot may sit between), and the slot holds the handle and the pane as D-47 says. Then run the milestone again.
-    2. Change D-47 to a flat row: the handle and the detail pane are siblings of the list pane, `engineer-detail-slot` is an empty marker, and the swap uses out-of-band deletes of the old handle and pane. The build session then follows the tests as they are.
-- **Approval:** Option 1, approved by the user on 2026-11-21: the test session fixes `row_order` (and `find_parent`) in `tests/route/test_engineer_detail_pane.py` so that it reads the panes and handles in the order of the page, as the descendants of the row of panes, and the slot `engineer-detail-slot` may sit between the list pane and the handle. D-47 stays as it is: the slot holds the handle and the pane, so one HTMX swap replaces both. The test session changes no other test, and the tests keep their assertions: the order `engineers`, one handle, `engineer-detail`, and which pane has `data-pane-flex`. The build session still may not edit `tests/`.
 
 ### M30 — Skill tree arrow
 
