@@ -18,12 +18,12 @@ Do not invent conditions or thresholds to complete a pattern.
 
 Example of a rule from `docs/specs.md`, with a concrete case that uses invented data:
 
-- `FR-29` (Type E): When the user deletes an employee or a project, the system shall
+- `FR-29` (Type E): When the user deletes an engineer or a project, the system shall
   also delete the assignments and the flags that refer to it.
-- Case: Given an employee with 3 assignments and 2 flags, when the user deletes the
-  employee, expect 0 assignments and 0 flags that refer to that employee.
+- Case: Given an engineer with 3 assignments and 2 flags, when the user deletes the
+  engineer, expect 0 assignments and 0 flags that refer to that engineer.
 
-The example does not settle what happens to the vectors of the deleted employee.
+The example does not settle what happens to the vectors of the deleted engineer.
 That is a design concern (`docs/design.md`, D-13), not a requirement.
 Do not generate rules for a concern merely because an example mentions it.
 

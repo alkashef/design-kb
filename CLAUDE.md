@@ -105,7 +105,7 @@ End every task with the report: one line, whole line in bold, that starts with `
 
 ## Living docs
 
-- Update every doc in the table below that a change makes inaccurate in the same change, and be specific: "Added `src/backend/search.py`: ranks employees", not "updated code". Each doc owns one kind of fact. Link to the owner; do not copy.
+- Update every doc in the table below that a change makes inaccurate in the same change, and be specific: "Added `src/backend/search.py`: ranks engineers", not "updated code". Each doc owns one kind of fact. Link to the owner; do not copy.
 
   | Change | Update |
   | --- | --- |

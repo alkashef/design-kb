@@ -40,7 +40,7 @@ Ask for the underlying constraint rather than a brand preference.
 Example: "I recommend local storage because the approved scope has one user on one machine. Shared access would change this choice."
 
 If shared access is not established, ask whether users need simultaneous access before finalizing persistence.
-Do not infer shared access merely from the number of employees in the organization.
+Do not infer shared access merely from the number of engineers in the organization.
 
 ## Design tools and quality checks
 

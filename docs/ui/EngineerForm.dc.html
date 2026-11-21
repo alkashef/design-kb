@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Edit employee</title>
+<title>Edit engineer</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -23,20 +23,20 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
     </div>
     <nav style="display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Search</a>
-      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #45464A; box-shadow: inset 3px 0 0 #F04A0E; color: #FFFFFF; font-weight: 500;">Employees</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #45464A; box-shadow: inset 3px 0 0 #F04A0E; color: #FFFFFF; font-weight: 500;">Engineers</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Skill tree</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Projects</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Settings</a>
     </nav>
     <div style="margin-top: auto;">
-      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #F4F4F4; font: 500 13px 'JetBrains Mono', monospace;">Add employee</button>
+      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #F4F4F4; font: 500 13px 'JetBrains Mono', monospace;">Add engineer</button>
     </div>
   </aside>
 
   <main style="flex: 999 1 720px; min-width: 0; box-sizing: border-box; padding: 32px 48px 64px; display: flex; flex-direction: column; gap: 28px;">
 
-    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5E5E61;"><a href="Employees.dc.html" style="text-decoration: none;">Employees</a> &nbsp;/&nbsp; <a href="Profile.dc.html" style="text-decoration: none;">Layla Haddad</a> &nbsp;/&nbsp; <span style="color: #1F1F21;">Edit</span></div>
-    <h1 style="margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600;">Edit employee</h1>
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5E5E61;"><a href="Engineers.dc.html" style="text-decoration: none;">Engineers</a> &nbsp;/&nbsp; <a href="Profile.dc.html" style="text-decoration: none;">Layla Haddad</a> &nbsp;/&nbsp; <span style="color: #1F1F21;">Edit</span></div>
+    <h1 style="margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600;">Edit engineer</h1>
 
     <div style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 28px;">
 
@@ -44,11 +44,11 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #5E5E61;">PROFILE</div>
         <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <label for="e-id" style="font-size: 13px; color: #5E5E61;">Employee ID</label>
+            <label for="e-id" style="font-size: 13px; color: #5E5E61;">Engineer ID</label>
             <input id="e-id" type="text" value="E-0142" readonly style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 10px; border: 1px solid #D6D6D6; background: #EDEDED; color: #5E5E61; font: 400 14px 'JetBrains Mono', monospace;">
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <label for="e-name" style="font-size: 13px; color: #5E5E61;">Employee name</label>
+            <label for="e-name" style="font-size: 13px; color: #5E5E61;">Engineer name</label>
             <input id="e-name" type="text" value="Layla Haddad" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 10px; border: 1px solid #BDBDBD; background: #FFFFFF; color: #1F1F21; font: 400 14px 'Inter', sans-serif;">
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -105,7 +105,7 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
         <button style="height: 44px; padding: 0 24px; border: 0; border-radius: 10px; background: #F04A0E; color: #141416; font: 500 13px 'JetBrains Mono', monospace;">Save changes</button>
         <button style="height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid #BDBDBD; background: transparent; color: #1F1F21; font: 500 13px 'JetBrains Mono', monospace;">Cancel</button>
         <span style="flex-grow: 1;"></span>
-        <button style="height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid #D9A098; background: transparent; color: #B42318; font: 500 13px 'JetBrains Mono', monospace;">Delete employee</button>
+        <button style="height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid #D9A098; background: transparent; color: #B42318; font: 500 13px 'JetBrains Mono', monospace;">Delete engineer</button>
       </div>
     </div>
   </main>

@@ -84,7 +84,7 @@ of the milestone blocks is not affected.
 - **Owner:** `src/backend/flags.py` (an invented path: use the module that the design names).
 - **Tests first:** unit: `test_fr_23_aware_flag_gives_level_1`,
   `test_fr_24_aware_flag_refused_with_assignment`.
-- **Build:** add `set_aware_flag` to the flags module; refuse a leaf where the employee has an
+- **Build:** add `set_aware_flag` to the flags module; refuse a leaf where the engineer has an
   assignment.
 - **Gate:** the tests and the checks in `CLAUDE.md` pass.
 ```

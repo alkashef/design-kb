@@ -23,13 +23,13 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
     </div>
     <nav style="display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Search</a>
-      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Employees</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Engineers</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Skill tree</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Projects</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #45464A; box-shadow: inset 3px 0 0 #F04A0E; color: #FFFFFF; font-weight: 500;">Settings</a>
     </nav>
     <div style="margin-top: auto;">
-      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #F4F4F4; font: 500 13px 'JetBrains Mono', monospace;">Add employee</button>
+      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #F4F4F4; font: 500 13px 'JetBrains Mono', monospace;">Add engineer</button>
     </div>
   </aside>
 
@@ -43,7 +43,7 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
     <section style="width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: 22px; padding: 28px; border: 1px solid #D2D2D2; border-radius: 16px; background: #FAF6EC;">
       <div style="display: flex; flex-direction: column; gap: 6px;">
         <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em;">Level thresholds</h2>
-        <div style="font-size: 14px; line-height: 1.55; color: #5E5E61; max-width: 640px;">Set how many projects an employee needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the employee.</div>
+        <div style="font-size: 14px; line-height: 1.55; color: #5E5E61; max-width: 640px;">Set how many projects an engineer needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the engineer.</div>
       </div>
 
       <div style="border: 1px solid #DEDEDE; border-radius: 12px; overflow-x: auto;">
@@ -76,7 +76,7 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
         </div>
       </div>
 
-      <div style="font-size: 13px; color: #5E5E61;">Leave "to" empty for no upper limit. Saving recomputes every employee's levels.</div>
+      <div style="font-size: 13px; color: #5E5E61;">Leave "to" empty for no upper limit. Saving recomputes every engineer's levels.</div>
 
       <div style="display: flex; flex-wrap: wrap; gap: 12px;">
         <button style="height: 44px; padding: 0 24px; border: 0; border-radius: 10px; background: #F04A0E; color: #141416; font: 500 13px 'JetBrains Mono', monospace;">Save thresholds</button>
@@ -90,11 +90,11 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
 class Component extends DCLogic {
   renderVals() {
     const rows = [
-      { level: '1', name: 'Aware', source: 'Manual flag', editable: false, manual: true, note: 'Set on the employee. Allowed only where the employee has no project on the skill.' },
+      { level: '1', name: 'Aware', source: 'Manual flag', editable: false, manual: true, note: 'Set on the engineer. Allowed only where the engineer has no project on the skill.' },
       { level: '2', name: 'Hands-on', source: 'Computed', editable: true, manual: false, leadFrom: '0', leadTo: '0', memFrom: '1', memTo: '' },
       { level: '3', name: 'Lead', source: 'Computed', editable: true, manual: false, leadFrom: '1', leadTo: '2', memFrom: '0', memTo: '' },
       { level: '4', name: 'Senior lead', source: 'Computed', editable: true, manual: false, leadFrom: '3', leadTo: '', memFrom: '0', memTo: '' },
-      { level: '5', name: 'Expert', source: 'Manual flag', editable: false, manual: true, note: 'Set on the employee, on any skill. Overrides the computed level.' }
+      { level: '5', name: 'Expert', source: 'Manual flag', editable: false, manual: true, note: 'Set on the engineer, on any skill. Overrides the computed level.' }
     ];
     return { rows: rows.map((r, i) => ({ ...r, rule: i === 0 ? '0' : '1px solid #DEDEDE' })) };
   }

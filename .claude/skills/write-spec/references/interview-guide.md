@@ -37,9 +37,9 @@ Use focused questions such as these when the corresponding concern is unresolved
 | Real work | What happened the last time you needed to do this? |
 | Business value | What would improve if this task worked better? |
 | User goal | What must this person accomplish before the task is complete? |
-| Rule | What makes an employee an Expert in a leaf? |
+| Rule | What makes an engineer an Expert in a leaf? |
 | Exception | What should happen if the user deletes a leaf that has assignments? |
-| Data | Which information tells two employees with the same name apart? |
+| Data | Which information tells two engineers with the same name apart? |
 | Quality | How long can this person wait before the task is disrupted? |
 | Acceptance | For this specific input, what result would you accept? |
 
