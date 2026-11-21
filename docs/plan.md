@@ -8,7 +8,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | blocked |
+| **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | approved |
 | **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | open |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
@@ -37,6 +37,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
   - Nothing else was changed. To continue, approve one of these:
     1. The test session fixes the test: compare against the first parse, for example `outside = [e for e in sidebar_descendants_of_second_parse...]` or count `data-pane-reset` in the whole page (`len(...) == 1`, and it is inside `sidebar`), or give `Element` an `__eq__`. Then run the milestone again.
     2. Allow the build session to edit `tests/route/test_pane_handles.py` for this one assertion only.
+- **Approval:** Option 1, approved by the user on 2026-11-21: the test session fixes `test_fr_58_every_page_has_the_reset_button_in_the_sidebar` so that it no longer compares the elements of two parses by identity, for example by counting the elements with `data-pane-reset` in the whole page of one parse (exactly one, and inside the sidebar). It changes no other test and does not weaken the test: the button must stay exactly once on each page, in the sidebar, with the text "Reset widths", before "Add engineer". The build session still may not edit `tests/`.
 
 ### M29 — Engineer detail pane
 
