@@ -8,7 +8,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | open |
+| **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | blocked |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
@@ -35,6 +35,13 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
   - Manual: NFR-01.
 - **Build:** as D-47 says. Move `preview_of` of `routes/search.py` into `src/web/preview.py` as `preview_context(request, engineer_id)`, which answers 404 for an unknown ID, and call it from both routes. In `partials/preview.html`, give "Open full profile" the marker `data-open-profile`, and show a Close control (`data-detail-close`) only when a `close_href` is given. Add `GET /engineer-panel/{engineer_id}` and `GET /engineer-panel`, the parameter `selected` of `GET /engineers`, and the slot `<div id="engineer-detail-slot">` that holds the handle and the pane `engineer-detail` (head: the engineer header with "Open full profile" and Close). A row of the list is a link with the HTMX attributes of D-47, and the row of the selected engineer is marked as selected. The list pane has the width 600px (`--pane-width` fallback) while the detail is open, and is flexible when alone. Below 720px the list pane hides the columns JOB TITLE, CAREER and TOP SKILLS (a container query on the pane). Change no other route and no message text.
 - **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M29` pass.
+- **Blocked:** The tests `test_fr_10_selected_engineer_shows_the_detail_pane_beside_the_list` and `test_ac_02_case_1_...` need a page that D-47 forbids, and a build session may not change a file in `tests/`.
+  - `tests/route/test_engineer_detail_pane.py`, `row_order` and `find_parent` (lines 62-84): the order `[engineers, handle, engineer-detail]` is read from the direct children of the parent of the list pane, so the handle and the detail pane must be direct siblings of the list pane in the row of panes.
+  - D-47 (`docs/design.md`) and the plan block say that the slot `<div id="engineer-detail-slot">` holds the handle and the pane, and the row carries `hx-target="#engineer-detail-slot"` (the default swap is innerHTML). Then the handle and the pane are children of the slot, not of the row, and `row_order` gives `[engineers]` only.
+  - A flat row (the handle and the pane beside the list pane, the slot empty) satisfies the tests, but then an HTMX swap into the slot puts the new handle and pane inside the slot, and a page load puts them beside it, so a second click shows two handles and two panes unless extra out-of-band swaps are added. That is a different design from D-47, and I did not choose it on my own.
+  - Nothing else was changed (the new test file stays as the test session wrote it). To continue, approve one of these:
+    1. The test session fixes the test: `row_order` reads the panes and handles in the order of the page, below the row (the descendants of the row, so that the slot may sit between), and the slot holds the handle and the pane as D-47 says. Then run the milestone again.
+    2. Change D-47 to a flat row: the handle and the detail pane are siblings of the list pane, `engineer-detail-slot` is an empty marker, and the swap uses out-of-band deletes of the old handle and pane. The build session then follows the tests as they are.
 
 ### M30 — Skill tree arrow
 
