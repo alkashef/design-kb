@@ -7,7 +7,8 @@ the milestone's tests and may not read the code in src/. The runner then writes 
 every file under tests/ (not __pycache__), with that block, to .claude/logs/M<n>-tests.json. The
 build session makes the tests pass and may not edit tests/. After it, the runner compares the
 hashes and runs `python scripts/spec_coverage.py M<n>` over a temporary copy of docs/specs.md and
-tests/ with the block it read first (the build session deletes the block from the plan). A test
+tests/ with the block it read first (the build session deletes the block from the plan) and the
+section "Human checks" of the plan, whose spec IDs count as manual. A test
 file that changed, was added or was removed, or a failed coverage check, means the milestone did
 not finish. The same holds when docs/specs.md or a file in docs/ui/ differs from the commit the
 milestone started on: a milestone may not change the spec or an agreed page.
@@ -647,12 +648,30 @@ def load_tests(path: Path) -> SavedTests | None:
     return SavedTests(block=data["block"], hashes=data["hashes"])
 
 
+def human_checks_section(plan: Path) -> list[str]:
+    """Return the section "## Human checks" of the plan, or nothing when there is none.
+
+    The section runs from its heading up to the next heading of level 1 or 2, or to the end.
+    """
+    if not plan.is_file():
+        return []
+    section: list[str] = []
+    inside = False
+    for line in plan.read_text(encoding="utf-8").splitlines():
+        if re.match(r"#{1,2} ", line):
+            inside = line.strip() == "## Human checks"
+        if inside:
+            section.append(line)
+    return section
+
+
 def coverage_problem(root: Path, milestone_id: int, block: Sequence[str]) -> str | None:
     """Run `python scripts/spec_coverage.py M<n>` with the block read before the test session.
 
     The build session deletes the block from the plan, so the script reads a temporary tree: a
-    copy of docs/specs.md and tests/, and a plan that holds only that block. The script reads the
-    spec IDs of its Refs and the `Manual:` parts of its Tests first.
+    copy of docs/specs.md and tests/, and a plan that holds that block followed by the section
+    "Human checks" of the plan, so a spec ID that section names counts as manual. The script reads
+    the spec IDs of its Refs and the `Manual:` parts of its Tests first.
 
     Returns:
         Why the check failed, with its output, or None when it passed.
@@ -662,7 +681,9 @@ def coverage_problem(root: Path, milestone_id: int, block: Sequence[str]) -> str
         (copy / "docs").mkdir()
         shutil.copyfile(root / "docs" / SPEC_FILE, copy / "docs" / SPEC_FILE)
         shutil.copytree(root / "tests", copy / "tests", ignore=shutil.ignore_patterns(SKIPPED_DIR))
-        (copy / "docs" / "plan.md").write_text("\n".join(block) + "\n", encoding="utf-8")
+        human = human_checks_section(root / "docs" / "plan.md")
+        plan_text = "\n".join([*block, "", *human]) + "\n"
+        (copy / "docs" / "plan.md").write_text(plan_text, encoding="utf-8")
         script = root / "scripts" / "spec_coverage.py"
         done = _run([sys.executable, str(script), f"M{milestone_id}", "--root", folder], root)
     if done.returncode == 0:
