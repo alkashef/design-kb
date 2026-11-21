@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ engineer.name }} · design-kb{% endblock %}
 {% block main %}
-<div class="page">
+<div class="pane-row">
+<section class="pane-page" data-pane="engineer" data-pane-flex aria-label="Engineer">
+  <div data-pane-head>
   <div class="crumbs"><a href="/engineers">Engineers</a> / <span>{{ engineer.name }}</span></div>
   <div class="page-head">
     <div>
@@ -13,6 +15,8 @@
       <button class="button-outline button-danger link-button" type="submit">Delete</button>
     </form>
   </div>
+  </div>
+  <div data-pane-body>
   <section class="panel">
     <div class="mono muted">DETAILS</div>
     <dl class="details">
@@ -61,5 +65,7 @@
       {% endfor %}
     </div>
   </section>
+  </div>
+</section>
 </div>
 {% endblock %}

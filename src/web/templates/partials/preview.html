@@ -1,5 +1,5 @@
 {% set engineer = preview.engineer %}
-<div class="preview-card" data-engineer-id="{{ engineer.id }}">
+<div data-pane-head data-engineer-id="{{ engineer.id }}">
   <div class="preview-head">
     <div class="avatar mono">{{ (engineer.name.split()[:2] | map("first") | join) | upper }}</div>
     <div class="preview-who">
@@ -8,6 +8,9 @@
     </div>
     <a class="button-outline link-button" href="/engineers/{{ engineer.id }}">Open full profile</a>
   </div>
+</div>
+<div data-pane-body>
+<div class="preview-card" data-engineer-id="{{ engineer.id }}">
   <div class="preview-section">
     <div class="mono muted">SKILL LEVELS</div>
     <div class="level-grid">
@@ -39,4 +42,5 @@
     <div class="mono muted">SKILL GAPS</div>
     <div class="result-reason">{{ engineer.skill_gaps or "No skill gaps entered." }}</div>
   </div>
+</div>
 </div>

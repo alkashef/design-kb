@@ -8,31 +8,12 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M27** Panes | Every page is a row of panes. Each pane has a frozen head and a body that scrolls alone, and no pane is narrower than 240px | sonnet | high | open |
 | **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | open |
 | **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | open |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
 ## Milestones
-
-### M27 — Panes
-
-- **Refs:** FR-53, FR-54, FR-56, NFR-01, D-45, D-19, D-43. Spec 0.5, section 3.5 and the glossary term Panel. Today each page scrolls as a whole, and the split pages grow with their content (M18). The design section "Panels" gives the panes of each page, what each frozen head holds and the default widths.
-- **Owner:** `src/web/templates/base.html`, the page templates (`search.html`, `partials/search_body.html`, `partials/preview.html`, `engineers.html`, `engineer_profile.html`, `engineer_form.html`, `projects.html`, `skill_tree.html`, `settings.html`) and `src/web/static/app.css`.
-- **Tests first:** route, in a new file `tests/route/test_panes.py`. The tests read the pages through the client and the `app.css` that the Search page links, and merge the plain rules of a selector as `tests/route/test_sidebar_pinned.py` does. The stylesheet selectors are the attribute selectors of the markers: `[data-pane]`, `[data-pane-head]`, `[data-pane-body]` and `[data-pane-flex]`, besides `.shell` and `:root`. The test session changes an existing test only where its requirement changed, and names each one in its report.
-  - `test_fr_53_shell_has_the_height_of_the_window_and_does_not_scroll`: the rule `.shell` has `height` 100vh or 100dvh and `overflow` (or `overflow-y`) `hidden`. It fails today, because `.shell` has a `min-height`.
-  - `test_fr_53_pane_body_scrolls_vertically_on_its_own`: `[data-pane-body]` has `overflow-y: auto` and `min-height: 0`; `[data-pane]` has `display: flex`, `flex-direction: column` and `min-height: 0`.
-  - `test_fr_54_pane_head_does_not_shrink`: `[data-pane-head]` has `flex` `none` or `0 0 auto`.
-  - `test_fr_53_every_pane_has_a_head_then_a_body`: on Search (`/` and a `GET /search?q=pll` with results), Engineers, an engineer profile, the Edit engineer form, Projects with a project selected, Skill tree with a node selected and Settings, each element with `data-pane` has exactly 2 element children, the first with `data-pane-head` and the second with `data-pane-body`. The pane IDs of each page, in order: Search `results`, `preview`; Engineers `engineers`; profile `engineer`; form `engineer-form`; Projects `projects`, `project`, `assignment`; Skill tree `outline`, `node`; Settings `settings`.
-  - `test_fr_54_head_holds_the_title_and_the_search_and_filter_controls`: the head of `engineers` holds the `h1` "Engineers", the input `filter` and the selects `team` and `career_level`; the head of `results` holds the element with `data-result-count`, and the query input `q` is in no `data-pane-body`; the head of `projects` holds the `h1` "Projects"; the head of `outline` holds the `h1` "Skill tree" and the input of the form that posts to `/skill-tree/nodes`; the head of `settings` holds the `h1` "Settings".
-  - `test_fr_53_exactly_one_pane_of_a_page_takes_the_free_width`: on each page of the test above, exactly one pane has `data-pane-flex`: `preview`, `engineers`, `engineer`, `engineer-form`, `project`, `node` and `settings` respectively; and the rule `[data-pane-flex]` has `flex` `1 1 0` (or `1 1 0%`).
-  - `test_fr_56_stylesheet_gives_each_pane_a_minimum_width_of_240px`: `:root` defines `--pane-min` as `240px`, and `[data-pane]` has `min-width: var(--pane-min)`.
-  - `test_nfr_01_body_names_its_page`: `<body>` has `data-page` with the value `search` on `/`, `engineers` on `/engineers`, `skill_tree` on `/skill-tree`, `projects` on `/projects` and `settings` on `/settings`.
-  - Existing tests: `tests/route/test_split_bodies.py` (M18) demands that `.search-body` and `.tree-body` keep a `min-height` and a flex basis above 0, so that the page grows with its content. D-45 replaces that rule, so the test session replaces that test and names it in its report. `tests/route/test_sidebar_pinned.py` stays as it is, because the rule `.sidebar` does not change.
-  - Manual: FR-53, FR-54, FR-56.
-- **Build:** in `base.html`, `<body data-page="{{ active_page }}">`. In `app.css`, give `.shell` the height of the window with `overflow: hidden`, and `.main` `min-height: 0`; keep the rule `.sidebar` as it is. Make each page a row of panes as the design says: `<section data-pane="<id>">` with a first child `data-pane-head` (the title and the search or filter controls) and a second child `data-pane-body` (the rest), with the IDs, heads and flexible pane of the table "Panels". The Search band (mode toggle, query box, filters) stays above the row, outside the panes. Write the rules of "Panels" for `[data-pane]`, `[data-pane-head]`, `[data-pane-body]` and `[data-pane-flex]` and the custom property `--pane-min`; the rows no longer wrap and get `min-height: 0` and `overflow-x: auto`; a page with one pane keeps its content width of 980px inside the body. The fixed panes keep the widths they have today. Change no route, no form field, no message text and no marker of D-29; keep the class `panel` of the cards.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M27` pass.
 
 ### M28 — Panel handles
 

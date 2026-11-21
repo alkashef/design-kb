@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ "Add engineer" if is_new else "Edit engineer" }} · design-kb{% endblock %}
 {% block main %}
-<div class="page">
+<div class="pane-row">
+<section class="pane-page" data-pane="engineer-form" data-pane-flex aria-label="{{ 'Add engineer' if is_new else 'Edit engineer' }}">
+  <div data-pane-head>
   <div class="crumbs"><a href="/engineers">Engineers</a> / <span>{{ "New" if is_new else "Edit" }}</span></div>
   <h1>{{ "Add engineer" if is_new else "Edit engineer" }}</h1>
+  </div>
+  <div data-pane-body>
   {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
   <form class="panel" method="post" action="{{ '/engineers' if is_new else '/engineers/' ~ engineer.id }}">
     {% if not is_new %}
@@ -64,5 +68,7 @@
     {% if flag_message %}<div class="message" role="alert">{{ flag_message }}</div>{% endif %}
   </section>
   {% endif %}
+  </div>
+</section>
 </div>
 {% endblock %}

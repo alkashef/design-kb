@@ -44,6 +44,7 @@
   --danger: #B42318;
   --danger-line: #D9A098;
   --danger-bg: #FBEAE7;
+  --pane-min: 240px;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -59,10 +60,11 @@ a { color: var(--text-muted); }
 a:hover { color: var(--text); }
 
 .shell {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
 }
 
 .sidebar {
@@ -149,6 +151,7 @@ a:hover { color: var(--text); }
 .main {
   flex: 999 1 720px;
   min-width: 0;
+  min-height: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -196,43 +199,62 @@ a:hover { color: var(--text); }
   font-weight: 600;
 }
 
-.search-body {
-  flex: 1 0 auto;
+/* Panes (M27, D-45): a page is a row of panes. The shell has the height of the window; only a
+   pane body scrolls, and its head stays at the top. A fixed pane takes its width from
+   --pane-width; the pane with data-pane-flex takes the free width. */
+.pane-row {
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
-  flex-wrap: wrap;
+  overflow-x: auto;
 }
+
+[data-pane] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: var(--pane-min);
+  box-sizing: border-box;
+}
+
+[data-pane-head] { flex: none; }
+
+[data-pane-body] {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+[data-pane-flex] { flex: 1 1 0; }
+
+/* A page with one pane keeps its content width inside the pane. */
+.pane-page > [data-pane-head], .pane-page > [data-pane-body] {
+  width: 100%;
+  max-width: 980px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.pane-page > [data-pane-head] { padding: 32px 48px 24px; }
+.pane-page > [data-pane-body] { padding: 0 48px 56px; }
+.pane-page > [data-pane-head] p { margin: 0; }
+.pane-page h1 { margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600; }
 
 .results {
-  flex: 0 1 460px;
-  min-width: 320px;
-  box-sizing: border-box;
+  flex: 0 0 var(--pane-width, 460px);
   border-right: 1px solid var(--line);
   background: var(--bg-list);
-  display: flex;
-  flex-direction: column;
 }
 
-.preview {
-  flex: 1 1 420px;
-  background: var(--bg-detail);
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 32px 40px 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.tree-body { flex: 1 0 auto; display: flex; flex-wrap: wrap; }
+.preview { background: var(--bg-detail); }
+.preview > [data-pane-head] { padding: 32px 40px 28px; }
+.preview > [data-pane-body] { padding: 0 40px 48px; }
 
 .outline {
-  flex: 0 1 420px;
-  min-width: 320px;
-  box-sizing: border-box;
+  flex: 0 0 var(--pane-width, 420px);
   border-right: 1px solid var(--line);
   background: var(--bg-list);
-  display: flex;
-  flex-direction: column;
 }
 
 .outline-head { padding: 28px 28px 18px; }
@@ -276,16 +298,9 @@ a:hover { color: var(--text); }
 .outline-branch[open] > summary .caret::before { content: "▾"; }
 .tag { font: 400 11px var(--font-mono); color: var(--text-muted); }
 
-.node-detail {
-  flex: 1 1 460px;
-  min-width: 0;
-  box-sizing: border-box;
-  background: var(--bg-detail);
-  padding: 28px 40px 56px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
+.node-detail { background: var(--bg-detail); }
+.node-detail > [data-pane-head] { padding: 28px 40px 0; display: flex; flex-direction: column; gap: 8px; }
+.node-detail > [data-pane-body] { padding: 24px 40px 56px; display: flex; flex-direction: column; gap: 24px; }
 .node-detail h2 { margin: 0; font-size: 28px; letter-spacing: -0.025em; font-weight: 600; }
 .path { font: 400 12px var(--font-mono); color: var(--text-muted); }
 .node-detail .inline-form { padding: 0; }
@@ -339,8 +354,6 @@ a:hover { color: var(--text); }
 .actions .button-danger { color: var(--danger); }
 
 /* Engineer pages (M4). */
-.page { padding: 32px 48px 56px; display: flex; flex-direction: column; gap: 24px; max-width: 980px; }
-.page h1 { margin: 0; font-size: 30px; letter-spacing: -0.025em; font-weight: 600; }
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
 .crumbs { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
 .link-button { width: auto; padding: 0 20px; text-decoration: none; box-sizing: border-box; display: inline-flex; align-items: center; height: 42px; }
@@ -379,7 +392,9 @@ a:hover { color: var(--text); }
 .role-tag.lead { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
 .spacer { flex-grow: 1; }
 .small { height: 30px; padding: 0 12px; font-size: 12px; width: auto; }
-.assignment-panel { flex: 0 1 340px; min-width: 300px; box-sizing: border-box; padding: 28px; border-left: 1px solid var(--line-soft); background: var(--bg); display: flex; flex-direction: column; gap: 20px; }
+.assignment-panel { flex: 0 0 var(--pane-width, 340px); border-left: 1px solid var(--line-soft); background: var(--bg); }
+.assignment-panel > [data-pane-head] { padding: 28px 28px 20px; }
+.assignment-panel > [data-pane-body] { padding: 0 28px 28px; }
 .assignment-panel h2 { margin: 0; font-size: 18px; font-weight: 600; }
 .panel input[readonly] { color: var(--text-muted); }
 .threshold-table table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 14px; }

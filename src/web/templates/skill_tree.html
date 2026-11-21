@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Skill tree · design-kb{% endblock %}
 {% block main %}
-<div class="tree-body">
-  <section class="outline" aria-label="Outline editor">
+<div class="pane-row">
+  <section class="outline" data-pane="outline" aria-label="Outline editor">
+    <div data-pane-head>
     <div class="outline-head">
       <h1>Skill tree</h1>
     </div>
@@ -11,6 +12,8 @@
       <input type="text" name="name" aria-label="Name of the new top-level skill" placeholder="New top-level skill" required>
       <button class="button-accent" type="submit">Add top-level skill</button>
     </form>
+    </div>
+    <div data-pane-body>
     <p class="hint">Levels and assignments attach to leaves: the nodes with no children.</p>
     <div class="outline-rows">
       {% macro row(node, depth, leaf) %}
@@ -34,12 +37,18 @@
       {% endmacro %}
       {{ branch("", 0) }}
     </div>
+    </div>
   </section>
-  <section class="node-detail" aria-label="Node detail">
-    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+  <section class="node-detail" data-pane="node" data-pane-flex aria-label="Node detail">
+    <div data-pane-head>
     {% if selected %}
     <div class="path">{{ selected_path }}</div>
     <h2>{{ selected.name }}{% if selected_is_leaf %} <span class="tag">Leaf</span>{% endif %}</h2>
+    {% endif %}
+    </div>
+    <div data-pane-body>
+    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+    {% if selected %}
     <form class="panel" method="post" action="/skill-tree/nodes/{{ selected.id }}">
       <label for="n-name">Name</label>
       <input id="n-name" type="text" name="name" value="{{ selected.name }}" required>
@@ -77,6 +86,7 @@
     {% else %}
     <p class="hint">Select a skill in the outline to edit it.</p>
     {% endif %}
+    </div>
   </section>
 </div>
 {% endblock %}

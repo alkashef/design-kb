@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Settings · design-kb{% endblock %}
 {% block main %}
-<div class="page-head"><h1>Settings</h1></div>
+<div class="pane-row">
+<section class="pane-page" data-pane="settings" data-pane-flex aria-label="Settings">
+<div data-pane-head>
+  <div class="page-head"><h1>Settings</h1></div>
+  <p class="muted">Set how many projects an engineer needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the engineer. Leave "to" empty for no upper limit. Saving recomputes every level.</p>
+</div>
+<div data-pane-body>
 {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
 <form class="panel" method="post" action="/settings/thresholds">
   <h2>Level thresholds</h2>
-  <p class="muted">Set how many projects an engineer needs on a skill to reach each computed level. Levels 1 and 5 are set by hand on the engineer. Leave "to" empty for no upper limit. Saving recomputes every level.</p>
   <div class="table threshold-table">
     <table>
       <thead>
@@ -45,4 +50,7 @@
     <button class="button-outline" type="submit" formaction="/settings/thresholds/reset" formnovalidate>Reset to defaults</button>
   </div>
 </form>
+</div>
+</section>
+</div>
 {% endblock %}

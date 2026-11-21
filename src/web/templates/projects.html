@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Projects · design-kb{% endblock %}
 {% block main %}
-<div class="tree-body">
-  <section class="outline" aria-label="Projects">
-    <div class="outline-head page-head">
+<div class="pane-row">
+  <section class="outline" data-pane="projects" aria-label="Projects">
+    <div data-pane-head class="outline-head page-head">
       <h1>Projects</h1>
       <a class="button-accent link-button" href="/projects/new">New</a>
     </div>
+    <div data-pane-body>
     <div class="outline-rows">
       {% for p in projects %}
       <a class="outline-row{% if selected and selected.id == p.id %} selected{% endif %}" style="padding-left: 28px" href="/projects/{{ p.id }}" data-project-id="{{ p.id }}">
@@ -15,11 +16,19 @@
       {% endfor %}
     </div>
     <div class="table-foot"><span>{{ projects|length }} PROJECTS</span></div>
+    </div>
   </section>
-  <section class="node-detail" aria-label="Project detail">
-    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+  <section class="node-detail" data-pane="project" data-pane-flex aria-label="Project detail">
+    <div data-pane-head>
     {% if mode != "view" %}
     <h2>{{ "New project" if mode == "new" else "Edit project" }}</h2>
+    {% elif selected %}
+    <h2>{{ selected.name }}</h2>
+    {% endif %}
+    </div>
+    <div data-pane-body>
+    {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+    {% if mode != "view" %}
     <form class="panel" method="post" action="{{ '/projects' if mode == 'new' else '/projects/' ~ selected.id }}">
       <label for="p-name">Project name</label>
       <input id="p-name" type="text" name="name" value="{{ form.name }}" required>
@@ -35,7 +44,6 @@
       </div>
     </form>
     {% elif selected %}
-    <h2>{{ selected.name }}</h2>
     <div><span class="tag">{{ selected.process_technology }}</span> <span class="tag">{{ selected.year }}</span></div>
     <p>{{ selected.description }}</p>
     <div class="actions">
@@ -65,10 +73,14 @@
     {% else %}
     <p class="hint">No project yet. Choose New to add one.</p>
     {% endif %}
+    </div>
   </section>
   {% if mode == "view" and selected %}
-  <aside class="assignment-panel" aria-label="{{ 'Edit assignment' if editing_id else 'Add assignment' }}">
-    <h2>{{ "Edit assignment" if editing_id else "Add assignment" }}</h2>
+  <section class="assignment-panel" data-pane="assignment" aria-label="{{ 'Edit assignment' if editing_id else 'Add assignment' }}">
+    <div data-pane-head>
+      <h2>{{ "Edit assignment" if editing_id else "Add assignment" }}</h2>
+    </div>
+    <div data-pane-body>
     <form class="panel" method="post" action="{{ '/assignments/' ~ editing_id if editing_id else '/projects/' ~ selected.id ~ '/assignments' }}">
       <label for="a-project">Project</label>
       <input id="a-project" type="text" value="{{ selected.name }}" readonly>
@@ -98,7 +110,8 @@
         {% if editing_id %}<a class="button-outline link-button" href="/projects/{{ selected.id }}">Cancel</a>{% endif %}
       </div>
     </form>
-  </aside>
+    </div>
+  </section>
   {% endif %}
 </div>
 {% endblock %}

@@ -1,7 +1,10 @@
-<div class="search-body" id="search-body">
-  <section class="results" aria-label="Results">
+<div class="pane-row" id="search-body">
+  <section class="results" data-pane="results" aria-label="Results">
+    <div data-pane-head>
+      <div class="mono muted result-count" data-result-count="{{ results|length }}">{{ results|length }} RESULTS</div>
+    </div>
+    <div data-pane-body>
     {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
-    <div class="mono muted result-count" data-result-count="{{ results|length }}">{{ results|length }} RESULTS</div>
     {% for r in results %}
     <div class="result{% if loop.first %} selected{% endif %}" tabindex="0" data-engineer-id="{{ r.engineer.id }}" hx-get="/search/preview/{{ r.engineer.id }}" hx-target="#preview" hx-swap="innerHTML" hx-trigger="click, keyup[key=='Enter']">
       <div class="result-rank mono">{{ "%02d"|format(r.rank) }}</div>
@@ -21,8 +24,9 @@
     {% else %}
     {% if not message %}<div class="muted empty">{{ "No matching experience found." if q else "Type a query to search for experience." }}</div>{% endif %}
     {% endfor %}
+    </div>
   </section>
-  <section class="preview" id="preview" aria-label="Engineer preview">
-    {% if preview %}{% include "partials/preview.html" %}{% endif %}
+  <section class="preview" id="preview" data-pane="preview" data-pane-flex aria-label="Engineer preview">
+    {% if preview %}{% include "partials/preview.html" %}{% else %}<div data-pane-head></div><div data-pane-body></div>{% endif %}
   </section>
 </div>

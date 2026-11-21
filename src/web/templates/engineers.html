@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Engineers · design-kb{% endblock %}
 {% block main %}
-<div class="page">
+<div class="pane-row">
+<section class="pane-page" data-pane="engineers" data-pane-flex aria-label="Engineers">
+  <div data-pane-head>
   <div class="page-head">
     <h1>Engineers</h1>
     <a class="button-accent link-button" href="/engineers/new">Add engineer</a>
@@ -18,6 +20,8 @@
     </select>
     <button class="button-outline fit" type="submit">Filter</button>
   </form>
+  </div>
+  <div data-pane-body>
   <div class="table">
     <div class="table-row engineer-row table-head"><span>ID</span><span>NAME</span><span>JOB TITLE</span><span>TEAM</span><span>CAREER</span><span>TOP SKILLS</span></div>
     {% for e in result.rows %}
@@ -34,5 +38,7 @@
       </span>
     </div>
   </div>
+  </div>
+</section>
 </div>
 {% endblock %}
