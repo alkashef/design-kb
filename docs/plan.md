@@ -8,7 +8,7 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | open |
+| **M28** Panel handles | A handle between the panes of a page. `panes.js` drags it, keeps the widths of each page in the browser, and a sidebar button resets them | sonnet | high | blocked |
 | **M29** Engineer detail pane | A click on an engineer row opens a detail panel on the right with a Close control, and the list narrows | sonnet | high | open |
 | **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
@@ -31,6 +31,12 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
   - Manual: FR-55, FR-56, FR-57, FR-58.
 - **Build:** write `panes.js` as D-46 says. It uses event delegation on `document` and pointer events, so that a handle that HTMX swaps in works. A drag changes `--pane-width` (in pixels, on the pane) of the nearest pane without `data-pane-flex`: the pane on the left of the handle, or the one on the right when the left one is the flexible pane. It stops where either neighbour would get narrower than `--pane-min` (read with `getComputedStyle` from `:root`). It keeps `{pane id: pixels}` in `localStorage` under `design-kb.panes.<page>` (`<page>` is `data-page` of `<body>`), inside `try/catch`, because a blocked storage must not break the page; it applies the kept widths at load and after `htmx:afterSwap`. The button `data-pane-reset` deletes the key and the `--pane-width` values; it is rendered `hidden` and shown by the script only when the page has a handle. Every function has a one-line JSDoc. In `base.html`, link `/static/panes.js` and put the button in the sidebar footer above "Add engineer", with the look of "Panels". Add the handles to the Search body partial, to Projects and to Skill tree. In `app.css`, write the rule of the handle (8px, no fill, a 2px line in `--line-strong`, `--accent` on hover and while dragging) and give the fixed panes `flex: 0 0 var(--pane-width, <default>)`. No new library and no new setting.
 - **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M28` pass.
+- **Blocked:** The test `test_fr_58_every_page_has_the_reset_button_in_the_sidebar` cannot pass with any build, and a build session may not change a file in `tests/`.
+  - `tests/route/test_pane_handles.py`, lines 169-174: `outside` lists the elements of a second `parse(response.text)` that have `data-pane-reset` and are `not in parts`, where `parts` comes from the first parse (`sidebar_of`). `Element` in `tests/builders.py` has no `__eq__`, so the comparison is by object identity, and the elements of two parses are never the same object. Thus `outside` always holds the reset button, and `assert outside == []` fails, while the same test needs exactly one such button (line 164).
+  - I built the rest (`src/web/static/panes.js`, the rules and markers of `app.css`, `base.html`, and the Search, Projects and Skill tree templates). 161 tests passed, and the other 2 failures were the test above and a fault of mine in `panes.js` (an anonymous callback with no JSDoc; easy to fix). I undid all of it, so that only `plan.md` changes.
+  - Nothing else was changed. To continue, approve one of these:
+    1. The test session fixes the test: compare against the first parse, for example `outside = [e for e in sidebar_descendants_of_second_parse...]` or count `data-pane-reset` in the whole page (`len(...) == 1`, and it is inside `sidebar`), or give `Element` an `__eq__`. Then run the milestone again.
+    2. Allow the build session to edit `tests/route/test_pane_handles.py` for this one assertion only.
 
 ### M29 — Engineer detail pane
 
