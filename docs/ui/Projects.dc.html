@@ -28,14 +28,15 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; background: #45464A; box-shadow: inset 3px 0 0 #F04A0E; color: #FFFFFF; font-weight: 500;">Projects</a>
       <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none;">Settings</a>
     </nav>
-    <div style="margin-top: auto;">
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+      <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #B8B9BC; font: 400 13px 'JetBrains Mono', monospace;">Reset widths</button>
       <button style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #5C5D62; background: transparent; color: #F4F4F4; font: 500 13px 'JetBrains Mono', monospace;">Add engineer</button>
     </div>
   </aside>
 
   <main style="flex: 999 1 720px; min-width: 0; box-sizing: border-box; display: flex; flex-wrap: wrap;">
 
-    <section aria-label="Projects" style="flex: 0 1 280px; min-width: 240px; box-sizing: border-box; border-right: 1px solid #D6D6D6; background: #E4E4E4; display: flex; flex-direction: column;">
+    <section aria-label="Projects" style="flex: 0 1 280px; min-width: 240px; box-sizing: border-box; background: #E4E4E4; display: flex; flex-direction: column;">
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 28px 24px 18px;">
         <h1 style="margin: 0; font-size: 22px; letter-spacing: -0.02em; font-weight: 600;">Projects</h1>
         <button style="height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: #F04A0E; color: #141416; font: 500 12px 'JetBrains Mono', monospace;">New</button>
@@ -48,6 +49,8 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
       </sc-for>
       <div style="padding: 16px 24px; border-top: 1px solid #D6D6D6; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5E5E61;">6 OF 15 · SAMPLE DATA</div>
     </section>
+
+    <div role="separator" aria-orientation="vertical" aria-label="Resize panels" style="flex: 0 0 8px; position: relative; cursor: col-resize;"><span style="position: absolute; left: 3px; top: 0; bottom: 0; width: 2px; background: #BDBDBD;"></span></div>
 
     <section aria-label="Project detail" style="flex: 1 1 400px; min-width: 0; box-sizing: border-box; padding: 28px 32px 48px; background: #F5F5F5; display: flex; flex-direction: column; gap: 26px;">
       <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px;">
@@ -86,7 +89,9 @@ a{color:#5E5E61}a:hover{color:#1F1F21}nav a{color:#B8B9BC}nav a:hover{color:#FFF
       </div>
     </section>
 
-    <aside aria-label="Add assignment" style="flex: 0 1 340px; min-width: 300px; box-sizing: border-box; padding: 28px 28px 40px; border-left: 1px solid #D6D6D6; background: #EDEDED; display: flex; flex-direction: column; gap: 20px;">
+    <div role="separator" aria-orientation="vertical" aria-label="Resize panels" style="flex: 0 0 8px; position: relative; cursor: col-resize;"><span style="position: absolute; left: 3px; top: 0; bottom: 0; width: 2px; background: #BDBDBD;"></span></div>
+
+    <aside aria-label="Add assignment" style="flex: 0 1 340px; min-width: 300px; box-sizing: border-box; padding: 28px 28px 40px; background: #EDEDED; display: flex; flex-direction: column; gap: 20px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em;">Add assignment</h2>
         <button aria-label="Close" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid #BDBDBD; background: transparent; color: #5E5E61; font: 400 14px 'Inter', sans-serif;">&#x2715;</button>
