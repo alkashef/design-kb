@@ -8,22 +8,9 @@ The milestones that are left, in build order. `docs/workflow.md` gives the loop 
 
 | Milestone | Delivers | Model | Effort | Status |
 | --- | --- | --- | --- | --- |
-| **M30** Skill tree arrow | The arrow or dot of each outline row starts at the left edge of the text above it (fix) | sonnet | low | open |
 | **M31** Add-child sizes | The add-child text box takes the free width of its row and the button has the normal size (fix) | sonnet | low | open |
 
 ## Milestones
-
-### M30 — Skill tree arrow
-
-- **Refs:** NFR-01, D-48, D-19. No requirement changes. The fault: the arrow of a folding row sits at 8px from the left edge (`left: 8 + 22 × depth` px, in a box 20px wide), while the hint text and the title start at 28px and the dot of a leaf at 28px. D-48 puts the caret or dot box, 14px wide with its glyph at the left, at 28px plus 22px for each level of depth, with a gap of 10px to the name.
-- **Owner:** `src/web/templates/skill_tree.html` and `src/web/static/app.css`.
-- **Tests first:** route, in a new file `tests/route/test_skill_tree_outline_alignment.py`, on a tree with a top-level branch, a branch below it, and a leaf at depth 2.
-  - `test_nfr_01_branch_caret_starts_where_the_row_content_starts`: each row with `data-node-id` has the inline style `padding-left` of `28 + 22 × depth` px; each element with the class `caret-toggle` has an inline `left` of the same value as the `padding-left` of its row. It fails today, because the `left` is 20px smaller.
-  - `test_nfr_01_caret_boxes_are_14px_wide_with_the_glyph_at_the_left`: the plain rules `.caret` and `.caret-toggle` have `width: 14px`, and `.caret-toggle` has `text-align: left`. It fails today (12px and 20px).
-  - `test_nfr_01_every_outline_row_starts_with_a_caret_box`: the first element child of each row with `data-node-id`, branch or leaf, has the class `caret`, so that the names of a branch and of a leaf at the same depth start at the same place.
-  - Manual: NFR-01.
-- **Build:** put the caret toggle of a branch at `left` `28 + 22 × depth` px, 14px wide with `text-align: left`, make the box of the leaf dot 14px wide, and give each branch row a hidden `.caret` box like the one of a leaf, so that the name of every row starts 24px right of the box. Keep the structure that the fold tests of M20 read (the row inside the `<summary>`, `<details>` for a node with children). Change no route and no text.
-- **Gate:** `python scripts/check.py` and `python scripts/spec_coverage.py M30` pass.
 
 ### M31 — Add-child sizes
 

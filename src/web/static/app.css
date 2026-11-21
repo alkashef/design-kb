@@ -327,9 +327,10 @@ a:hover { color: var(--text); }
 .outline-row.selected { background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); color: var(--accent-text); font-weight: 600; }
 .outline-name { flex: 1 1 0; min-width: 0; }
 .outline-branch > summary { list-style: none; cursor: pointer; position: relative; }
-.caret-toggle { position: absolute; top: 50%; transform: translateY(-50%); width: 20px; text-align: center; }
+.caret-toggle { position: absolute; top: 50%; transform: translateY(-50%); width: 14px; text-align: left; }
 .outline-branch > summary::-webkit-details-marker { display: none; }
-.caret { width: 12px; color: var(--text-muted); }
+.caret { width: 14px; flex: none; color: var(--text-muted); }
+.caret-hidden { visibility: hidden; }
 .caret::before { content: "·"; }
 .outline-branch > summary .caret::before { content: "▸"; }
 .outline-branch[open] > summary .caret::before { content: "▾"; }
